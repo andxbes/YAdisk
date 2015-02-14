@@ -1,0 +1,59 @@
+import org.ajoberstar.grgit.*
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+
+sourceCompatibility = '1.8'
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+// NetBeans will automatically add "run" and "debug" tasks relying on the
+// "mainClass" property. You may however define the property prior executing
+// tasks by passing a "-PmainClass=<QUALIFIED_CLASS_NAME>" argument.
+//
+// Note however, that you may define your own "run" and "debug" task if you
+// prefer. In this case NetBeans will not add these tasks but you may rely on
+// your own implementation.
+if (!hasProperty('mainClass')) {
+    ext.mainClass = 'Start'
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    // You may define additional repositories, or even remove "mavenCentral()".
+    // Read more about repositories here:
+    //   http://www.gradle.org/docs/current/userguide/dependency_management.html#sec:repositories
+}
+
+dependencies {
+    compile "joda-time:joda-time:2.5"
+    // TODO: Add dependencies here ...
+    // You can read more about how to add dependency here:
+    //   http://www.gradle.org/docs/current/userguide/dependency_management.html#sec:how_to_declare_your_dependencies
+    testCompile group: 'junit', name: 'junit', version: '4.10'
+    compile "org.json:json:20141113"
+    
+}
+
+//создадим батник для запуска сборки без градл
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.11'
+}
+
+
+
+//buildscript {
+//  repositories { mavenCentral() }
+//  dependencies { classpath 'org.ajoberstar:gradle-git:0.2.3' }
+//}
+//import org.ajoberstar.gradle.git.tasks.*
+//
+//task cloneGitRepo(type: GitClone) {
+//    def destination = file("src/main/resources/sdk")
+//        uri = "https://github.com/yandex-disk/yandex-disk-sdk-java.git"
+//        destinationPath = destination
+//        bare = false
+//        enabled = !destination.exists() //to clone only once
+//}
+//
+//compileJava.dependsOn cloneGitRepo
