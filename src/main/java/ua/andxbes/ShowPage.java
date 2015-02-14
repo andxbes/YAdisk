@@ -1,11 +1,12 @@
+package ua.andxbes;
+
 
 
 import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
@@ -31,25 +32,33 @@ public class ShowPage extends Application{
 
     @Override
     public void start(Stage stage) throws Exception {
-	stage.setTitle("HTML");
-        stage.setWidth(600);
-        stage.setHeight(500);
-        Scene scene = new Scene(new Group());
-
-        VBox root = new VBox();     
-
-        final WebView browser = new WebView();
-        final WebEngine webEngine = browser.getEngine();
-        wv = browser;
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setContent(browser);
-        webEngine.load(url);
-
-        root.getChildren().addAll(scrollPane);
-        scene.setRoot(root);
-
+	stage.setTitle("url -"+ url);
+	
+	
+	
+	
+	Group group = new Group();
+	group.autosize();
+        Scene scene = new Scene(group,500,600,Color.LIGHTGREEN);
         stage.setScene(scene);
         stage.show();
+         
+
+        final WebView browser = new WebView();
+	 browser.setMinSize(500, 400);
+	 browser.setPrefSize(500, 400);
+	
+        final WebEngine webEngine = browser.getEngine();
+        wv = browser;
+        webEngine.load(url);
+        group.getChildren().add(browser);
+        
+        
+
+        
+	
+	
+	
     }
     public void start2(String url){
 	ShowPage.url = url;//TODO как-то не правельно 

@@ -14,7 +14,7 @@ sourceCompatibility = '1.8'
 // prefer. In this case NetBeans will not add these tasks but you may rely on
 // your own implementation.
 if (!hasProperty('mainClass')) {
-    ext.mainClass = 'Start'
+    ext.mainClass = 'ua.andxbes.Start'
 }
 
 repositories {
