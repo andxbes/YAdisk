@@ -1,29 +1,26 @@
 package ua.andxbes;
 
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+
  */
 /**
  *
  * @author Andr
  */
 public final class Token {
-    private static int serialNumber = 1 ;
-    
+
+    private static int serialNumber = 1;
+
     private Rest rest;
-   
 
     private String verifCode = null; //действует 10 минут 
-    private static final String urlForReceivingVirifCode = "https://oauth.yandex.ru/authorize";
-    private static final String urlForRecivingToken = "oauth.yandex.ru";
+    public static final String urlForReceivingVirifCode = "https://oauth.yandex.ru/authorize";
+    public static final String urlForRecivingToken = "https://oauth.yandex.ru";
     private String token = null;
 
     public Token(String id, String password) {
@@ -37,12 +34,19 @@ public final class Token {
     }
 
     public void connect(String id, String pas) {
-        queryVerificationCode(id);
-	//exchange_confirmation_code_on_the_token(id, pas);
+	queryVerificationCode(id);
+	exchange_confirmation_code_on_the_token(id, pas);
 
     }
 
-    // заапрос кода потверждения 
+    /* 
+     Запрос кода подтверждения
+
+     https://oauth.yandex.ru/authorize?
+     response_type=code
+     & client_id=<идентификатор приложения>
+     [& state=<произвольная строка>]
+     */
     private void queryVerificationCode(String id) {
 	QueryString queryString = new QueryString();
 	try {
@@ -52,32 +56,28 @@ public final class Token {
 	} catch (UnsupportedEncodingException ex) {
 	    Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null, ex);
 	}
-	
-	
-	
-	brauzer(urlForReceivingVirifCode,queryString);
 
-    }
-
-    private void brauzer(String url ,QueryString queryString) {
-
-	
-	
-	
 	ShowPage sp = new ShowPage();
-	//sp.start2(url+"?"+queryString);
-	
-	
-	
-	
-	
-	
-	
+	verifCode = sp.run(urlForReceivingVirifCode + "?" + queryString);
+
     }
 
-    //обмен кода потверждения на токен
+    /*
+     Обмен кода подтверждения на токен
+    
+     POST /token HTTP/1.1
+     Host: oauth.yandex.ru
+     Content-type: application/x-www-form-urlencoded
+     Content-Length: <длина тела запроса>
+
+     grant_type=authorization_code
+     & code=<код подтверждения>
+     & client_id=<идентификатор приложения>
+     & client_secret=<пароль приложения>
+     */
     private void exchange_confirmation_code_on_the_token(String id, String pas) {
 
+	//TODO Остановился тут 
 	QueryString queryString = new QueryString();
 	if (verifCode == null) {
 	    throw new RuntimeException("Verification code is null");
@@ -98,7 +98,6 @@ public final class Token {
 	    Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null, ex);
 	}
 
-        
     }
 
     @Override

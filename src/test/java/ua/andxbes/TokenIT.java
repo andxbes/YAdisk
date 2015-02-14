@@ -6,7 +6,7 @@ package ua.andxbes;
  * and open the template in the editor.
  */
 
-import ua.andxbes.Token;
+
 import java.util.logging.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -23,8 +23,8 @@ public class TokenIT {
     
     public static final Logger log = Logger.getLogger("TokenIT");
     private Token instance;
-    private String id ="45f708d998054dd29dfc73c7e33c664d" ,
-	    pas ="e32c22762f8c44dea3d3f60626a06d36";
+    public static  String id ="45f708d998054dd29dfc73c7e33c664d" ,
+	                  pas ="e32c22762f8c44dea3d3f60626a06d36";
     
     public TokenIT() {
     }
@@ -66,7 +66,7 @@ public class TokenIT {
     
     @Test
     public void testToString_whoTokken() {
-	System.out.println("id ="+id+"pas="+pas);
+	
 	instance = new Token(id,pas);
 	
 	Assert.assertTrue("Пройден", true);
