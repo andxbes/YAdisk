@@ -64,7 +64,7 @@ public class TokenIT {
 	
     }
     
-    @Test
+    //@Test //TODO Переделать тест с Mockito
     public void testToString_whoTokken() {
 	
 	instance = new Token(id,pas);

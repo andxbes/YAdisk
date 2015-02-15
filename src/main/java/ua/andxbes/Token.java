@@ -1,6 +1,5 @@
 package ua.andxbes;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -92,11 +91,7 @@ public final class Token {
 	    Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null, ex);
 	}
 
-	try {
-	    rest.postRest(urlForRecivingToken, queryString);
-	} catch (IOException ex) {
-	    Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null, ex);
-	}
+	rest.postRest(urlForRecivingToken);
 
     }
 

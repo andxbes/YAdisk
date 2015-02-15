@@ -40,7 +40,7 @@ public class ShowPage extends Application {
 	thisStage = stage;
 	stage.setTitle("url -" + cont.url);
 	Pane root = new WebViewPanel();
-	stage.setScene(new Scene(root, 300, 500));
+	stage.setScene(new Scene(root, 400, 500));
 	stage.show();
     }
 

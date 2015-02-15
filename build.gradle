@@ -26,12 +26,14 @@ repositories {
 }
 
 dependencies {
-    compile "joda-time:joda-time:2.5"
+   
     // TODO: Add dependencies here ...
     // You can read more about how to add dependency here:
     //   http://www.gradle.org/docs/current/userguide/dependency_management.html#sec:how_to_declare_your_dependencies
     testCompile group: 'junit', name: 'junit', version: '4.10'
+    testCompile "org.mockito:mockito-all:1.9.+"
     compile "org.json:json:20141113"
+    //compile "org.apache.httpcomponents:httpclient:4.4"
     
 }
 
