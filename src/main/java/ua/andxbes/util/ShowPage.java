@@ -1,4 +1,4 @@
-package ua.andxbes;
+package ua.andxbes.util;
 
 import java.util.List;
 import java.util.logging.Level;
@@ -99,15 +99,15 @@ public class ShowPage extends Application {
 
     }
 
-    public String   run(String url) {
+    public String run(String url) {
 	ShowPage.cont.url = url;//TODO как-то не правильно 
 
 	launch();
 
 	//Logger.getLogger(this.getClass().getName()).info("После Launch");
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "\nVerification code  = {0}", ShowPage.cont.resultParser());
-	
-	return cont.resultParser();
+	Logger.getLogger(this.getClass().getName()).log(Level.INFO, "\nVerification code  = {0}", ShowPage.cont.getUrl());
+
+	return cont.getUrl();
     }
 
     @Override
@@ -119,28 +119,18 @@ public class ShowPage extends Application {
     @Override
     public void stop() {
 	//Logger.getLogger(this.getClass().getName()).info("Stop");
-	
-       //	Logger.getLogger(this.getClass().getName()).info("Stop url = " + ShowPage.cont.url );
+
+	Logger.getLogger(this.getClass().getName()).info("Stop url = " + ShowPage.cont.url);
 
     }
-    public static  class Container{
-	public  String url;
-	
-	public  String resultParser(){
-	    String[] temp;
-	    temp = url.split("\\?")[1].split("\\&");
-	    
-	    for (String temp1 : temp) {
-		if (temp1.contains("code")) {
-		    return temp1.split("=")[1];
-		}
-	    }
-	return null;
+
+    public static class Container {
+
+	public String url;
+
+	public String getUrl() {
+	    return url;
 	}
-	
-	
-        
-    }    
+
+    }
 }
-
-

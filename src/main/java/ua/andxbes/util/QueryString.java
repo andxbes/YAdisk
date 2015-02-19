@@ -1,4 +1,4 @@
-package ua.andxbes;
+package ua.andxbes.util;
 
 
 import java.io.UnsupportedEncodingException;
