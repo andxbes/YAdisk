@@ -6,6 +6,7 @@
 package ua.andxbes.util;
 
 import java.util.logging.Logger;
+import javafx.stage.Stage;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -14,8 +15,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import ua.andxbes.Start;
 import ua.andxbes.Token;
-
-
 
 /**
  *
@@ -42,32 +41,39 @@ public class ShowPageIT {
     public void tearDown() {
     }
 
-   
-    
-    //@Test
+    @Test
     public void testStartToken() throws Exception {
 	QueryString queryString = new QueryString();
 	queryString.add("response_type", "token")
 		.add("client_id", Start.softwareId)
 		.add("display", "popup")
 		.add("state", "запрос" + 2);
-	String url = Token.urlForReceivingVirifCode + "?" + queryString.toString();
-	ShowPage sp = new ShowPage();
-	String result = sp.run(url);
-	
-    }
 
-    @Test
-    public void testParseUrl() {
-	ShowPage.Container vm = new ShowPage.Container();
-	vm.url = "http://ya.ru/"
-		+ "#state=%D0%B7%D0%B0%D0%BF%D1%80%D0%BE%D1%812"
-		+ "&access_token=d9e46143738e4489b260a790550b3fab"
-		+ "&token_type=bearer"
-		+ "&expires_in=31536000";
-	String result = vm.getUrl();
-	Logger.getLogger(this.getClass().getName()).info("result = " + result);
-	Assert.assertTrue(result.equals("4444"));
+	String url = Token.urlForReceivingToken + "?" + queryString.toString();
+	ShowPage.ConrolShowPanel con = new ShowPage.ConrolShowPanel(url) {
+
+	    @Override
+	    public void variabelMethodForChangedPage(String curentUrl, Stage stage) {
+		//дописать метод для закрытия окна после получения токена 
+		if (curentUrl.equals("https://passport.yandex.ru/auth"
+			+ "?retpath=https%3A%2F%2Foauth.yandex.ru%2Fauthorize%3Fresponse_type"
+			+ "%3Dtoken%26client_id%3D45f708d998054dd29dfc73c7e33c664d%26display%3Dpopup"
+			+ "%26state%3D%25D0%25B7%25D0%25B0%25D0%25BF%25D1%2580%25D0%25BE%25D1%25812")){
+		
+		    stage.hide();
+		 
+		}
+	    }
+	};
+
+	String result = ShowPage.run(con);
+	
+	Logger.getLogger(this.getClass().getName()).info(result);
+	
+	Assert.assertEquals(result, "https://passport.yandex.ru/auth"
+		+ "?retpath=https%3A%2F%2Foauth.yandex.ru%2Fauthorize%3Fresponse_type%3Dtoken"
+		+ "%26client_id%3D45f708d998054dd29dfc73c7e33c664d%26display%3Dpopup"
+		+ "%26state%3D%25D0%25B7%25D0%25B0%25D0%25BF%25D1%2580%25D0%25BE%25D1%25812");
     }
 
 }

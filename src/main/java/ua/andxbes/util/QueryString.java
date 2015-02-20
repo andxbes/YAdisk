@@ -1,8 +1,9 @@
 package ua.andxbes.util;
 
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Map;
+import java.util.TreeMap;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -35,6 +36,19 @@ public class QueryString {
     @Override
     public String toString() {
 	return query.toString();
+    }
+
+    public Map<String, String> parseURL(String url) {
+	Map<String, String> result = new TreeMap<>();
+
+	String response = url.split("#")[1];
+
+	for (String s : response.split("\\&")) {
+	    String[] keyValue = s.split("=");
+	    result.put(keyValue[0], keyValue[1]);
+	}
+
+	return result;
     }
 
 }

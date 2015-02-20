@@ -1,8 +1,6 @@
 package ua.andxbes.util;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -29,16 +27,16 @@ import javafx.stage.Stage;
  */
 public class ShowPage extends Application {
 
-    public static volatile Container cont = new Container();
+    private static volatile ConrolShowPanel cont;
     private Stage thisStage;
-    private WebView wv;
-    private String code;
-    private Stage st;
 
     @Override
     public void start(Stage stage) throws Exception {
+
+	//System.out.println("2");
+
 	thisStage = stage;
-	stage.setTitle("url -" + cont.url);
+	stage.setTitle("url -" + cont.getUrl());
 	Pane root = new WebViewPanel();
 	stage.setScene(new Scene(root, 400, 500));
 	stage.show();
@@ -48,21 +46,23 @@ public class ShowPage extends Application {
 
 	public WebViewPanel() {
 
-	    //  VBox.setVgrow(this, Priority.ALWAYS);
+	   //System.out.println("3");
+
 	    setMaxWidth(Double.MAX_VALUE);
 	    setMaxHeight(Double.MAX_VALUE);
 	    WebView view = new WebView();
 	    view.setMinSize(500, 400);
 	    view.setPrefSize(500, 400);
 	    final WebEngine eng = view.getEngine();
-	    eng.load(cont.url);
+	    eng.load(cont.getUrl());
 
 	    eng.locationProperty().addListener(new ChangeListener<String>() {
 
 		@Override
 		public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-		    cont.url = newValue;
-		    thisStage.setTitle(cont.url);
+		    cont.setUrl( newValue );
+		    thisStage.setTitle(newValue);
+		    cont.variabelMethodForChangedPage(newValue, thisStage);
 		    //тут же и отработать нужное дейстрвие с адресом  , а по возможности создать виртуальный метод для 
 		}
 
@@ -99,38 +99,37 @@ public class ShowPage extends Application {
 
     }
 
-    public String run(String url) {
-	ShowPage.cont.url = url;//TODO как-то не правильно 
-
+    public static String run(ConrolShowPanel c) {
+	//System.out.println("1");
+	cont = c;
+	
 	launch();
-
-	//Logger.getLogger(this.getClass().getName()).info("После Launch");
-	Logger.getLogger(this.getClass().getName()).log(Level.INFO, "\nVerification code  = {0}", ShowPage.cont.getUrl());
+	//System.out.println("4");
 
 	return cont.getUrl();
     }
+//============================================================================================================
 
-    @Override
-    public void init() {
-	//Logger.getLogger("fx").info(cont.url);
-	//Logger.getLogger(this.getClass().getName()).info("Init");
-    }
+    public static abstract class ConrolShowPanel {
 
-    @Override
-    public void stop() {
-	//Logger.getLogger(this.getClass().getName()).info("Stop");
+	private String url;
 
-	Logger.getLogger(this.getClass().getName()).info("Stop url = " + ShowPage.cont.url);
+	public ConrolShowPanel(String startUrl) {
+	    setUrl(startUrl);
+	}
 
-    }
-
-    public static class Container {
-
-	public String url;
+	public void setUrl(String url) {
+	    this.url = url;
+	}
 
 	public String getUrl() {
 	    return url;
 	}
+	/*метод который можно позже переопределить .
+	 Который вызывается во время загрузки новой страницы 
+	 */
+
+	public abstract void variabelMethodForChangedPage(String curentUrl, Stage stage);
 
     }
 }
