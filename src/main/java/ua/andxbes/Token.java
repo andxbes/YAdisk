@@ -118,6 +118,8 @@ public final class Token {
 		+ "\n error=" + error);
     }
 
+     
+     //на высиление =))
     private void showDialog(String error) {
 	Stage st = new Stage();
 	st.initStyle(StageStyle.UTILITY);
