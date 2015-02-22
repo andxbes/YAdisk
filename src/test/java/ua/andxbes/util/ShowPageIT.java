@@ -13,7 +13,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import ua.andxbes.Start;
 import ua.andxbes.Token;
 
 /**
@@ -45,7 +44,7 @@ public class ShowPageIT {
     public void testStartToken() throws Exception {
 	QueryString queryString = new QueryString();
 	queryString.add("response_type", "token")
-		.add("client_id", Start.softwareId)
+		.add("client_id", Token.SOFTWARE_ID)
 		.add("display", "popup")
 		.add("state", "запрос" + 2);
 

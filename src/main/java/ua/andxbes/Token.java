@@ -1,5 +1,12 @@
 package ua.andxbes;
 
+import com.google.gson.Gson;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import ua.andxbes.util.QueryString;
 import ua.andxbes.util.ShowPage;
 import java.io.UnsupportedEncodingException;
@@ -22,21 +29,36 @@ import javafx.stage.StageStyle;
  */
 public final class Token {
 
-    private static int serialNumber = 1;
+    // "код" и "адрес приложения"  зарегестрированные на яндекс диске.
 
-    public static final String urlForReceivingToken = "https://oauth.yandex.ru/authorize";
+    public final static String SOFTWARE_ID = "45f708d998054dd29dfc73c7e33c664d",
+	    CALLBACK_URL = "http://ya.ru/";
+
+    public static final String urlForReceivingToken = "https://oauth.yandex.ru/authorize",
+	    fileSave = "./save.txt";
 
     private String access_token = null;
     private long endTimeToken = 0;
 
-    public Token(String id) {
+    private static Token token;
 
-	this();
-	queryToken(id);
+    public static Token instance() {
+	if (token == null) {
+
+	    try {
+		loadFieldInFile();
+	    } catch (FileNotFoundException ex) {
+		Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null, ex);
+		token = new Token();
+	    }
+
+	}
+
+	return token;
     }
 
-    Token() {
-	//bla bla =) 
+    private  Token() {
+	queryToken();
     }
 
     /* 
@@ -48,19 +70,20 @@ public final class Token {
      [& display=popup]
      [& state=<произвольная строка>]
      */
-    private void queryToken(String softwareId) {
+    private void queryToken() {
 	try {
 	    QueryString queryString = new QueryString();
 	    queryString.add("response_type", "token")
-		    .add("client_id", softwareId)
+		    .add("client_id", SOFTWARE_ID)
 		    .add("display", "popup")
 		    .add("state", "((: give me token :))");
 	    String url = Token.urlForReceivingToken + "?" + queryString.toString();
+
 	    String endUrl = ShowPage.run(new ShowPage.ConrolShowPanel(url) {
 
 		@Override
 		public void variabelMethodForChangedPage(String curentUrl, Stage stage) {
-		    if ("http://ya.ru/".equals(curentUrl.split("#")[0])) {
+		    if (CALLBACK_URL.equals(curentUrl.split("#")[0])) {
 			stage.close();
 		    }
 		}
@@ -69,16 +92,13 @@ public final class Token {
 	    Map<String, String> result = queryString.parseURL(endUrl);
 
 	    extractFieldfromMap(result);
-	    
-	    
+	    saveFieldinFile();
 
 	} catch (UnsupportedEncodingException ex) {
 	    Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null, ex);
 	}
 
     }
-
-   
 
     /*
      Ответ OAuth-сервера
@@ -99,13 +119,52 @@ public final class Token {
 
     
      */
-    
-    private void saveFieldinFile(){
-    
-    
+    private void saveFieldinFile() {
+	Gson gson = new Gson();
+	String json = gson.toJson(this);
+
+	System.out.println("json =" + json);
+
+	try (FileWriter fw = new FileWriter(new File(fileSave));) {
+
+	    fw.write(json);
+
+	} catch (IOException ex) {
+	    Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null, ex);
+	}
+
     }
-    
-     private void extractFieldfromMap(Map<String, String> result) throws NumberFormatException {
+
+    private static void loadFieldInFile() throws FileNotFoundException {
+	StringBuilder json = new StringBuilder();
+	FileReader fr = new FileReader(new File(fileSave));
+	BufferedReader br = new BufferedReader(fr);
+
+	System.out.println(fr.getEncoding());
+
+	try {
+	    while (br.ready()) {
+		json.append(br.readLine());
+	    }
+	} catch (IOException ex) {
+	    Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null, "Ошибка чтения " + ex);
+	} finally {
+
+	    try {
+		br.close();
+	    } catch (IOException ex) {
+		Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null, "Ошибка закрытия потока " + ex);
+	    }
+
+	}
+
+	Gson gson = new Gson();
+
+	token = gson.fromJson(json.toString(), Token.class);
+
+    }
+
+    private void extractFieldfromMap(Map<String, String> result) throws NumberFormatException {
 	String error = result.get("error");
 	access_token = result.get("access_token");
 	endTimeToken = (Long.parseLong(result.get("expires_in")) * 60) + Calendar.getInstance().getTimeInMillis();
@@ -118,8 +177,7 @@ public final class Token {
 		+ "\n error=" + error);
     }
 
-     
-     //на высиление =))
+    //на высиление =)) , в новой версии javaFX ,однойстрокой можно , через  Dialogs
     private void showDialog(String error) {
 	Stage st = new Stage();
 	st.initStyle(StageStyle.UTILITY);
@@ -127,29 +185,15 @@ public final class Token {
 	st.setScene(scene);
 	st.show();
     }
-    
+
     @Override
     public String toString() {
 
-	if (getAccess_token() == null) {
+	if (access_token == null) {
 	    throw new RuntimeException("Token is null");
 	}
-	return getAccess_token();
-
-    }
-
-    /**
-     * @return the access_token
-     */
-    public String getAccess_token() {
 	return access_token;
-    }
 
-    /**
-     * @param access_token the access_token to set
-     */
-    public void setAccess_token(String access_token) {
-	this.access_token = access_token;
     }
 
 }
