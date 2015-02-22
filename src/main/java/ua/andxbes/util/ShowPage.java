@@ -33,7 +33,7 @@ public class ShowPage extends Application {
     @Override
     public void start(Stage stage) throws Exception {
 
-	//System.out.println("2");
+	
 
 	thisStage = stage;
 	stage.setTitle("url -" + cont.getUrl());
@@ -46,7 +46,7 @@ public class ShowPage extends Application {
 
 	public WebViewPanel() {
 
-	   //System.out.println("3");
+
 
 	    setMaxWidth(Double.MAX_VALUE);
 	    setMaxHeight(Double.MAX_VALUE);
@@ -63,7 +63,6 @@ public class ShowPage extends Application {
 		    cont.setUrl( newValue );
 		    thisStage.setTitle(newValue);
 		    cont.variabelMethodForChangedPage(newValue, thisStage);
-		    //тут же и отработать нужное дейстрвие с адресом  , а по возможности создать виртуальный метод для 
 		}
 
 	    });
@@ -100,12 +99,8 @@ public class ShowPage extends Application {
     }
 
     public static String run(ConrolShowPanel c) {
-	//System.out.println("1");
 	cont = c;
-	
 	launch();
-	//System.out.println("4");
-
 	return cont.getUrl();
     }
 //============================================================================================================

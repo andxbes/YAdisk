@@ -10,7 +10,8 @@ import java.io.IOException;
 import ua.andxbes.util.QueryString;
 import ua.andxbes.util.ShowPage;
 import java.io.UnsupportedEncodingException;
-import java.util.Calendar;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -46,12 +47,12 @@ public final class Token {
 	if (token == null) {
 
 	    try {
-		System.out.println("Грузим файл ");
+		Logger.getLogger(Token.class.getName()).log(Level.INFO, "LoadFile");
 		loadFieldFromFile();
 		
 	    } catch (FileNotFoundException ex) {
-		System.out.println("Не загрузили файл");
-		Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null, ex);
+		
+		Logger.getLogger(Token.class.getName()).log(Level.INFO, "Dont load file. Query token from " + urlForReceivingToken, ex);
 		token = new Token();
 		token.queryToken();
 	    }
@@ -71,6 +72,25 @@ public final class Token {
      & client_id=<идентификатор приложения>
      [& display=popup]
      [& state=<произвольная строка>]
+     */
+        /*
+     Ответ OAuth-сервера
+     myapp://token#
+     access_token=<новый OAuth-токен>
+     & expires_in=<время жизни токена в секундах>
+     [& state=<значение параметра state, переданное в запросе>]
+    
+     В случае ошибки 
+     myapp://token#
+     state=<значение параметра state в запросе>
+     & error=<код ошибки>
+
+     Возможные коды ошибок:
+
+     access_denied — пользователь отказал приложению в доступе.
+     unauthorized_client — приложение было отклонено при модерации или только ожидает ее. Также возвращается, если приложение заблокировано.
+
+    
      */
     private void queryToken() {
 	try {
@@ -102,25 +122,7 @@ public final class Token {
 
     }
 
-    /*
-     Ответ OAuth-сервера
-     myapp://token#
-     access_token=<новый OAuth-токен>
-     & expires_in=<время жизни токена в секундах>
-     [& state=<значение параметра state, переданное в запросе>]
-    
-     В случае ошибки 
-     myapp://token#
-     state=<значение параметра state в запросе>
-     & error=<код ошибки>
 
-     Возможные коды ошибок:
-
-     access_denied — пользователь отказал приложению в доступе.
-     unauthorized_client — приложение было отклонено при модерации или только ожидает ее. Также возвращается, если приложение заблокировано.
-
-    
-     */
     private void saveFieldinFile() {
 	Gson gson = new Gson();
 	String json = gson.toJson(this);
@@ -142,20 +144,18 @@ public final class Token {
 	FileReader fr = new FileReader(new File(fileSave));
 	BufferedReader br = new BufferedReader(fr);
 
-	System.out.println(fr.getEncoding());
-
 	try {
 	    while (br.ready()) {
 		json.append(br.readLine());
 	    }
 	} catch (IOException ex) {
-	    Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null, "Ошибка чтения " + ex);
+	    Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null, ex);
 	} finally {
 
 	    try {
 		br.close();
 	    } catch (IOException ex) {
-		Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null, "Ошибка закрытия потока " + ex);
+		Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null,ex);
 	    }
 
 	}
@@ -169,17 +169,14 @@ public final class Token {
     private void extractFieldfromMap(Map<String, String> result) throws NumberFormatException {
 	String error = result.get("error");
 	access_token = result.get("access_token");
-	endTimeToken = (Long.parseLong(result.get("expires_in")) * 60) + Calendar.getInstance().getTimeInMillis();
+	endTimeToken = System.currentTimeMillis() + (Long.parseLong(result.get("expires_in"))*1000) ;
 
 	if (error != null || access_token == null && endTimeToken == 0) {
 	    showDialog(error);
 	}
-
-	Logger.getLogger(Token.class.getName()).info("\naccess_token=" + access_token + "\n endTime=" + endTimeToken
-		+ "\n error=" + error);
     }
 
-    //на высиление =)) , в новой версии javaFX ,однойстрокой можно , через  Dialogs
+    //на высиление =)) , в новой версии javaFX ,можно одной строкой  , через  Dialogs
     private void showDialog(String error) {
 	Stage st = new Stage();
 	st.initStyle(StageStyle.UTILITY);
@@ -194,6 +191,10 @@ public final class Token {
 	if (access_token == null) {
 	    throw new RuntimeException("Token is null");
 	}
+	
+	
+	
+	Logger.getLogger(Token.class.getName()).log(Level.INFO, "endToken -{0}", new  SimpleDateFormat("dd.MM.yyyy").format(new Date(endTimeToken)));
 	return access_token;
 
     }
