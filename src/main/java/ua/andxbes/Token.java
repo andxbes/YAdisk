@@ -46,10 +46,14 @@ public final class Token {
 	if (token == null) {
 
 	    try {
-		loadFieldInFile();
+		System.out.println("Грузим файл ");
+		loadFieldFromFile();
+		
 	    } catch (FileNotFoundException ex) {
+		System.out.println("Не загрузили файл");
 		Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null, ex);
 		token = new Token();
+		token.queryToken();
 	    }
 
 	}
@@ -57,9 +61,7 @@ public final class Token {
 	return token;
     }
 
-    private  Token() {
-	queryToken();
-    }
+    private  Token() {}
 
     /* 
      Запрос кода подтверждения
@@ -135,7 +137,7 @@ public final class Token {
 
     }
 
-    private static void loadFieldInFile() throws FileNotFoundException {
+    private static void loadFieldFromFile() throws FileNotFoundException {
 	StringBuilder json = new StringBuilder();
 	FileReader fr = new FileReader(new File(fileSave));
 	BufferedReader br = new BufferedReader(fr);
