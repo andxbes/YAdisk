@@ -15,11 +15,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
+import javax.swing.JOptionPane;
 
 /*
 
@@ -31,7 +28,6 @@ import javafx.stage.StageStyle;
 public final class Token {
 
     // "код" и "адрес приложения"  зарегестрированные на яндекс диске.
-
     public final static String SOFTWARE_ID = "45f708d998054dd29dfc73c7e33c664d",
 	    CALLBACK_URL = "http://ya.ru/";
 
@@ -49,9 +45,9 @@ public final class Token {
 	    try {
 		Logger.getLogger(Token.class.getName()).log(Level.INFO, "LoadFile");
 		loadFieldFromFile();
-		
+
 	    } catch (FileNotFoundException ex) {
-		
+
 		Logger.getLogger(Token.class.getName()).log(Level.INFO, "Dont load file. Query token from " + urlForReceivingToken, ex);
 		token = new Token();
 		token.queryToken();
@@ -62,7 +58,8 @@ public final class Token {
 	return token;
     }
 
-    private  Token() {}
+    private Token() {
+    }
 
     /* 
      Запрос кода подтверждения
@@ -73,7 +70,7 @@ public final class Token {
      [& display=popup]
      [& state=<произвольная строка>]
      */
-        /*
+    /*
      Ответ OAuth-сервера
      myapp://token#
      access_token=<новый OAuth-токен>
@@ -122,7 +119,6 @@ public final class Token {
 
     }
 
-
     private void saveFieldinFile() {
 	Gson gson = new Gson();
 	String json = gson.toJson(this);
@@ -155,7 +151,7 @@ public final class Token {
 	    try {
 		br.close();
 	    } catch (IOException ex) {
-		Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null,ex);
+		Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null, ex);
 	    }
 
 	}
@@ -169,20 +165,15 @@ public final class Token {
     private void extractFieldfromMap(Map<String, String> result) throws NumberFormatException {
 	String error = result.get("error");
 	access_token = result.get("access_token");
-	endTimeToken = System.currentTimeMillis() + (Long.parseLong(result.get("expires_in"))*1000) ;
+	endTimeToken = System.currentTimeMillis() + (Long.parseLong(result.get("expires_in")) * 1000);
 
 	if (error != null || access_token == null && endTimeToken == 0) {
 	    showDialog(error);
 	}
     }
 
-    //на высиление =)) , в новой версии javaFX ,можно одной строкой  , через  Dialogs
     private void showDialog(String error) {
-	Stage st = new Stage();
-	st.initStyle(StageStyle.UTILITY);
-	Scene scene = new Scene(new Group(new Text(25, 25, "Что-то пошло не так ! \n" + error)));
-	st.setScene(scene);
-	st.show();
+	JOptionPane.showMessageDialog(null, error);
     }
 
     @Override
@@ -191,10 +182,8 @@ public final class Token {
 	if (access_token == null) {
 	    throw new RuntimeException("Token is null");
 	}
-	
-	
-	
-	Logger.getLogger(Token.class.getName()).log(Level.INFO, "endToken -{0}", new  SimpleDateFormat("dd.MM.yyyy").format(new Date(endTimeToken)));
+
+	Logger.getLogger(Token.class.getName()).log(Level.INFO, "endToken -{0}", new SimpleDateFormat("dd.MM.yyyy").format(new Date(endTimeToken)));
 	return access_token;
 
     }
