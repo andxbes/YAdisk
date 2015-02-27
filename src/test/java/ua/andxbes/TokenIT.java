@@ -5,6 +5,8 @@
  */
 package ua.andxbes;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -45,6 +47,7 @@ public class TokenIT {
 	//Token instance = new Token();
 	Token instance = Token.instance();
 	
+	Logger.getLogger(TokenIT.class.getName()).log(Level.INFO, instance.toString() );
 	 try {
 	      Assert.assertTrue(instance.toString()!= null);
 	 } catch (RuntimeException e) {

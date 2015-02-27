@@ -186,7 +186,7 @@ public final class Token {
 	    throw new RuntimeException("Token is null");
 	}
 
-	Logger.getLogger(Token.class.getName()).log(Level.INFO, "endToken -{0}", new SimpleDateFormat("dd.MM.yyyy").format(new Date(endTimeToken)));
+	Logger.getLogger(Token.class.getName()).log(Level.INFO, "endToken - {0}", new SimpleDateFormat("dd.MM.yyyy").format(new Date(endTimeToken)));
 	return access_token;
 
     }
