@@ -17,6 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.stage.Stage;
 import javax.swing.JOptionPane;
+import ua.andxbes.util.SecuritySettings;
 
 /*
 
@@ -123,11 +124,9 @@ public final class Token {
 	Gson gson = new Gson();
 	String json = gson.toJson(this);
 
-	System.out.println("json =" + json);
-
 	try (FileWriter fw = new FileWriter(new File(fileSave));) {
 
-	    fw.write(json);
+	    fw.write( SecuritySettings.encrypt(json) );
 
 	} catch (IOException ex) {
 	    Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null, ex);
@@ -158,7 +157,11 @@ public final class Token {
 
 	Gson gson = new Gson();
 
-	token = gson.fromJson(json.toString(), Token.class);
+	try {
+	    token = gson.fromJson(SecuritySettings.decrypt(json.toString()), Token.class);
+	} catch (IOException ex) {
+	    Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null, ex);
+	}
 
     }
 
