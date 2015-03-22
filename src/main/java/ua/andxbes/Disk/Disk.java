@@ -11,7 +11,7 @@ package ua.andxbes.Disk;
  */
 public class Disk {
 
-  private   int trash_size,
+  private   long trash_size,
 	        total_space,
 	        used_space;
 
@@ -20,7 +20,7 @@ public class Disk {
     /**
      * @return the trash_size
      */
-    public int getTrash_size() {
+    public long getTrash_size() {
 	return trash_size;
     }
 
@@ -34,7 +34,7 @@ public class Disk {
     /**
      * @return the total_space
      */
-    public int getTotal_space() {
+    public long getTotal_space() {
 	return total_space;
     }
 
@@ -48,7 +48,7 @@ public class Disk {
     /**
      * @return the used_space
      */
-    public int getUsed_space() {
+    public long getUsed_space() {
 	return used_space;
     }
 
@@ -72,5 +72,14 @@ public class Disk {
     public void setSystem_folders(SystemFolders system_folders) {
 	this.system_folders = system_folders;
     }
+
+    @Override
+    public String toString() {
+	return "Disk{" + "trash_size=" + trash_size + ", total_space=" + total_space + ", used_space=" + used_space + ", system_folders=" + system_folders + '}';
+    }
+
+
+    
+    
 
 }

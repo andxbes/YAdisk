@@ -33,7 +33,7 @@ public final class Token {
 	    CALLBACK_URL = "http://ya.ru/";
 
     public static final String urlForReceivingToken = "https://oauth.yandex.ru/authorize",
-	    fileSave = "./save.txt";
+	    fileSave = "./save.token";
 
     private String access_token = null;
     private long endTimeToken = 0;

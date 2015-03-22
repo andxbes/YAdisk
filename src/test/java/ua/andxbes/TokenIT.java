@@ -19,8 +19,10 @@ import org.junit.Test;
  * @author Andr
  */
 public class TokenIT {
+    private Token instance;
     
     public TokenIT() {
+	instance = Token.instance();
     }
     
     @BeforeClass
@@ -39,13 +41,13 @@ public class TokenIT {
     public void tearDown() {
     }
     
+    @Test
+    public void getToken(){
+          Assert.assertTrue(instance.toString(), instance != null);
+    }
     
     @Test
     public void token() {
-	
-	
-	//Token instance = new Token();
-	Token instance = Token.instance();
 	
 	Logger.getLogger(TokenIT.class.getName()).log(Level.INFO, instance.toString() );
 	 try {
@@ -55,6 +57,8 @@ public class TokenIT {
 	 }
 
     }
+    
+ 
    
     
 }

@@ -40,6 +40,11 @@ public class SystemFolders {
     public void setDownloads(String downloads) {
 	this.downloads = downloads;
     }
+
+    @Override
+    public String toString() {
+	return "SystemFolders{" + "applications=" + applications + ", downloads=" + downloads + '}';
+    }
    
     
 }

@@ -60,7 +60,7 @@ public class Query {
 	    }
 
 	    String result = responseContent.toString();
-	    log.log(Level.INFO, "result = {0}", result);
+	    //log.log(Level.INFO, "result = {0}", result);
 
 	    if (code == 200) {
 		disk = new Gson().fromJson(result, Disk.class);

@@ -5,12 +5,13 @@
  */
 package ua.andxbes;
 
+import java.util.logging.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import ua.andxbes.Disk.Disk;
 
 /**
  *
@@ -44,10 +45,11 @@ public class QueryIT {
     @Test
     public void testQuery() {
 	
-	    query.getDiskInfo();
+	Disk disk = query.getDiskInfo();
  	   
-	    Assert.assertTrue(true);
+	Logger.getLogger("Test disk testQuery").info(disk.toString());
 	
     }
+  
 
 }
