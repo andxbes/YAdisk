@@ -55,5 +55,14 @@ public class Error {
     public void setError(String error) {
 	this.error = error;
     }
+
+    @Override
+    public String toString() {
+	return "\nmassage = ".concat(massage).concat("\ndescription = ")
+		.concat(description).concat("\nerror = ").concat(error);
+    }
+    
+    
+    
     
 }

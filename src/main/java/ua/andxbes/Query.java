@@ -5,6 +5,8 @@
  */
 package ua.andxbes;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -47,20 +49,33 @@ public class Query {
 
 	    HttpResponse response = httpClient.execute(request);
 
-	    log.log(Level.INFO, "code = {0}", response.getStatusLine().getStatusCode());
+	    int code = response.getStatusLine().getStatusCode();
+	    log.log(Level.INFO, "code = {0}", code);
 
 	    BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-	    StringBuilder result = new StringBuilder();
+	    StringBuilder responseContent = new StringBuilder();
 	    String line;
 	    while ((line = rd.readLine()) != null) {
-		result.append(line);
+		responseContent.append(line);
 	    }
-	    log.log(Level.INFO, "result = {0}", result.toString());
 
-	} catch (MalformedURLException | UnsupportedEncodingException  ex) {
+	    String result = responseContent.toString();
+	    log.log(Level.INFO, "result = {0}", result);
+
+	    if (code == 200) {
+		disk = new Gson().fromJson(result, Disk.class);
+	    } else {
+		Error error = new Gson().fromJson(result, Error.class);
+		throw new RuntimeException(error);
+	    }
+
+	} catch (MalformedURLException | UnsupportedEncodingException ex) {
 	    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
-	} catch (IOException ex) {
+
+	} catch (JsonSyntaxException | IOException ex) {
+
 	    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
+
 	}
 	return disk;
     }
