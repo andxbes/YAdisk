@@ -104,9 +104,16 @@ public class ResourceList {
 
     @Override
     public String toString() {
-	return "ResourceList{" + "sort=" + sort + ", path=" + path + ", items=" + items + ", linit=" + linit + ", offset=" + offset + ", total=" + total + '}';
+
+	StringBuilder itemsString = new StringBuilder();
+
+	for (Resource item : items) {
+	    itemsString.append(item.toString()).append("\n");
+	}
+
+	return "ResourceList{" + "sort=" + sort + ", path=" + path + ", linit=" + linit + ", offset=" + offset
+		+ ", total=" + total + ",\n items= \n"
+		+ itemsString.toString() + '}';
     }
-    
-    
 
 }

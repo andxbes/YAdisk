@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ua.andxbes.Disk.Disk;
+import ua.andxbes.Disk.Resource;
 
 /**
  *
@@ -43,11 +44,20 @@ public class QueryIT {
     }
 
     @Test
-    public void testQuery() {
+    public void getDiskInfo() {
 	
 	Disk disk = query.getDiskInfo();
  	   
 	Logger.getLogger("Test disk testQuery").info(disk.toString());
+	
+    }
+    
+    @Test
+    public void getResource() {
+	
+	Resource resource = query.getResource("/");
+ 	   
+	Logger.getLogger("Test getResourceList()").info(resource.toString());
 	
     }
   

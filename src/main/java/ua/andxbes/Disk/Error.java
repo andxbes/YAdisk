@@ -58,9 +58,10 @@ public class Error {
 
     @Override
     public String toString() {
-	return "\nmassage = ".concat(massage).concat("\ndescription = ")
-		.concat(description).concat("\nerror = ").concat(error);
+	return "Error{" + "massage=" + massage + ", description=" + description + ", error=" + error + '}';
     }
+
+   
     
     
     
