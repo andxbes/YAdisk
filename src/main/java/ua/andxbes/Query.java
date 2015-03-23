@@ -7,6 +7,7 @@ package ua.andxbes;
 
 import com.google.gson.Gson;
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -17,6 +18,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import ua.andxbes.Disk.Disk;
+import ua.andxbes.Disk.Link;
 import ua.andxbes.Disk.Resource;
 
 /**
@@ -70,45 +72,14 @@ public class Query {
 
 	return result;
     }
-//    private String PUTCH(String url ,String path) {
-//
-//	String result = null;
-//	try {
-//	    HttpClient httpClient = new DefaultHttpClient();
-//
-//	    HttpPatch request = new HttpPatch(url);
-//
-//	    request.addHeader("User-Agent", "Mozilla/5.0");
-//	    request.addHeader("Authorization", "OAuth " + token);
-//	   // request.addHeader("path", path);
-//
-//	    HttpResponse response = httpClient.execute(request);
-//
-//	    int code = response.getStatusLine().getStatusCode();
-//	    log.log(Level.INFO, "code = {0}", code);
-//
-//	    BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-//	    StringBuilder responseContent = new StringBuilder();
-//	    String line;
-//	    while ((line = rd.readLine()) != null) {
-//		responseContent.append(line);
-//	    }
-//
-//	    result = responseContent.toString();
-//             log.log(Level.INFO, "responce = {0}", result);
-//	    
-//	    if (code != 200) {
-//		Error error = new Gson().fromJson(result, Error.class);
-//		throw new RuntimeException(error.toString());
-//	    }
-//
-//	} catch (IOException ex) {
-//	    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
-//	}
-//
-//	return result;
-//    }
 
+
+    /**
+     *
+     * get information about the  user`s disk
+     * 
+     * @return Disk
+     */
     public Disk getDiskInfo() {
 	String operation = "/v1/disk";
 	Disk disk = null;
@@ -120,16 +91,35 @@ public class Query {
 	return disk;
     }
 
-    public Resource getResource (String path) {
+    /**
+     * get information about file and directory 
+     * @param path  request file or directory , like 
+     * /v1/disk/resources?path=/dir
+     * @return Resource
+     */
+    public Resource getResource (String path) throws FileNotFoundException {
+	if(path==null)throw new FileNotFoundException();
 	String operation = "/v1/disk/resources";
 	Resource resourceList = null;
-	String responce = GET(baseUrl + operation + "?path=/");
+	String responce = GET(baseUrl + operation + "?path=" + path);
 	
 	if (responce != null) {
 	    resourceList = new Gson().fromJson(responce, Resource.class);
 	}
 
 	return resourceList;
+    }
+    
+    public Link getLinkToDownload(String path) throws FileNotFoundException{
+	if(path==null)throw new FileNotFoundException();
+        Link link = null;
+	String operation = "/v1/disk/resources";
+	String responce = GET(baseUrl + operation + "?path=" + path);
+	if (responce != null) {
+	    link = new Gson().fromJson(responce, Link.class);
+	}
+	 
+	return link;
     }
 
 }

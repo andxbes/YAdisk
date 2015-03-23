@@ -5,6 +5,8 @@
  */
 package ua.andxbes;
 
+import java.io.FileNotFoundException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -12,6 +14,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ua.andxbes.Disk.Disk;
+import ua.andxbes.Disk.Link;
 import ua.andxbes.Disk.Resource;
 
 /**
@@ -45,21 +48,43 @@ public class QueryIT {
 
     @Test
     public void getDiskInfo() {
-	
+
 	Disk disk = query.getDiskInfo();
- 	   
+
 	Logger.getLogger("Test disk testQuery").info(disk.toString());
-	
+
     }
-    
+
     @Test
     public void getResource() {
-	
-	Resource resource = query.getResource("/");
- 	   
+
+	Resource resource = null;
+	try {
+	    resource = query.getResource("/");
+	} catch (FileNotFoundException ex) {
+	    Logger.getLogger(QueryIT.class.getName()).log(Level.SEVERE, null, ex);
+	}
+
 	Logger.getLogger("Test getResourceList()").info(resource.toString());
-	
+
     }
-  
+
+    @Test
+    public void getLinkToDownloadIT() throws FileNotFoundException {
+
+	Resource resource = query.getResource("/");
+	Resource[] list = resource.getEmbedded().getItems();
+	String pathToFile = null;
+	for (int i = 0; i < list.length; i++) {
+                 if(list[i].getType().equals("file"))
+		     pathToFile = list[i].getPath();
+	}
+
+	
+	Link link = query.getLinkToDownload(pathToFile);
+
+	Logger.getLogger("Test getResourceList()").info(link.toString());
+
+    }
 
 }
