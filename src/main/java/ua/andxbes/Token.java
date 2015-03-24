@@ -10,8 +10,6 @@ import java.io.IOException;
 import ua.andxbes.util.QueryString;
 import ua.andxbes.util.ShowPage;
 import java.io.UnsupportedEncodingException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -185,8 +183,7 @@ public final class Token {
 	if (access_token == null) {
 	    throw new RuntimeException("Token is null");
 	}
-
-	Logger.getLogger(Token.class.getName()).log(Level.INFO, "endToken - {0}", new SimpleDateFormat("dd.MM.yyyy").format(new Date(endTimeToken)));
+	//Logger.getLogger(Token.class.getName()).log(Level.INFO, "endToken - {0}", new SimpleDateFormat("dd.MM.yyyy").format(new Date(endTimeToken)));
 	return access_token;
 
     }

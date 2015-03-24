@@ -96,6 +96,7 @@ public class Query {
      * @param path  request file or directory , like 
      * /v1/disk/resources?path=/dir
      * @return Resource
+     * @throws java.io.FileNotFoundException
      */
     public Resource getResource (String path) throws FileNotFoundException {
 	if(path==null)throw new FileNotFoundException();
@@ -110,10 +111,17 @@ public class Query {
 	return resourceList;
     }
     
+    /**
+     *
+     * @param path
+     * @return
+     * @throws java.io.FileNotFoundException
+     * 
+     */
     public Link getLinkToDownload(String path) throws FileNotFoundException{
 	if(path==null)throw new FileNotFoundException();
         Link link = null;
-	String operation = "/v1/disk/resources";
+	String operation = "/v1/disk/resources/download";
 	String responce = GET(baseUrl + operation + "?path=" + path);
 	if (responce != null) {
 	    link = new Gson().fromJson(responce, Link.class);

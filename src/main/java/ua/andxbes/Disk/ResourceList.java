@@ -14,9 +14,25 @@ public class ResourceList {
     private String sort,//<Поле, по которому отсортирован список>
 	    path;//<Путь к ресурсу, для которого построен список>,
     private Resource[] items;// <Элементы списка>,
-    private int linit,// <Количество элементов на странице>,
+    private int limit,// <Количество элементов на странице>,
 	    offset,//: <Смещение от начала списка>,
 	    total;//<Общее количество элементов в списке>
+
+   
+
+    @Override
+    public String toString() {
+
+	StringBuilder itemsString = new StringBuilder();
+
+	for (Resource item : getItems()) {
+	    itemsString.append(item.toString()).append("\n");
+	}
+
+	return "ResourceList{" + "sort=" + getSort() + ", path=" + getPath() + ", linit=" + getLimit() + ", offset=" + getOffset()
+		+ ", total=" + getTotal() + ",\n items= \n"
+		+ itemsString.toString() + '}';
+    }
 
     /**
      * @return the sort
@@ -61,17 +77,17 @@ public class ResourceList {
     }
 
     /**
-     * @return the linit
+     * @return the limit
      */
-    public int getLinit() {
-	return linit;
+    public int getLimit() {
+	return limit;
     }
 
     /**
-     * @param linit the linit to set
+     * @param limit the limit to set
      */
-    public void setLinit(int linit) {
-	this.linit = linit;
+    public void setLimit(int limit) {
+	this.limit = limit;
     }
 
     /**
@@ -100,20 +116,6 @@ public class ResourceList {
      */
     public void setTotal(int total) {
 	this.total = total;
-    }
-
-    @Override
-    public String toString() {
-
-	StringBuilder itemsString = new StringBuilder();
-
-	for (Resource item : items) {
-	    itemsString.append(item.toString()).append("\n");
-	}
-
-	return "ResourceList{" + "sort=" + sort + ", path=" + path + ", linit=" + linit + ", offset=" + offset
-		+ ", total=" + total + ",\n items= \n"
-		+ itemsString.toString() + '}';
     }
 
 }
