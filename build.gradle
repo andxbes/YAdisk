@@ -33,8 +33,7 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.10'
     testCompile "org.mockito:mockito-all:1.9.+"
     compile "com.google.code.gson:gson:2.3.+"
-    //compile "org.apache.httpcomponents:httpclient:4.4"
-    compile 'org.apache.httpcomponents:httpclient:4.3.6'
+  
     
 }
 

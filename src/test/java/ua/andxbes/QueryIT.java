@@ -54,6 +54,8 @@ public class QueryIT {
 	Logger.getLogger("Test disk testQuery").info(disk.toString());
 
     }
+    
+    
 
     @Test
     public void getResource() {
@@ -68,6 +70,8 @@ public class QueryIT {
 	Logger.getLogger("Test getResourceList()").info(resource.toString());
 
     }
+    
+ 
 
     @Test 
     public void getLinkToDownloadIT() throws FileNotFoundException {
