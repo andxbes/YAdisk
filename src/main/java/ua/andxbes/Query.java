@@ -36,7 +36,7 @@ public class Query {
 	this.token = token.toString();
     }
 
-    private String GET(String request) {
+    private String GETv2(String request) {
 
 	StringBuilder result = new StringBuilder();
 	URL url;
@@ -75,7 +75,7 @@ public class Query {
     public Disk getDiskInfo() {
 	String operation = "/v1/disk";
 	Disk disk = null;
-	String responce = GET(baseUrl + operation);
+	String responce = GETv2(baseUrl + operation);
 	if (responce != null) {
 	    disk = new Gson().fromJson(responce, Disk.class);
 	}
@@ -97,7 +97,7 @@ public class Query {
 	}
 	String operation = "/v1/disk/resources";
 	Resource resourceList = null;
-	String responce = GET(baseUrl + operation + "?path=" + path);
+	String responce = GETv2(baseUrl + operation + "?path=" + path);
 
 	if (responce != null) {
 	    resourceList = new Gson().fromJson(responce, Resource.class);
@@ -119,7 +119,7 @@ public class Query {
 	}
 	Link link = null;
 	String operation = "/v1/disk/resources/download";
-	String responce = GET(baseUrl + operation + "?path=" + path);
+	String responce = GETv2(baseUrl + operation + "?path=" + path);
 	if (responce != null) {
 	    link = new Gson().fromJson(responce, Link.class);
 	}

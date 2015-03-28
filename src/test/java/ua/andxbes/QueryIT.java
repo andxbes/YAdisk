@@ -71,11 +71,9 @@ public class QueryIT {
 
     }
     
- 
 
     @Test 
     public void getLinkToDownloadIT() throws FileNotFoundException {
-//TODO не работает с русскими документами 
 	Resource resource = query.getResource("/");
 	Resource[] list = resource.getEmbedded().getItems();
 	String pathToFile = null;
@@ -98,29 +96,6 @@ public class QueryIT {
 
     }
     
-     @Test 
-    public void getLinkToDownloadIT_With_Unicode() throws FileNotFoundException {
-                //TODO не работает с русскими документами 
-	Resource resource = query.getResource("/");
-	Resource[] list = resource.getEmbedded().getItems();
-	String pathToFile = null;
-	for (int i = 0; i < list.length; i++) {
-                 if(list[i].getType().equals("file")){
-		     pathToFile = list[i].getPath();//последним есть документ с русским названием 
-		   
-		 }
-	}
-
-	pathToFile = pathToFile.split(":")[1];
-	
-	Logger.getLogger("Test getResourceList()").info("\n"+pathToFile);
-	
-	
-	Link link = query.getLinkToDownload(pathToFile);
-	
-
-	Logger.getLogger("Test getResourceList()").info(link.toString());
-
-    }
+    
 
 }
