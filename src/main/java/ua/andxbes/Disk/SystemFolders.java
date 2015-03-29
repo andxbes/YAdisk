@@ -13,37 +13,25 @@ public class SystemFolders {
     private String applications,
 	   downloads;
 
+    
+
+    @Override
+    public String toString() {
+	return "SystemFolders{" + "applications=" + getApplications() + ", downloads=" + getDownloads() + '}';
+    }
+
     /**
-     * @return the applications
+     * @return the applications  <Путь к папке "Приложения".>,
      */
     public String getApplications() {
 	return applications;
     }
 
     /**
-     * @param applications the applications to set
-     */
-    public void setApplications(String applications) {
-	this.applications = applications;
-    }
-
-    /**
-     * @return the downloads
+     * @return the downloads <Путь к папке "Загрузки".>
      */
     public String getDownloads() {
 	return downloads;
-    }
-
-    /**
-     * @param downloads the downloads to set
-     */
-    public void setDownloads(String downloads) {
-	this.downloads = downloads;
-    }
-
-    @Override
-    public String toString() {
-	return "SystemFolders{" + "applications=" + applications + ", downloads=" + downloads + '}';
     }
    
     

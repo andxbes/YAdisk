@@ -14,18 +14,18 @@ public class Error {
 	    ,description
 	    ,error;
 
+    
+
+    @Override
+    public String toString() {
+	return "Error{" + "massage=" + getMassage() + ", description=" + getDescription() + ", error=" + getError() + '}';
+    }
+
     /**
      * @return the massage
      */
     public String getMassage() {
 	return massage;
-    }
-
-    /**
-     * @param massage the massage to set
-     */
-    public void setMassage(String massage) {
-	this.massage = massage;
     }
 
     /**
@@ -36,29 +36,10 @@ public class Error {
     }
 
     /**
-     * @param description the description to set
-     */
-    public void setDescription(String description) {
-	this.description = description;
-    }
-
-    /**
      * @return the error
      */
     public String getError() {
 	return error;
-    }
-
-    /**
-     * @param error the error to set
-     */
-    public void setError(String error) {
-	this.error = error;
-    }
-
-    @Override
-    public String toString() {
-	return "Error{" + "massage=" + massage + ", description=" + description + ", error=" + error + '}';
     }
 
    

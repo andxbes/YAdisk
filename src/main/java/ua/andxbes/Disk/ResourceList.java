@@ -11,12 +11,12 @@ package ua.andxbes.Disk;
  */
 public class ResourceList {
 
-    private String sort,//<Поле, по которому отсортирован список>
-	    path;//<Путь к ресурсу, для которого построен список>,
-    private Resource[] items;// <Элементы списка>,
-    private int limit,// <Количество элементов на странице>,
-	    offset,//: <Смещение от начала списка>,
-	    total;//<Общее количество элементов в списке>
+    private String sort,
+	    path;
+    private Resource[] items;
+    private int limit,
+	    offset,
+	    total;
 
    
 
@@ -35,87 +35,46 @@ public class ResourceList {
     }
 
     /**
-     * @return the sort
+     * @return the sort //<Поле, по которому отсортирован список>
      */
     public String getSort() {
 	return sort;
     }
 
     /**
-     * @param sort the sort to set
-     */
-    public void setSort(String sort) {
-	this.sort = sort;
-    }
-
-    /**
-     * @return the path
+     * @return the path <Путь к ресурсу, для которого построен список>,
      */
     public String getPath() {
 	return path;
     }
 
     /**
-     * @param path the path to set
-     */
-    public void setPath(String path) {
-	this.path = path;
-    }
-
-    /**
-     * @return the items
+     * @return the items  <Элементы списка>,
      */
     public Resource[] getItems() {
 	return items;
     }
 
     /**
-     * @param items the items to set
-     */
-    public void setItems(Resource[] items) {
-	this.items = items;
-    }
-
-    /**
-     * @return the limit
+     * @return the limit <Количество элементов на странице>
      */
     public int getLimit() {
 	return limit;
     }
 
     /**
-     * @param limit the limit to set
-     */
-    public void setLimit(int limit) {
-	this.limit = limit;
-    }
-
-    /**
-     * @return the offset
+     * @return the offset <Смещение от начала списка>
      */
     public int getOffset() {
 	return offset;
     }
 
     /**
-     * @param offset the offset to set
-     */
-    public void setOffset(int offset) {
-	this.offset = offset;
-    }
-
-    /**
-     * @return the total
+     * @return the total <Общее количество элементов в списке>
      */
     public int getTotal() {
 	return total;
     }
 
-    /**
-     * @param total the total to set
-     */
-    public void setTotal(int total) {
-	this.total = total;
-    }
-
+    
 }

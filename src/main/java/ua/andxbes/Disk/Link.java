@@ -10,10 +10,10 @@ package ua.andxbes.Disk;
  * @author Andr
  */
 public class Link {
-    private String href,//<URL>,
-	    method;// <HTTP-метод>,
+    private String href,
+	    method;
 	    
-    private boolean templated;// <Признак шаблонизированного URL>
+    private boolean templated;
 
     @Override
     public String toString() {
@@ -21,45 +21,26 @@ public class Link {
     }
 
     /**
-     * @return the href
+     * @return the href < URL>
      */
     public String getHref() {
 	return href;
     }
 
     /**
-     * @param href the href to set
-     */
-    public void setHref(String href) {
-	this.href = href;
-    }
-
-    /**
-     * @return the method
+     * @return the method <HTTP-метод>
      */
     public String getMethod() {
 	return method;
     }
 
     /**
-     * @param method the method to set
-     */
-    public void setMethod(String method) {
-	this.method = method;
-    }
-
-    /**
-     * @return the templated
+     * @return the templated <Признак шаблонизированного URL>
      */
     public boolean isTemplated() {
 	return templated;
     }
 
-    /**
-     * @param templated the templated to set
-     */
-    public void setTemplated(boolean templated) {
-	this.templated = templated;
-    }
+    
     
 }
