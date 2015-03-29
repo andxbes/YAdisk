@@ -6,7 +6,10 @@
 package ua.andxbes;
 
 import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
+import java.rmi.ConnectException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.After;
@@ -20,6 +23,7 @@ import ua.andxbes.DiskJsonObjects.Link;
 import ua.andxbes.DiskJsonObjects.Resource;
 import ua.andxbes.DiskJsonObjects.ResourceList;
 import ua.andxbes.fieldsForQuery.Field;
+import ua.andxbes.fieldsForQuery.Limit;
 
 /**
  *
@@ -101,58 +105,22 @@ public class QueryIT {
 
     }
 
-//    /**
-//     * Test of getDiskInfo method, of class Query.
-//     */
-//    @Test
-//    public void testGetDiskInfo() {
-//	System.out.println("getDiskInfo");
-//	Query instance = null;
-//	Disk expResult = null;
-//	Disk result = instance.getDiskInfo();
-//	assertEquals(expResult, result);
-//	// TODO review the generated test code and remove the default call to fail.
-//	fail("The test case is a prototype.");
-//    }
-//
-//    /**
-//     * Test of getResource method, of class Query.
-//     */
-//    @Test
-//    public void testGetResource() {
-//	System.out.println("getResource");
-//	String path = "";
-//	Query instance = null;
-//	Resource expResult = null;
-//	Resource result = instance.getResource(path);
-//	assertEquals(expResult, result);
-//	// TODO review the generated test code and remove the default call to fail.
-//	fail("The test case is a prototype.");
-//    }
-//
-//    /**
-//     * Test of getLinkToDownload method, of class Query.
-//     */
-//    @Test
-//    public void testGetLinkToDownload() {
-//	System.out.println("getLinkToDownload");
-//	String path = "";
-//	Query instance = null;
-//	Link expResult = null;
-//	Link result = instance.getLinkToDownload(path);
-//	assertEquals(expResult, result);
-//	// TODO review the generated test code and remove the default call to fail.
-//	fail("The test case is a prototype.");
-//    }
-//
-//    /**
-//     * Test of getFiles method, of class Query.
-//     */
+
     @Test
     public void testGetFiles() {
 	
 	ResourceList expResult = null;
-	FilesResouceList result = query.getFiles(new ArrayList<Field>());
+	FilesResouceList result = null;
+	Limit limit = new Limit(100);//Фильтр на количество ожидаемых обьектов , по умолчанию 20  
+	
+	List<Field> args = new ArrayList<>();
+	args.add(limit);
+	
+	try {
+	    result = query.getFiles(args);
+	} catch (UnsupportedEncodingException | ConnectException ex) {
+	    Logger.getLogger(QueryIT.class.getName()).log(Level.SEVERE, null, ex);
+	}
 	Logger.getLogger(this.getClass().getSimpleName()).info(result.toString());
 	
     }

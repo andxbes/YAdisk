@@ -12,9 +12,14 @@ package ua.andxbes.fieldsForQuery;
  */
 public class MediaType extends Field {
 
+     //TODO НЕ ВСЕ ТИПЫ 
     public static final String COMPRESSED = "compressed",
-	    DOCUMENT = "document";
-    //TODO НЕ ВСЕ ТИПЫ 
+	    DOCUMENT = "document",
+	    UNKNOWN="unknown",
+	    DEVELOPMENT = "development",
+	    TEXT="text";
+    
+   
     private String mediaType;
 
     public MediaType(String mediaType) {

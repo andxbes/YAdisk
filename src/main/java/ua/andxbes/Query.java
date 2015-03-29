@@ -14,6 +14,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.rmi.ConnectException;
 import java.util.List;
 
 import java.util.logging.Level;
@@ -75,7 +76,7 @@ public class Query {
 	return result.toString();
     }
 
-    private String GETv2(String operation,List<Field> fields) throws UnsupportedEncodingException {
+    private String GETv2(String operation,List<Field> fields) throws UnsupportedEncodingException, ConnectException {
 	QueryString qParams = new QueryString();
 	qParams.add(fields);
 
@@ -99,6 +100,10 @@ public class Query {
 		result.append(line);
 
 	    }
+	    int code =  conn.getResponseCode();
+	   log.log(Level.INFO, "code = {0}",code);
+	   if(code!= 200 ) 
+	       throw new ConnectException(new Gson().fromJson(result.toString(), ua.andxbes.DiskJsonObjects.Error.class).toString());
 
 	} catch (MalformedURLException ex) {
 	    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
@@ -163,7 +168,7 @@ public class Query {
 	if (path == null || path.isEmpty()) {
 	    throw new NoSuchFieldError();
 	}
-	Link link = null;
+	Link result = null;
 	String operation = "/v1/disk/resources/download";
 
 	QueryString qParam = new QueryString();
@@ -177,27 +182,24 @@ public class Query {
 	String responce = GET(operation, qParam);
 
 	if (responce != null) {
-	    link = new Gson().fromJson(responce, Link.class);
+	    result = new Gson().fromJson(responce, Link.class);
 	}
 
-	return link;
+	return result;
     }
 
-    public FilesResouceList getFiles(List<Field> fields) {
+    public FilesResouceList getFiles(List<Field> fields) throws UnsupportedEncodingException, ConnectException {
 	FilesResouceList result = null;
 	String operation = "/v1/disk/resources/files";
 
-	String responce = null;
-	try {
-	    responce = GETv2(operation, fields);
-	} catch (UnsupportedEncodingException ex) {
-	    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
-	}
+	String responce = GETv2(operation, fields);
+	
 	if (responce != null) {
 	    result = new Gson().fromJson(responce, FilesResouceList.class);
 	}
 	
 	return result;
     }
+    
 
 }

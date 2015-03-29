@@ -55,14 +55,8 @@ public class QueryString {
 
     public synchronized QueryString add(List<Field> fields)
 	    throws UnsupportedEncodingException {
-	
-	if (!query.toString().trim().equals("")) {
-	    query.append("&");
-	}
 	for (Field field : fields) {
-	    query.append(URLEncoder.encode(field.getNameField(), "UTF-8"));
-	    query.append("=");
-	    query.append(URLEncoder.encode(field.getField(), "UTF-8"));
+	    add(field.getNameField(), field.getField());
 	}
 
 	return this;
