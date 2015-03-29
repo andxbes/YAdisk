@@ -7,19 +7,23 @@ package ua.andxbes;
 
 import com.google.gson.Gson;
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.List;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import ua.andxbes.DiskJsonObjects.Disk;
+import ua.andxbes.DiskJsonObjects.FilesResouceList;
 import ua.andxbes.DiskJsonObjects.Link;
 import ua.andxbes.DiskJsonObjects.Resource;
+import ua.andxbes.fieldsForQuery.Field;
+import ua.andxbes.util.QueryString;
 
 /**
  *
@@ -29,6 +33,9 @@ public class Query {
 
     private final Logger log = Logger.getLogger(this.getClass().getSimpleName());
 
+    public static final String PATH = "path",
+	    MEDIA_TYPE = "media_type",
+	    SORT = "sort";
     private final String baseUrl = "https://cloud-api.yandex.net:443";
     private final String token;
 
@@ -36,7 +43,43 @@ public class Query {
 	this.token = token.toString();
     }
 
-    private String GETv2(String request) {
+    private String GET(String operation, QueryString qParam) {
+	String param = qParam.toString().isEmpty() ? "" : "?" + qParam.toString();
+	StringBuilder result = new StringBuilder();
+	URL url;
+	HttpURLConnection conn;
+	BufferedReader br;
+	String line;
+	try {
+
+	    url = new URL(baseUrl + operation + param);
+	    conn = (HttpURLConnection) url.openConnection();
+	    conn.setRequestMethod("GET");
+	    conn.addRequestProperty("Authorization", "OAuth " + token);
+
+	    br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+	    while ((line = br.readLine()) != null) {
+		result.append(line);
+
+	    }
+
+	} catch (MalformedURLException ex) {
+	    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
+	} catch (ProtocolException ex) {
+	    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
+	} catch (IOException ex) {
+	    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
+	}
+
+	return result.toString();
+    }
+
+    private String GETv2(String operation,List<Field> fields) throws UnsupportedEncodingException {
+	QueryString qParams = new QueryString();
+	qParams.add(fields);
+
+	String param = qParams.toString().isEmpty() ? "" : "?" + qParams.toString();
 
 	StringBuilder result = new StringBuilder();
 	URL url;
@@ -44,10 +87,12 @@ public class Query {
 	BufferedReader br;
 	String line;
 	try {
-	    url = new URL(request);
+
+	    url = new URL(baseUrl + operation + param);
 	    conn = (HttpURLConnection) url.openConnection();
 	    conn.setRequestMethod("GET");
 	    conn.addRequestProperty("Authorization", "OAuth " + token);
+
 	    br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
 	    while ((line = br.readLine()) != null) {
@@ -75,7 +120,7 @@ public class Query {
     public Disk getDiskInfo() {
 	String operation = "/v1/disk";
 	Disk disk = null;
-	String responce = GETv2(baseUrl + operation);
+	String responce = GET(operation, new QueryString());
 	if (responce != null) {
 	    disk = new Gson().fromJson(responce, Disk.class);
 	}
@@ -83,21 +128,28 @@ public class Query {
 	return disk;
     }
 
-
     /**
      * get information about file and directory
      *
      * @param path request file or directory , like /v1/disk/resources?path=/dir
      * @return Resource
-     * @throws java.io.FileNotFoundException
+     * 
      */
-    public Resource getResource(String path) throws FileNotFoundException {
-	if (path == null) {
-	    throw new FileNotFoundException();
+    public Resource getResource(String path) {
+	if (path == null || path.isEmpty()) {
+	    throw new NoSuchFieldError();
 	}
 	String operation = "/v1/disk/resources";
 	Resource resourceList = null;
-	String responce = GETv2(baseUrl + operation + "?path=" + path);
+	QueryString qParam = new QueryString();
+
+	try {
+	    qParam.add(PATH, path);
+	} catch (UnsupportedEncodingException ex) {
+	    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
+	}
+
+	String responce = GET(operation, qParam);
 
 	if (responce != null) {
 	    resourceList = new Gson().fromJson(responce, Resource.class);
@@ -106,25 +158,46 @@ public class Query {
 	return resourceList;
     }
 
-    /**
-     *
-     * @param path
-     * @return
-     * @throws java.io.FileNotFoundException
-     *
-     */
-    public Link getLinkToDownload(String path) throws FileNotFoundException {
-	if (path == null) {
-	    throw new FileNotFoundException();
+  
+    public Link getLinkToDownload(String path) {
+	if (path == null || path.isEmpty()) {
+	    throw new NoSuchFieldError();
 	}
 	Link link = null;
 	String operation = "/v1/disk/resources/download";
-	String responce = GETv2(baseUrl + operation + "?path=" + path);
+
+	QueryString qParam = new QueryString();
+
+	try {
+	    qParam.add(PATH, path);
+	} catch (UnsupportedEncodingException ex) {
+	    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
+	}
+
+	String responce = GET(operation, qParam);
+
 	if (responce != null) {
 	    link = new Gson().fromJson(responce, Link.class);
 	}
 
 	return link;
+    }
+
+    public FilesResouceList getFiles(List<Field> fields) {
+	FilesResouceList result = null;
+	String operation = "/v1/disk/resources/files";
+
+	String responce = null;
+	try {
+	    responce = GETv2(operation, fields);
+	} catch (UnsupportedEncodingException ex) {
+	    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
+	}
+	if (responce != null) {
+	    result = new Gson().fromJson(responce, FilesResouceList.class);
+	}
+	
+	return result;
     }
 
 }

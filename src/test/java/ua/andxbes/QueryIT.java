@@ -6,6 +6,7 @@
 package ua.andxbes;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.After;
@@ -14,8 +15,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ua.andxbes.DiskJsonObjects.Disk;
+import ua.andxbes.DiskJsonObjects.FilesResouceList;
 import ua.andxbes.DiskJsonObjects.Link;
 import ua.andxbes.DiskJsonObjects.Resource;
+import ua.andxbes.DiskJsonObjects.ResourceList;
+import ua.andxbes.fieldsForQuery.Field;
 
 /**
  *
@@ -55,6 +59,7 @@ public class QueryIT {
 
     }
     
+  
     
 
     @Test
@@ -63,7 +68,7 @@ public class QueryIT {
 	Resource resource = null;
 	try {
 	    resource = query.getResource("/");
-	} catch (FileNotFoundException ex) {
+	} catch (NoSuchFieldError ex) {
 	    Logger.getLogger(QueryIT.class.getName()).log(Level.SEVERE, null, ex);
 	}
 
@@ -94,6 +99,62 @@ public class QueryIT {
 
 	Logger.getLogger("Test getResourceList()").info(link.toString());
 
+    }
+
+//    /**
+//     * Test of getDiskInfo method, of class Query.
+//     */
+//    @Test
+//    public void testGetDiskInfo() {
+//	System.out.println("getDiskInfo");
+//	Query instance = null;
+//	Disk expResult = null;
+//	Disk result = instance.getDiskInfo();
+//	assertEquals(expResult, result);
+//	// TODO review the generated test code and remove the default call to fail.
+//	fail("The test case is a prototype.");
+//    }
+//
+//    /**
+//     * Test of getResource method, of class Query.
+//     */
+//    @Test
+//    public void testGetResource() {
+//	System.out.println("getResource");
+//	String path = "";
+//	Query instance = null;
+//	Resource expResult = null;
+//	Resource result = instance.getResource(path);
+//	assertEquals(expResult, result);
+//	// TODO review the generated test code and remove the default call to fail.
+//	fail("The test case is a prototype.");
+//    }
+//
+//    /**
+//     * Test of getLinkToDownload method, of class Query.
+//     */
+//    @Test
+//    public void testGetLinkToDownload() {
+//	System.out.println("getLinkToDownload");
+//	String path = "";
+//	Query instance = null;
+//	Link expResult = null;
+//	Link result = instance.getLinkToDownload(path);
+//	assertEquals(expResult, result);
+//	// TODO review the generated test code and remove the default call to fail.
+//	fail("The test case is a prototype.");
+//    }
+//
+//    /**
+//     * Test of getFiles method, of class Query.
+//     */
+    @Test
+    public void testGetFiles() {
+	
+	ResourceList expResult = null;
+	FilesResouceList result = query.getFiles(new ArrayList<Field>());
+	Logger.getLogger(this.getClass().getSimpleName()).info(result.toString());
+	
     }
     
     

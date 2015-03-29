@@ -7,6 +7,7 @@ package ua.andxbes.util;
 
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -80,9 +81,23 @@ public class QueryStringIT {
 	QueryString qs = new QueryString();
 	Map<String, String> result = qs.parseURL(str);
 
-	log.info("\n" + expREsult.toString() + "\n = \n" + result.toString());
+	log.log(Level.INFO, "\n{0}\n = \n{1}", new Object[]{expREsult.toString(), result.toString()});
 
 	Assert.assertEquals(expREsult.toString(), result.toString());
+    }
+
+    /**
+     * Test of toString method, of class QueryString.
+     */
+    @Test
+    public void testToString() {
+	System.out.println("toString");
+	QueryString instance = new QueryString();
+	String expResult = "";
+	String result = instance.toString();
+	log.info(result.isEmpty()?"\"\"":result);
+	Assert.assertEquals(expResult, result);
+
     }
 
 }

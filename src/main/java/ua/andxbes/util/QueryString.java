@@ -2,8 +2,10 @@ package ua.andxbes.util;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import ua.andxbes.fieldsForQuery.Field;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -49,6 +51,21 @@ public class QueryString {
 	}
 
 	return result;
+    }
+
+    public synchronized QueryString add(List<Field> fields)
+	    throws UnsupportedEncodingException {
+	
+	if (!query.toString().trim().equals("")) {
+	    query.append("&");
+	}
+	for (Field field : fields) {
+	    query.append(URLEncoder.encode(field.getNameField(), "UTF-8"));
+	    query.append("=");
+	    query.append(URLEncoder.encode(field.getField(), "UTF-8"));
+	}
+
+	return this;
     }
 
 }

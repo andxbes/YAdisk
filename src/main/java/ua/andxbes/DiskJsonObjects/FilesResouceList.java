@@ -38,7 +38,15 @@ public class FilesResouceList {
 
     @Override
     public String toString() {
-	return "FilesResouceList{" + "items=" + items + ", limit=" + limit + ", offset=" + offset + '}';
+	StringBuilder sb = new StringBuilder();
+	sb.append("items{ \n");
+	for (Resource item : items) {
+	    sb.append(item.toString()).append("\n");
+	}
+	sb.append("}\n");
+	
+	
+	return "FilesResouceList{" + sb.toString() + ", limit=" + limit + "\n, offset=" + offset + '}';
     }
     
     
