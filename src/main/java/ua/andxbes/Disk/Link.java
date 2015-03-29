@@ -21,26 +21,23 @@ public class Link {
     }
 
     /**
-     * @return the href < URL>
+     * @return the href  <b>URL</b>
      */
     public String getHref() {
 	return href;
     }
 
     /**
-     * @return the method <HTTP-метод>
+     * @return the method <b>HTTP-метод</b>
      */
     public String getMethod() {
 	return method;
     }
 
     /**
-     * @return the templated <Признак шаблонизированного URL>
+     * @return the templated <b>Признак шаблонизированного URL</b>
      */
     public boolean isTemplated() {
 	return templated;
     }
-
-    
-    
 }

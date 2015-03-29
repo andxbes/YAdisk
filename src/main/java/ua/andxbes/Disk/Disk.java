@@ -25,28 +25,28 @@ public class Disk {
     }
 
     /**
-     * @return the trash_size <Общий размер файлов в Корзине (байт). Входит в used_space.>
+     * @return the trash_size <b>Общий размер файлов в Корзине (байт). Входит в used_space</b>
      */
     public long getTrash_size() {
 	return trash_size;
     }
 
     /**
-     * @return the total_space <Общий объем диска (байт)>
+     * @return the total_space <b>Общий объем диска (байт)</b>
      */
     public long getTotal_space() {
 	return total_space;
     }
 
     /**
-     * @return the used_space  <Используемый объем диска (байт)>
+     * @return the used_space  <b>Используемый объем диска (байт)</b>
      */
     public long getUsed_space() {
 	return used_space;
     }
 
     /**
-     * @return the system_folders <Адреса системных папок в Диске пользователя.>
+     * @return the system_folders <b>Адреса системных папок в Диске пользователя</b>
      */
     public SystemFolders getSystem_folders() {
 	return system_folders;

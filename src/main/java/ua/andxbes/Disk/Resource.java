@@ -42,105 +42,105 @@ public class Resource {
     }
 
     /**
-     * @return the name <Имя ресурса>,
+     * @return the name <b>Имя ресурса</b>
      */
     public String getName() {
 	return name;
     }
 
     /**
-     * @return the public_key <Ключ опубликованного ресурса>
+     * @return the public_key <b>Ключ опубликованного ресурса</b>
      */
     public String getPublic_key() {
 	return public_key;
     }
 
     /**
-     * @return the origin_path <Путь откуда был удалён ресурс>
+     * @return the origin_path <b>Путь откуда был удалён ресурс</b>
      */
     public String getOrigin_path() {
 	return origin_path;
     }
 
     /**
-     * @return the created <Дата создания>
+     * @return the created <b>Дата создания</b> like: 2014-01-14T06:36:29+00:00
      */
     public String getCreated() {
 	return created;
     }
 
     /**
-     * @return the public_url <Публичный URL>
+     * @return the public_url <b>Публичный URL</b>
      */
     public String getPublic_url() {
 	return public_url;
     }
 
     /**
-     * @return the modified <Дата изменения>
+     * @return the modified <b>Дата изменения<b> like: 2014-01-14T06:36:29+00:00
      */
     public String getModified() {
 	return modified;
     }
 
     /**
-     * @return the md5  <MD5-хэш>
+     * @return the md5 <b> MD5-хэш</b>
      */
     public String getMd5() {
 	return md5;
     }
 
     /**
-     * @return the media_type <Определённый Диском тип файла>
+     * @return the media_type <b>Определённый Диском тип файла</b>
      */
     public String getMedia_type() {
 	return media_type;
     }
 
     /**
-     * @return the path <Путь к ресурсу>
+     * @return the path .<b>Путь к ресурсу</b>.
      */
     public String getPath() {
 	return path;
     }
 
     /**
-     * @return the preview <URL превью файла>
+     * @return the preview .URL превью файла.
      */
     public String getPreview() {
 	return preview;
     }
 
     /**
-     * @return the type <Тип >(наверное, выдаст тип после точки)
+     * @return the type .Наверное, выдаст тип после точки.
      */
     public String getType() {
 	return type;
     }
 
     /**
-     * @return the mime_type <MIME-тип файла>
+     * @return the mime_type <b>MIME-тип файла</b>
      */
     public String getMime_type() {
 	return mime_type;
     }
 
     /**
-     * @return the custom_properties <Пользовательские атрибуты ресурса.>
+     * @return the custom_properties <b>Пользовательские атрибуты ресурса</b>.
      */
     public String getCustom_properties() {
 	return custom_properties;
     }
 
     /**
-     * @return the size <Размер файла>
+     * @return the size <b>Размер файла</b> (bite)
      */
     public int getSize() {
 	return size;
     }
 
     /**
-     * @return the _embedded <Список вложенных ресурсов>
+     * @return the _embedded  <b>Список вложенных ресурсов</b>
      */
     public ResourceList getEmbedded() {
 	return _embedded;

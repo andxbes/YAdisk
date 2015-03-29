@@ -35,42 +35,42 @@ public class ResourceList {
     }
 
     /**
-     * @return the sort //<Поле, по которому отсортирован список>
+     * @return the sort <b>Поле, по которому отсортирован список</b>
      */
     public String getSort() {
 	return sort;
     }
 
     /**
-     * @return the path <Путь к ресурсу, для которого построен список>,
+     * @return the path <b>Путь к ресурсу, для которого построен список</b>
      */
     public String getPath() {
 	return path;
     }
 
     /**
-     * @return the items  <Элементы списка>,
+     * @return the items  <b>Элементы списка</b>
      */
     public Resource[] getItems() {
 	return items;
     }
 
     /**
-     * @return the limit <Количество элементов на странице>
+     * @return the limit <b>Количество элементов на странице</b>
      */
     public int getLimit() {
 	return limit;
     }
 
     /**
-     * @return the offset <Смещение от начала списка>
+     * @return the offset <b>Смещение от начала списка</b>
      */
     public int getOffset() {
 	return offset;
     }
 
     /**
-     * @return the total <Общее количество элементов в списке>
+     * @return the total <b>Общее количество элементов в списке</b>
      */
     public int getTotal() {
 	return total;

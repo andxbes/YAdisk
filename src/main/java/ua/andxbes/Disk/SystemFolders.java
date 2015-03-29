@@ -21,14 +21,14 @@ public class SystemFolders {
     }
 
     /**
-     * @return the applications  <Путь к папке "Приложения".>,
+     * @return the applications  <b>Путь к папке "Приложения"</b>
      */
     public String getApplications() {
 	return applications;
     }
 
     /**
-     * @return the downloads <Путь к папке "Загрузки".>
+     * @return the downloads <b>Путь к папке "Загрузки"</b>
      */
     public String getDownloads() {
 	return downloads;
