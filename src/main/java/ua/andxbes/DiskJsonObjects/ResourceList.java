@@ -3,18 +3,21 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ua.andxbes.Disk;
+package ua.andxbes.DiskJsonObjects;
 
 /**
  *
  * @author Andr
+ * 
+ * <b>Список ресурсов, содержащихся в папке.
+ * Содержит объекты Resource и свойства списка.</b>
  */
 public class ResourceList {
 
     private String sort,
 	    path;
     private Resource[] items;
-    private int limit,
+    private long limit,
 	    offset,
 	    total;
 
@@ -58,21 +61,21 @@ public class ResourceList {
     /**
      * @return the limit <b>Количество элементов на странице</b>
      */
-    public int getLimit() {
+    public long getLimit() {
 	return limit;
     }
 
     /**
      * @return the offset <b>Смещение от начала списка</b>
      */
-    public int getOffset() {
+    public long getOffset() {
 	return offset;
     }
 
     /**
      * @return the total <b>Общее количество элементов в списке</b>
      */
-    public int getTotal() {
+    public long getTotal() {
 	return total;
     }
 

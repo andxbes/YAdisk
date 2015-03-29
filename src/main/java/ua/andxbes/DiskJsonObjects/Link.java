@@ -3,11 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ua.andxbes.Disk;
+package ua.andxbes.DiskJsonObjects;
 
 /**
  *
  * @author Andr
+ * <b>Объект содержит URL для запроса метаданных ресурса. </b>
  */
 public class Link {
     private String href,

@@ -17,9 +17,9 @@ import java.net.URL;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import ua.andxbes.Disk.Disk;
-import ua.andxbes.Disk.Link;
-import ua.andxbes.Disk.Resource;
+import ua.andxbes.DiskJsonObjects.Disk;
+import ua.andxbes.DiskJsonObjects.Link;
+import ua.andxbes.DiskJsonObjects.Resource;
 
 /**
  *

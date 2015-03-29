@@ -3,11 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ua.andxbes.Disk;
+package ua.andxbes.DiskJsonObjects;
 
 /**
  *
  * @author Andr
+ * 
+ * <b>Описание ресурса, мета-информация о файле или папке. 
+ * Включается в ответ на запрос метаинформации.</b>
  */
 public class Resource {
 
@@ -24,7 +27,7 @@ public class Resource {
 	    type,
 	    mime_type,
 	    custom_properties;
-    private int size;
+    private long size;
 
     private ResourceList _embedded;
 
@@ -135,7 +138,7 @@ public class Resource {
     /**
      * @return the size <b>Размер файла</b> (bite)
      */
-    public int getSize() {
+    public long getSize() {
 	return size;
     }
 

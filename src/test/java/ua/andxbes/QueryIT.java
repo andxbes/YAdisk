@@ -13,9 +13,9 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import ua.andxbes.Disk.Disk;
-import ua.andxbes.Disk.Link;
-import ua.andxbes.Disk.Resource;
+import ua.andxbes.DiskJsonObjects.Disk;
+import ua.andxbes.DiskJsonObjects.Link;
+import ua.andxbes.DiskJsonObjects.Resource;
 
 /**
  *

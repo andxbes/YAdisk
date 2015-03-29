@@ -3,11 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ua.andxbes.Disk;
+package ua.andxbes.DiskJsonObjects;
 
 /**
  *
  * @author Andr
+ * 
+ * <b>Данные о свободном и занятом пространстве на Диске</b> 
  */
 public class Disk {
 
@@ -51,9 +53,5 @@ public class Disk {
     public SystemFolders getSystem_folders() {
 	return system_folders;
     }
-
-
-    
-    
 
 }
