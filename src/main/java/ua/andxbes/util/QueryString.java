@@ -2,9 +2,10 @@ package ua.andxbes.util;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import ua.andxbes.fieldsForQuery.Field;
 
 /*
@@ -24,14 +25,28 @@ public class QueryString {
 	query = new StringBuffer();
     }
 
-    public synchronized QueryString add(Object name, Object value)
-	    throws UnsupportedEncodingException {
+    public synchronized QueryString add(Object name, Object value) {
+
 	if (!query.toString().trim().equals("")) {
 	    query.append("&");
 	}
-	query.append(URLEncoder.encode(name.toString(), "UTF-8"));
-	query.append("=");
-	query.append(URLEncoder.encode(value.toString(), "UTF-8"));
+
+	try {
+	    query.append(URLEncoder.encode(name.toString(), "UTF-8"));
+	    query.append("=");
+	    query.append(URLEncoder.encode(value.toString(), "UTF-8"));
+
+	} catch (UnsupportedEncodingException ex) {
+	    Logger.getLogger(QueryString.class.getName()).log(Level.SEVERE, null, ex);
+	}
+	return this;
+    }
+
+    public synchronized QueryString add(Field... fields) {
+	if(null == fields) return this;
+	for (Field field : fields) {
+	    add(field.getNameField(), field.getField());
+	}
 	return this;
     }
 
@@ -51,15 +66,6 @@ public class QueryString {
 	}
 
 	return result;
-    }
-
-    public synchronized QueryString add(List<Field> fields)
-	    throws UnsupportedEncodingException {
-	for (Field field : fields) {
-	    add(field.getNameField(), field.getField());
-	}
-
-	return this;
     }
 
 }

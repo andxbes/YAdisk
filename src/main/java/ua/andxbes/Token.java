@@ -9,7 +9,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import ua.andxbes.util.QueryString;
 import ua.andxbes.util.ShowPage;
-import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -89,32 +88,28 @@ public final class Token {
     
      */
     private void queryToken() {
-	try {
-	    QueryString queryString = new QueryString();
-	    queryString.add("response_type", "token")
-		    .add("client_id", SOFTWARE_ID)
-		    .add("display", "popup")
-		    .add("state", "((: give me token :))");
-	    String url = Token.urlForReceivingToken + "?" + queryString.toString();
 
-	    String endUrl = ShowPage.run(new ShowPage.ConrolShowPanel(url) {
+	QueryString queryString = new QueryString();
+	queryString.add("response_type", "token")
+		.add("client_id", SOFTWARE_ID)
+		.add("display", "popup")
+		.add("state", "((: give me token :))");
+	String url = Token.urlForReceivingToken + "?" + queryString.toString();
 
-		@Override
-		public void variabelMethodForChangedPage(String curentUrl, Stage stage) {
-		    if (CALLBACK_URL.equals(curentUrl.split("#")[0])) {
-			stage.close();
-		    }
+	String endUrl = ShowPage.run(new ShowPage.ConrolShowPanel(url) {
+
+	    @Override
+	    public void variabelMethodForChangedPage(String curentUrl, Stage stage) {
+		if (CALLBACK_URL.equals(curentUrl.split("#")[0])) {
+		    stage.close();
 		}
-	    });
+	    }
+	});
 
-	    Map<String, String> result = queryString.parseURL(endUrl);
+	Map<String, String> result = queryString.parseURL(endUrl);
 
-	    extractFieldfromMap(result);
-	    saveFieldinFile();
-
-	} catch (UnsupportedEncodingException ex) {
-	    Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null, ex);
-	}
+	extractFieldfromMap(result);
+	saveFieldinFile();
 
     }
 
@@ -124,7 +119,7 @@ public final class Token {
 
 	try (FileWriter fw = new FileWriter(new File(fileSave));) {
 
-	    fw.write( SecuritySettings.encrypt(json) );
+	    fw.write(SecuritySettings.encrypt(json));
 
 	} catch (IOException ex) {
 	    Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null, ex);

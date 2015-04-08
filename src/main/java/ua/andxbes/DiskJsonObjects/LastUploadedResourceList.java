@@ -29,7 +29,12 @@ public class LastUploadedResourceList {
 
     @Override
     public String toString() {
-	return "LastUploadedResourceList{" + "items=" + items + ", limit=" + limit + '}';
+	StringBuilder sb = new StringBuilder();
+	for (int i = 0;i<items.length;i++) {
+	    sb.append("\n  item #").append((i+1)).append(items[i].toString()).append("\n    ");
+	}
+	
+	return "LastUploadedResourceList{" + "items=" + sb.toString() + ", limit=" + limit + '}';
     }
 
 }

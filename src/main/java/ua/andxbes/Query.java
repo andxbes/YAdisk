@@ -9,21 +9,25 @@ import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.rmi.ConnectException;
-import java.util.List;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import ua.andxbes.DiskJsonObjects.Disk;
 import ua.andxbes.DiskJsonObjects.FilesResouceList;
+import ua.andxbes.DiskJsonObjects.LastUploadedResourceList;
 import ua.andxbes.DiskJsonObjects.Link;
+import ua.andxbes.DiskJsonObjects.PublicResourcesList;
 import ua.andxbes.DiskJsonObjects.Resource;
 import ua.andxbes.fieldsForQuery.Field;
+import ua.andxbes.fieldsForQuery.Fields;
+import ua.andxbes.fieldsForQuery.Limit;
+import ua.andxbes.fieldsForQuery.MediaType;
+import ua.andxbes.fieldsForQuery.Path;
 import ua.andxbes.util.QueryString;
 
 /**
@@ -32,19 +36,19 @@ import ua.andxbes.util.QueryString;
  */
 public class Query {
 
-    private final Logger log = Logger.getLogger(this.getClass().getSimpleName());
+    protected final Logger log = Logger.getLogger(this.getClass().getSimpleName());
 
     public static final String PATH = "path",
 	    MEDIA_TYPE = "media_type",
 	    SORT = "sort";
-    private final String baseUrl = "https://cloud-api.yandex.net:443";
-    private final String token;
+    protected final String baseUrl = "https://cloud-api.yandex.net:443";
+    protected final String token;
 
     public Query(Token token) {
 	this.token = token.toString();
     }
 
-    private String GET(String operation, QueryString qParam) {
+    protected String GET(String operation, QueryString qParam) {
 	String param = qParam.toString().isEmpty() ? "" : "?" + qParam.toString();
 	StringBuilder result = new StringBuilder();
 	URL url;
@@ -62,7 +66,12 @@ public class Query {
 
 	    while ((line = br.readLine()) != null) {
 		result.append(line);
+	    }
 
+	    int code = conn.getResponseCode();
+	    log.log(Level.INFO, "code = {0}", code);
+	    if (code != 200) {
+		throw new ConnectException(new Gson().fromJson(result.toString(), ua.andxbes.DiskJsonObjects.Error.class).toString());
 	    }
 
 	} catch (MalformedURLException ex) {
@@ -76,130 +85,152 @@ public class Query {
 	return result.toString();
     }
 
-    private String GETv2(String operation,List<Field> fields) throws UnsupportedEncodingException, ConnectException {
+    protected String GET(String operation, Field[] fields) throws ConnectException {
 	QueryString qParams = new QueryString();
 	qParams.add(fields);
-
-	String param = qParams.toString().isEmpty() ? "" : "?" + qParams.toString();
-
-	StringBuilder result = new StringBuilder();
-	URL url;
-	HttpURLConnection conn;
-	BufferedReader br;
-	String line;
-	try {
-
-	    url = new URL(baseUrl + operation + param);
-	    conn = (HttpURLConnection) url.openConnection();
-	    conn.setRequestMethod("GET");
-	    conn.addRequestProperty("Authorization", "OAuth " + token);
-
-	    br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-
-	    while ((line = br.readLine()) != null) {
-		result.append(line);
-
-	    }
-	    int code =  conn.getResponseCode();
-	   log.log(Level.INFO, "code = {0}",code);
-	   if(code!= 200 ) 
-	       throw new ConnectException(new Gson().fromJson(result.toString(), ua.andxbes.DiskJsonObjects.Error.class).toString());
-
-	} catch (MalformedURLException ex) {
-	    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
-	} catch (ProtocolException ex) {
-	    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
-	} catch (IOException ex) {
-	    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
-	}
-
-	return result.toString();
+	return GET(operation, qParams);
     }
 
     /**
+     * Checking <b> fields <\b> for the presence of specific types
      *
-     * get information about the user`s disk
+     * @param fields list checked items
+     * @param cl by condition
+     * @return is True ?
+     */
+    protected boolean checkRequiredField(Field[] fields, Class[] cl) {
+
+	boolean temp = false;
+	for (Class cl1 : cl) {
+	    for (Field field : fields) {
+		if ((temp = cl1.isInstance(field))) {
+		    break;
+		}
+	    }
+	    if (!temp) {
+		return temp;
+	    }
+	}
+	return temp;
+    }
+
+    protected <T> T getObgect(Class<T> clazz, String operation, Field[] fields) throws ConnectException {
+	T object = null;
+
+	String responce = GET(operation, fields);
+
+	if (responce != null) {
+	    object = new Gson().fromJson(responce, clazz);
+	}
+	return object;
+    }
+//==============================================================================
+//============================  public methods  ================================
+//==============================================================================
+
+    /**
+     *
+     * Get information about the Ya-disk
      *
      * @return Disk
      */
-    public Disk getDiskInfo() {
+    public Disk getDiskInfo() throws ConnectException {
 	String operation = "/v1/disk";
-	Disk disk = null;
-	String responce = GET(operation, new QueryString());
-	if (responce != null) {
-	    disk = new Gson().fromJson(responce, Disk.class);
-	}
-
-	return disk;
+	return getObgect(Disk.class, operation, null);
     }
 
     /**
-     * get information about file and directory
+     * Get information about file and directory of path
      *
-     * @param path request file or directory , like /v1/disk/resources?path=/dir
+     * @param fields Path(mandatory field) , Fields , Limit , Sort
      * @return Resource
-     * 
+     * @throws java.rmi.ConnectException
+     * @throws NoSuchFieldError not Path field
+     *
      */
-    public Resource getResource(String path) {
-	if (path == null || path.isEmpty()) {
+    public Resource getResource(Field... fields)
+	    throws ConnectException, NoSuchFieldError {
+	
+	if (!checkRequiredField(fields, new Class[]{Path.class})) {
 	    throw new NoSuchFieldError();
 	}
 	String operation = "/v1/disk/resources";
-	Resource resourceList = null;
-	QueryString qParam = new QueryString();
-
-	try {
-	    qParam.add(PATH, path);
-	} catch (UnsupportedEncodingException ex) {
-	    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
-	}
-
-	String responce = GET(operation, qParam);
-
-	if (responce != null) {
-	    resourceList = new Gson().fromJson(responce, Resource.class);
-	}
-
-	return resourceList;
+	return getObgect(Resource.class, operation, fields);
     }
 
-  
-    public Link getLinkToDownload(String path) {
-	if (path == null || path.isEmpty()) {
+    /**
+     *
+     * Get link for file download
+     *
+     * @param fields Path(mandatory field)
+     * @return Link
+     * @throws java.rmi.ConnectException
+     * @throws NoSuchFieldError not Path field
+     * @see Link
+     */
+    public Link getLinkToDownload(Field... fields)
+	    throws NoSuchFieldError, ConnectException {
+	
+	if (!checkRequiredField(fields, new Class[]{Path.class})) {
 	    throw new NoSuchFieldError();
 	}
-	Link result = null;
 	String operation = "/v1/disk/resources/download";
-
-	QueryString qParam = new QueryString();
-
-	try {
-	    qParam.add(PATH, path);
-	} catch (UnsupportedEncodingException ex) {
-	    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
-	}
-
-	String responce = GET(operation, qParam);
-
-	if (responce != null) {
-	    result = new Gson().fromJson(responce, Link.class);
-	}
-
-	return result;
+	return getObgect(Link.class, operation, fields);
     }
 
-    public FilesResouceList getFiles(List<Field> fields) throws UnsupportedEncodingException, ConnectException {
-	FilesResouceList result = null;
+    /**
+     * Get list of file by filter
+     *
+     * @param fields hendled arguments (Fields , Limit , MediaType , Sort )
+     * Offset , PrevievCroup , Previev_Size)
+     * @return FilesResouceList
+     * @throws ConnectException
+     * @see FilesResouceList
+     * @see Limit
+     * @see Fields
+     * @see MediaType
+     *
+     */
+    public FilesResouceList getFiles(Field... fields) throws ConnectException {
 	String operation = "/v1/disk/resources/files";
+	return getObgect(FilesResouceList.class, operation, fields);
+    }
 
-	String responce = GETv2(operation, fields);
-	
-	if (responce != null) {
-	    result = new Gson().fromJson(responce, FilesResouceList.class);
-	}
-	
-	return result;
+    /**
+     * Get list of file by Last update
+     *
+     * @param fields hendled arguments (Fields , Limit , MediaType )
+     * Offset , PrevievCroup , Previev_Size)
+     * @return FilesResouceList
+     * @throws ConnectException
+     * @see FilesResouceList
+     * @see Limit
+     * @see Fields
+     * @see MediaType
+     *
+     */
+    public LastUploadedResourceList getLastUploadedList(Field... fields) throws ConnectException {
+	String operation = "/v1/disk/resources/last-uploaded";
+	return getObgect(LastUploadedResourceList.class, operation, fields);
     }
     
+    
+    /**
+     * Get list of public resources 
+     *
+     * @param fields hendled arguments (Fields , Limit ,Type ) 
+     * Offset , PrevievCroup , Previev_Size)
+     * @return FilesResouceList
+     * @throws ConnectException
+     * @see FilesResouceList
+     * @see Limit
+     * @see Fields
+     * @see MediaType
+     *
+     */
+    public PublicResourcesList getPublicResources(Field... fields) throws ConnectException {
+	String operation = "/v1/disk/resources/last-uploaded";
+	return getObgect(PublicResourcesList.class, operation, fields);
+    }
 
 }

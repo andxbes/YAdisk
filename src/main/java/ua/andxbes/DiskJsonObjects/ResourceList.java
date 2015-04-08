@@ -32,8 +32,8 @@ public class ResourceList {
 	    itemsString.append(item.toString()).append("\n");
 	}
 
-	return "ResourceList{" + "sort=" + getSort() + ", path=" + getPath() + ", linit=" + getLimit() + ", offset=" + getOffset()
-		+ ", total=" + getTotal() + ",\n items= \n"
+	return "ResourceList{" + "sort = " + getSort() + ", path = " + getPath() + ", linit = " + getLimit() + ", offset = " + getOffset()
+		+ ", total = " + getTotal() + ",\n items = \n"
 		+ itemsString.toString() + '}';
     }
 

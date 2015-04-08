@@ -35,13 +35,13 @@ public class Resource {
 
     @Override
     public String toString() {
-	return "Resource{" + "\n____ name=" + getName() + "\n____ public_key=" + getPublic_key()
-		+ "\n____ origin_path=" + getOrigin_path() + "\n____ created=" + getCreated()
-		+ "\n____ public_url=" + getPublic_url() + "\n____ modified=" + getModified()
-		+ "\n____ md5=" + getMd5() + "\n____ media_type=" + getMedia_type() + "\n____ path="
-		+ getPath() + "\n____ preview=" + getPreview() + "\n____ type=" + getType() + "\n____ mime_type="
-		+ getMime_type() + "\n____ custom_properties=" + getCustom_properties()
-		+ "\n____ size=" + getSize() + "\n____ _embedded=" + getEmbedded() + '}';
+	return "\nResource{" + "\n____ name = " + getName() + "\n____ public_key = " + getPublic_key()
+		+ "\n____ origin_path = " + getOrigin_path() + "\n____ created = " + getCreated()
+		+ "\n____ public_url = " + getPublic_url() + "\n____ modified = " + getModified()
+		+ "\n____ md5 = " + getMd5() + "\n____ media_type = " + getMedia_type() + "\n____ path = "
+		+ getPath() + "\n____ preview = " + getPreview() + "\n____ type = " + getType() + "\n____ mime_type = "
+		+ getMime_type() + "\n____ custom_properties = " + getCustom_properties()
+		+ "\n____ size = " + getSize() + "\n____ _embedded = " + getEmbedded() + '}';
     }
 
     /**

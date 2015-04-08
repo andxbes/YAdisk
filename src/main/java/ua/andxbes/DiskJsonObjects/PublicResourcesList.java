@@ -46,7 +46,11 @@ public class PublicResourcesList {
 
     @Override
     public String toString() {
-	return "PublicResourcesList{" + "items=" + items + ", type=" + type + ", limit=" + limit + ", offset=" + offset + '}';
+	StringBuilder sb = new StringBuilder();
+	for (int i = 0;i<items.length;i++) {
+	    sb.append("\n  item #").append((i+1)).append(items[i].toString()).append("\n    ");
+	}
+	return "PublicResourcesList{" + "items=" + sb.toString() + ", type = " + type + ", limit = " + limit + ", offset = " + offset + '}';
     }
     
     
