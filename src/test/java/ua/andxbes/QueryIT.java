@@ -84,14 +84,35 @@ public class QueryIT {
 
     @Test
     public void getLinkToDownloadIT() throws FileNotFoundException, UnsupportedEncodingException, ConnectException {
-	
-	
+
 	Resource resource = query.getResource(new Field[]{new Path("/")});
 	Resource[] list = resource.getEmbedded().getItems();
 	String pathToFile = null;
-	
+
 	for (int i = 0; i < list.length; i++) {
-	    if (list[i].getType().equals("file")) {
+	    if (list[i].getType().equals(Type.FILE)) {
+		pathToFile = list[i].getPath();
+		break;
+	    }
+	}
+
+	pathToFile = pathToFile.split(":")[1];
+	Logger.getLogger("Test getResourceList()").info("\n" + pathToFile);
+
+	Link link = query.getLinkToDownload(new Field[]{new Path(pathToFile)});
+	Logger.getLogger("Test getResourceList()").info(link.toString());
+
+    }
+
+    @Test
+    public void getLinkForUpload() throws FileNotFoundException, UnsupportedEncodingException, ConnectException {
+
+	Resource resource = query.getResource(new Field[]{new Path("/")});
+	Resource[] list = resource.getEmbedded().getItems();
+	String pathToFile = null;
+
+	for (int i = 0; i < list.length; i++) {
+	    if (list[i].getType().equals(Type.DIR)) {
 		pathToFile = list[i].getPath();
 		break;
 	    }
@@ -110,47 +131,38 @@ public class QueryIT {
 
 	ResourceList expResult = null;
 	FilesResouceList result = null;
-	
-	try {
-	    result = query.getFiles(new Field[]{new Limit(100)});//Фильтр на количество ожидаемых обьектов , по умолчанию 20  
-	} catch ( ConnectException ex) {
-	    Logger.getLogger(QueryIT.class.getName()).log(Level.SEVERE, null, ex);
-	}
+
+	result = query.getFiles(new Field[]{new Limit(100)});//Фильтр на количество ожидаемых обьектов , по умолчанию 20  
+
 	Logger.getLogger(this.getClass().getSimpleName()).info(result.toString());
 
     }
-    
+
     @Test
     public void testGetLastUpdatesList() {
 
 	ResourceList expResult = null;
 	LastUploadedResourceList result = null;
-	
-	try {
-	    result = query.getLastUploadedList(new Field[]{new Limit(100)});//Фильтр на количество ожидаемых обьектов , по умолчанию 20  
-	} catch ( ConnectException ex) {
-	    Logger.getLogger(QueryIT.class.getName()).log(Level.SEVERE, null, ex);
-	}
+
+	result = query.getLastUploadedList(new Field[]{new Limit(100)});//Фильтр на количество ожидаемых обьектов , по умолчанию 20  
+
 	Logger.getLogger(this.getClass().getSimpleName()).info(result.toString());
     }
-    
-      @Test
+
+    @Test
     public void testGetPublicResources() {
 
 	ResourceList expResult = null;
-	  PublicResourcesList result = null;
-	
-	try {
-	    result = query.getPublicResources(new Field[]{new Limit(100)});//Фильтр на количество ожидаемых обьектов , по умолчанию 20  
-	} catch ( ConnectException ex) {
-	    Logger.getLogger(QueryIT.class.getName()).log(Level.SEVERE, null, ex);
-	}
+	PublicResourcesList result = null;
+
+	result = query.getPublicResources(new Field[]{new Limit(100)});//Фильтр на количество ожидаемых обьектов , по умолчанию 20  
+
 	Logger.getLogger(this.getClass().getSimpleName()).info(result.toString());
     }
 
     @Test
     public void testCheck() {
-	Field[] list = new Field[]{new MediaType("doc"),new Fields("111")};
+	Field[] list = new Field[]{new MediaType("doc"), new Fields("111")};
 
 	Assert.assertTrue(query.checkRequiredField(list, new Class[]{MediaType.class}));
 	Assert.assertFalse(query.checkRequiredField(list, new Class[]{Limit.class}));

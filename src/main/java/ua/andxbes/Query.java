@@ -21,12 +21,14 @@ import ua.andxbes.DiskJsonObjects.Disk;
 import ua.andxbes.DiskJsonObjects.FilesResouceList;
 import ua.andxbes.DiskJsonObjects.LastUploadedResourceList;
 import ua.andxbes.DiskJsonObjects.Link;
+import ua.andxbes.DiskJsonObjects.Operation;
 import ua.andxbes.DiskJsonObjects.PublicResourcesList;
 import ua.andxbes.DiskJsonObjects.Resource;
 import ua.andxbes.fieldsForQuery.Field;
 import ua.andxbes.fieldsForQuery.Fields;
 import ua.andxbes.fieldsForQuery.Limit;
 import ua.andxbes.fieldsForQuery.MediaType;
+import ua.andxbes.fieldsForQuery.OperationId;
 import ua.andxbes.fieldsForQuery.Path;
 import ua.andxbes.util.QueryString;
 
@@ -85,7 +87,7 @@ public class Query {
 	return result.toString();
     }
 
-    protected String GET(String operation, Field[] fields) throws ConnectException {
+    protected String GET(String operation, Field[] fields){
 	QueryString qParams = new QueryString();
 	qParams.add(fields);
 	return GET(operation, qParams);
@@ -114,7 +116,7 @@ public class Query {
 	return temp;
     }
 
-    protected <T> T getObgect(Class<T> clazz, String operation, Field[] fields) throws ConnectException {
+    protected <T> T getObgect(Class<T> clazz, String operation, Field[] fields){
 	T object = null;
 
 	String responce = GET(operation, fields);
@@ -134,7 +136,7 @@ public class Query {
      *
      * @return Disk
      */
-    public Disk getDiskInfo() throws ConnectException {
+    public Disk getDiskInfo() {
 	String operation = "/v1/disk";
 	return getObgect(Disk.class, operation, null);
     }
@@ -184,14 +186,13 @@ public class Query {
      * @param fields hendled arguments (Fields , Limit , MediaType , Sort )
      * Offset , PrevievCroup , Previev_Size)
      * @return FilesResouceList
-     * @throws ConnectException
      * @see FilesResouceList
      * @see Limit
      * @see Fields
      * @see MediaType
      *
      */
-    public FilesResouceList getFiles(Field... fields) throws ConnectException {
+    public FilesResouceList getFiles(Field... fields){
 	String operation = "/v1/disk/resources/files";
 	return getObgect(FilesResouceList.class, operation, fields);
     }
@@ -202,14 +203,13 @@ public class Query {
      * @param fields hendled arguments (Fields , Limit , MediaType )
      * Offset , PrevievCroup , Previev_Size)
      * @return FilesResouceList
-     * @throws ConnectException
-     * @see FilesResouceList
+     * @see LastUploadedResourceList
      * @see Limit
      * @see Fields
      * @see MediaType
      *
      */
-    public LastUploadedResourceList getLastUploadedList(Field... fields) throws ConnectException {
+    public LastUploadedResourceList getLastUploadedList(Field... fields) {
 	String operation = "/v1/disk/resources/last-uploaded";
 	return getObgect(LastUploadedResourceList.class, operation, fields);
     }
@@ -221,16 +221,59 @@ public class Query {
      * @param fields hendled arguments (Fields , Limit ,Type ) 
      * Offset , PrevievCroup , Previev_Size)
      * @return FilesResouceList
-     * @throws ConnectException
-     * @see FilesResouceList
+     * @see PublicResourcesList
      * @see Limit
      * @see Fields
-     * @see MediaType
+     * @see Type
      *
      */
-    public PublicResourcesList getPublicResources(Field... fields) throws ConnectException {
+    public PublicResourcesList getPublicResources(Field... fields) {
 	String operation = "/v1/disk/resources/last-uploaded";
 	return getObgect(PublicResourcesList.class, operation, fields);
     }
+    
+    /**
+     *
+     * Get link for file Upload
+     *
+     * @param fields Path(mandatory field)
+     * @return Link
+     * @throws NoSuchFieldError not Path field
+     * @see Link
+     */
+    public Link getLinkForUpload(Field... fields)
+	    throws NoSuchFieldError {
+	
+	if (!checkRequiredField(fields, new Class[]{Path.class})) {
+	    throw new NoSuchFieldError();
+	}
+	String operation = "/v1/disk/resources/upload";
+	return getObgect(Link.class, operation, fields);
+    }
+    
+    /**
+     *
+     * Get status asynchronous operation 
+     *
+     * @param fields Operation(mandatory field) , Fields
+     * @return status asynchronous operation 
+     * @throws NoSuchFieldError not OperationId field
+     * @see Operation
+     * @see OperationId
+     */
+    public Operation getStatusOperationId(Field... fields)//TODO Не на чём ,пока, тестировать . 
+	    throws NoSuchFieldError {
+	
+	if (!checkRequiredField(fields, new Class[]{OperationId.class})) {
+	    throw new NoSuchFieldError();
+	}
+	String operationId = "";
+	for(Field field : fields){
+	    if(OperationId.class.isInstance(field)) operationId = field.getField();
+	}
+	String operation = "/v1/disk/operations/" + operationId;
+	return getObgect(Operation.class, operation, fields);
+    }
+    
 
 }

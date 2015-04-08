@@ -18,7 +18,7 @@ public class Link {
 
     @Override
     public String toString() {
-	return "Link{" + "href=" + getHref() + ",\n method=" + getMethod() + ",\n templated=" + isTemplated() + '}';
+	return "Link{" + "href = " + getHref() + ",\n method = " + getMethod() + ",\n templated = " + isTemplated() + '}';
     }
 
     /**
