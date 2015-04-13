@@ -76,7 +76,7 @@ public class QueryController {
      */
     public Disk getDiskInfo() {
 	String operation = "/v1/disk";
-	return GET.getObgectGetRequest(Query.GET, operation, null, Disk.class);
+	return GET.getObgect(Query.GET, operation, null, Disk.class);
     }
 
     /**
@@ -95,7 +95,7 @@ public class QueryController {
 	    throw new NoSuchFieldError();
 	}
 	String operation = "/v1/disk/resources";
-	return GET.getObgectGetRequest(Query.GET, operation, fields,Resource.class);
+	return GET.getObgect(Query.GET, operation, fields,Resource.class);
     }
 
     /**
@@ -115,7 +115,7 @@ public class QueryController {
 	    throw new NoSuchFieldError();
 	}
 	String operation = "/v1/disk/resources/download";
-	return GET.getObgectGetRequest(Query.GET, operation, fields,Link.class);
+	return GET.getObgect(Query.GET, operation, fields,Link.class);
     }
 
     /**
@@ -132,7 +132,7 @@ public class QueryController {
      */
     public FilesResouceList getFiles(Field... fields){
 	String operation = "/v1/disk/resources/files";
-	return GET.getObgectGetRequest(Query.GET, operation, fields,FilesResouceList.class);
+	return GET.getObgect(Query.GET, operation, fields,FilesResouceList.class);
     }
 
     /**
@@ -149,7 +149,7 @@ public class QueryController {
      */
     public LastUploadedResourceList getLastUploadedList(Field... fields) {
 	String operation = "/v1/disk/resources/last-uploaded";
-	return GET.getObgectGetRequest(Query.GET, operation, fields,LastUploadedResourceList.class);
+	return GET.getObgect(Query.GET, operation, fields,LastUploadedResourceList.class);
     }
     
     
@@ -167,7 +167,7 @@ public class QueryController {
      */
     public PublicResourcesList getPublicResources(Field... fields) {
 	String operation = "/v1/disk/resources/last-uploaded";
-	return GET.getObgectGetRequest(Query.GET, operation, fields,PublicResourcesList.class);
+	return GET.getObgect(Query.GET, operation, fields,PublicResourcesList.class);
     }
     
     /**
@@ -186,7 +186,7 @@ public class QueryController {
 	    throw new NoSuchFieldError();
 	}
 	String operation = "/v1/disk/resources/upload";
-	return GET.getObgectGetRequest(Query.GET, operation, fields,Link.class);
+	return GET.getObgect(Query.GET, operation, fields,Link.class);
     }
     
     /**
@@ -210,7 +210,7 @@ public class QueryController {
 	    if(OperationId.class.isInstance(field)) operationId = field.getField();
 	}
 	String operation = "/v1/disk/operations/" + operationId;
-	return GET.getObgectGetRequest(Query.GET, operation, fields,Operation.class);
+	return GET.getObgect(Query.GET, operation, fields,Operation.class);
     }
     
 

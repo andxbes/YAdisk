@@ -27,16 +27,19 @@ import ua.andxbes.util.QueryString;
 class Query {
 
     final static String GET = "GET",
-	    POST = "POST";
+	    POST = "POST",
+	    DELETE = "DELETE",
+	    PUT = "PUT"
+	    ,PATCH = "PATCH";
     private final Logger log = Logger.getLogger(this.getClass().getSimpleName());
 
 
-    <T> T getObgectGetRequest(String method,String operation, Field[] fields, Class<T> clazz) {
+    <T> T getObgect(String method,String operation, Field[] fields, Class<T> clazz) {
 	T object = null;
 
 	String responce = query(method,operation, fields);
 
-	if (responce != null) {
+	if (!responce.equals("")) {
 	    object = new Gson().fromJson(responce, clazz);
 	}
 	return object;
