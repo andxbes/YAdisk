@@ -34,7 +34,7 @@ public class QueryController {
     
     static final String baseUrl = "https://cloud-api.yandex.net:443";
     static String token;
-    private static final Get GET = new Get();
+    private static final Query GET = new Query();
 
     public QueryController(Token token) {
 	QueryController.token = token.toString();
@@ -70,17 +70,17 @@ public class QueryController {
 
     /**
      *
-     * Get information about the Ya-disk
+     * Query information about the Ya-disk
      *
      * @return Disk
      */
     public Disk getDiskInfo() {
 	String operation = "/v1/disk";
-	return GET.getObgectGetRequest( operation, null, Disk.class);
+	return GET.getObgectGetRequest(Query.GET, operation, null, Disk.class);
     }
 
     /**
-     * Get information about file and directory of path
+     * Query information about file and directory of path
      *
      * @param fields Path(mandatory field) , Fields , Limit , Sort
      * @return Resource
@@ -95,12 +95,12 @@ public class QueryController {
 	    throw new NoSuchFieldError();
 	}
 	String operation = "/v1/disk/resources";
-	return GET.getObgectGetRequest(operation, fields,Resource.class);
+	return GET.getObgectGetRequest(Query.GET, operation, fields,Resource.class);
     }
 
     /**
      *
-     * Get link for file download
+     * Query link for file download
      *
      * @param fields Path(mandatory field)
      * @return Link
@@ -115,11 +115,11 @@ public class QueryController {
 	    throw new NoSuchFieldError();
 	}
 	String operation = "/v1/disk/resources/download";
-	return GET.getObgectGetRequest(operation, fields,Link.class);
+	return GET.getObgectGetRequest(Query.GET, operation, fields,Link.class);
     }
 
     /**
-     * Get list of file by filter
+     * Query list of file by filter
      *
      * @param fields hendled arguments (Fields , Limit , MediaType , Sort )
      * Offset , PrevievCroup , Previev_Size)
@@ -132,11 +132,11 @@ public class QueryController {
      */
     public FilesResouceList getFiles(Field... fields){
 	String operation = "/v1/disk/resources/files";
-	return GET.getObgectGetRequest(operation, fields,FilesResouceList.class);
+	return GET.getObgectGetRequest(Query.GET, operation, fields,FilesResouceList.class);
     }
 
     /**
-     * Get list of file by Last update
+     * Query list of file by Last update
      *
      * @param fields hendled arguments (Fields , Limit , MediaType )
      * Offset , PrevievCroup , Previev_Size)
@@ -149,12 +149,12 @@ public class QueryController {
      */
     public LastUploadedResourceList getLastUploadedList(Field... fields) {
 	String operation = "/v1/disk/resources/last-uploaded";
-	return GET.getObgectGetRequest(operation, fields,LastUploadedResourceList.class);
+	return GET.getObgectGetRequest(Query.GET, operation, fields,LastUploadedResourceList.class);
     }
     
     
     /**
-     * Get list of public resources 
+     * Query list of public resources 
      *
      * @param fields hendled arguments (Fields , Limit ,Type ) 
      * Offset , PrevievCroup , Previev_Size)
@@ -167,12 +167,12 @@ public class QueryController {
      */
     public PublicResourcesList getPublicResources(Field... fields) {
 	String operation = "/v1/disk/resources/last-uploaded";
-	return GET.getObgectGetRequest(operation, fields,PublicResourcesList.class);
+	return GET.getObgectGetRequest(Query.GET, operation, fields,PublicResourcesList.class);
     }
     
     /**
      *
-     * Get link for file Upload
+     * Query link for file Upload
      *
      * @param fields Path(mandatory field)
      * @return Link
@@ -186,12 +186,12 @@ public class QueryController {
 	    throw new NoSuchFieldError();
 	}
 	String operation = "/v1/disk/resources/upload";
-	return GET.getObgectGetRequest(operation, fields,Link.class);
+	return GET.getObgectGetRequest(Query.GET, operation, fields,Link.class);
     }
     
     /**
      *
-     * Get status asynchronous operation 
+     * Query status asynchronous operation 
      *
      * @param fields Operation(mandatory field) , Fields
      * @return status asynchronous operation 
@@ -210,12 +210,8 @@ public class QueryController {
 	    if(OperationId.class.isInstance(field)) operationId = field.getField();
 	}
 	String operation = "/v1/disk/operations/" + operationId;
-	return GET.getObgectGetRequest(operation, fields,Operation.class);
+	return GET.getObgectGetRequest(Query.GET, operation, fields,Operation.class);
     }
     
 
-}
-class RequestConteyner{
-    String response;
-    String code;
 }

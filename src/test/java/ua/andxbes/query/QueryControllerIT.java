@@ -36,11 +36,11 @@ import ua.andxbes.fieldsForQuery.Type;
  *
  * @author Andr
  */
-public class QueryIT {
+public class QueryControllerIT {
 
     private QueryController query;
 
-    public QueryIT() {
+    public QueryControllerIT() {
 
 	query = new QueryController(Token.instance());
     }
@@ -77,7 +77,7 @@ public class QueryIT {
 	try {
 	    resource = query.getResource(new Path("/"));
 	} catch (NoSuchFieldError ex) {
-	    Logger.getLogger(QueryIT.class.getName()).log(Level.SEVERE, null, ex);
+	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
 	}
 
 	Logger.getLogger("Test getResourceList()").info(resource.toString());
