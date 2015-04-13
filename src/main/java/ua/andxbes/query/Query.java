@@ -25,6 +25,10 @@ import ua.andxbes.util.QueryString;
  * @author Andr
  */
 class Query {
+    final static int OK_GET = 200,
+	    OK_POST = 201,
+	    ASSINC_OPERATION = 202;
+	    
 
     final static String GET = "GET",
 	    POST = "POST",
@@ -34,7 +38,7 @@ class Query {
     private final Logger log = Logger.getLogger(this.getClass().getSimpleName());
 
 
-    <T> T getObgect(String method,String operation, Field[] fields, Class<T> clazz) {
+    <T> T getObgect(String method,String operation, Field[] fields, Class<T> clazz) throws ConnectException {
 	T object = null;
 
 	String responce = query(method,operation, fields);
@@ -45,7 +49,7 @@ class Query {
 	return object;
     }
 
-    String query(String method, String operation, QueryString qParam) {
+    String query(String method, String operation, QueryString qParam) throws ConnectException{
 
 	String param = qParam.toString().isEmpty() ? "" : "?" + qParam.toString();
 	StringBuilder result = new StringBuilder();
@@ -80,9 +84,9 @@ class Query {
 
 	    int code = conn.getResponseCode();
 	    log.log(Level.INFO, "code = {0}", code);
-	    if (code != 200 && code != 201 && code != 202) {
+	    if (code != OK_GET && code != OK_POST && code != ASSINC_OPERATION) {
 		throw new ConnectException(new Gson().fromJson(result.toString(), ua.andxbes.DiskJsonObjects.Error.class).toString());
-	    }else if(code != 200){
+	    }else if(code != OK_GET){
 	      log.log(Level.INFO, "Code = {0}\nresponse = {1}", new Object[]{code, result});
 	    }
 
@@ -97,7 +101,7 @@ class Query {
 	return result.toString();
     }
     
-      String query(String method, String operation, Field[] fields) {
+      String query(String method, String operation, Field[] fields) throws ConnectException {
 	QueryString qParams = new QueryString();
 	qParams.add(fields);
 	return query(method, operation, qParams);

@@ -74,7 +74,7 @@ public class QueryController {
      *
      * @return Disk
      */
-    public Disk getDiskInfo() {
+    public Disk getDiskInfo() throws ConnectException {
 	String operation = "/v1/disk";
 	return GET.getObgect(Query.GET, operation, null, Disk.class);
     }
@@ -130,7 +130,7 @@ public class QueryController {
      * @see MediaType
      *
      */
-    public FilesResouceList getFiles(Field... fields){
+    public FilesResouceList getFiles(Field... fields) throws ConnectException{
 	String operation = "/v1/disk/resources/files";
 	return GET.getObgect(Query.GET, operation, fields,FilesResouceList.class);
     }
@@ -147,7 +147,7 @@ public class QueryController {
      * @see MediaType
      *
      */
-    public LastUploadedResourceList getLastUploadedList(Field... fields) {
+    public LastUploadedResourceList getLastUploadedList(Field... fields) throws ConnectException {
 	String operation = "/v1/disk/resources/last-uploaded";
 	return GET.getObgect(Query.GET, operation, fields,LastUploadedResourceList.class);
     }
@@ -165,7 +165,7 @@ public class QueryController {
      * @see Type
      *
      */
-    public PublicResourcesList getPublicResources(Field... fields) {
+    public PublicResourcesList getPublicResources(Field... fields) throws ConnectException {
 	String operation = "/v1/disk/resources/last-uploaded";
 	return GET.getObgect(Query.GET, operation, fields,PublicResourcesList.class);
     }
@@ -180,7 +180,7 @@ public class QueryController {
      * @see Link
      */
     public Link getLinkForUpload(Field... fields)
-	    throws NoSuchFieldError {
+	    throws NoSuchFieldError, ConnectException {
 	
 	if (!checkRequiredField(fields, new Class[]{Path.class})) {
 	    throw new NoSuchFieldError();
@@ -200,7 +200,7 @@ public class QueryController {
      * @see OperationId
      */
     public Operation getStatusOperationId(Field... fields)//TODO Не на чём ,пока, тестировать . 
-	    throws NoSuchFieldError {
+	    throws NoSuchFieldError, ConnectException {
 	
 	if (!checkRequiredField(fields, new Class[]{OperationId.class})) {
 	    throw new NoSuchFieldError();

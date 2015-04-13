@@ -131,12 +131,17 @@ public class QueryControllerIT {
     @Test
     public void testGetFiles() {
 
-	ResourceList expResult = null;
-	FilesResouceList result = null;
+	try {
+	    ResourceList expResult = null;
+	    FilesResouceList result = null;
+	    
+	    result = query.getFiles(new Limit(100));//Фильтр на количество ожидаемых обьектов , по умолчанию 20
 
-	result = query.getFiles(new Limit(100));//Фильтр на количество ожидаемых обьектов , по умолчанию 20  
-
-	Logger.getLogger(this.getClass().getSimpleName()).info(result.toString());
+	    Logger.getLogger(this.getClass().getSimpleName()).info(result.toString());
+	} catch (ConnectException ex) {
+	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
+	    Assert.fail();
+	}
 
     }
 
@@ -146,7 +151,12 @@ public class QueryControllerIT {
 	ResourceList expResult = null;
 	LastUploadedResourceList result = null;
 
-	result = query.getLastUploadedList(new Field[]{new Limit(100)});//Фильтр на количество ожидаемых обьектов , по умолчанию 20  
+	try {
+	    result = query.getLastUploadedList(new Field[]{new Limit(100)});//Фильтр на количество ожидаемых обьектов , по умолчанию 20  
+	} catch (ConnectException ex) {
+	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
+	     Assert.fail();
+	}
 
 	Logger.getLogger(this.getClass().getSimpleName()).info(result.toString());
     }
@@ -157,7 +167,12 @@ public class QueryControllerIT {
 	ResourceList expResult = null;
 	PublicResourcesList result = null;
 
-	result = query.getPublicResources(new Field[]{new Limit(100)});//Фильтр на количество ожидаемых обьектов , по умолчанию 20  
+	try {
+	    result = query.getPublicResources(new Field[]{new Limit(100)});//Фильтр на количество ожидаемых обьектов , по умолчанию 20  
+	} catch (ConnectException ex) {
+	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
+	     Assert.fail();
+	}
 
 	Logger.getLogger(this.getClass().getSimpleName()).info(result.toString());
     }
