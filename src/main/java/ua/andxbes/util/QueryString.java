@@ -19,23 +19,16 @@ import ua.andxbes.fieldsForQuery.Field;
  */
 public class QueryString {
 
-    private StringBuffer query;
+    Map<String, String> result = new TreeMap<>();
 
     public QueryString() {
-	query = new StringBuffer();
+
     }
 
     public synchronized QueryString add(Object name, Object value) {
 
-	if (!query.toString().trim().equals("")) {
-	    query.append("&");
-	}
-
 	try {
-	    query.append(URLEncoder.encode(name.toString(), "UTF-8"));
-	    query.append("=");
-	    query.append(URLEncoder.encode(value.toString(), "UTF-8"));
-
+	    result.put(URLEncoder.encode(name.toString(), "UTF-8"), URLEncoder.encode(value.toString(), "UTF-8"));
 	} catch (UnsupportedEncodingException ex) {
 	    Logger.getLogger(QueryString.class.getName()).log(Level.SEVERE, null, ex);
 	}
@@ -43,7 +36,9 @@ public class QueryString {
     }
 
     public synchronized QueryString add(Field... fields) {
-	if(null == fields) return this;
+	if (null == fields) {
+	    return this;
+	}
 	for (Field field : fields) {
 	    add(field.getNameField(), field.getField());
 	}
@@ -52,19 +47,34 @@ public class QueryString {
 
     @Override
     public String toString() {
+	StringBuilder query = new StringBuilder();
+	for (Map.Entry<String, String> entrySet : result.entrySet()) {
+	    if (!query.toString().trim().equals("")) {
+		query.append("&");
+	    }
+
+	    query.append(entrySet.getKey());
+	    query.append("=");
+	    query.append(entrySet.getValue());
+
+	}
 	return query.toString();
     }
 
     public Map<String, String> parseURL(String url) {
-	Map<String, String> result = new TreeMap<>();
+	Map<String, String> map = new TreeMap<>();
 
 	String response = url.split("#")[1];
 
 	for (String s : response.split("\\&")) {
 	    String[] keyValue = s.split("=");
-	    result.put(keyValue[0], keyValue[1]);
+	    map.put(keyValue[0], keyValue[1]);
 	}
 
+	return map;
+    }
+
+    public Map<String, String> getMap() {
 	return result;
     }
 

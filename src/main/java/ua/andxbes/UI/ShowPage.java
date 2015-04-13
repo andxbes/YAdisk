@@ -1,4 +1,4 @@
-package ua.andxbes.util;
+package ua.andxbes.UI;
 
 import java.util.List;
 import javafx.application.Application;

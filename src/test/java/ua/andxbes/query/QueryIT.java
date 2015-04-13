@@ -3,7 +3,8 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ua.andxbes;
+package ua.andxbes.query;
+
 
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
@@ -23,6 +24,7 @@ import ua.andxbes.DiskJsonObjects.Link;
 import ua.andxbes.DiskJsonObjects.PublicResourcesList;
 import ua.andxbes.DiskJsonObjects.Resource;
 import ua.andxbes.DiskJsonObjects.ResourceList;
+import ua.andxbes.Token;
 import ua.andxbes.fieldsForQuery.Field;
 import ua.andxbes.fieldsForQuery.Fields;
 import ua.andxbes.fieldsForQuery.Limit;
@@ -36,11 +38,11 @@ import ua.andxbes.fieldsForQuery.Type;
  */
 public class QueryIT {
 
-    private Query query;
+    private QueryController query;
 
     public QueryIT() {
 
-	query = new Query(Token.instance());
+	query = new QueryController(Token.instance());
     }
 
     @BeforeClass
@@ -73,7 +75,7 @@ public class QueryIT {
 
 	Resource resource = null;
 	try {
-	    resource = query.getResource(new Field[]{new Path("/")});
+	    resource = query.getResource(new Path("/"));
 	} catch (NoSuchFieldError ex) {
 	    Logger.getLogger(QueryIT.class.getName()).log(Level.SEVERE, null, ex);
 	}
@@ -132,7 +134,7 @@ public class QueryIT {
 	ResourceList expResult = null;
 	FilesResouceList result = null;
 
-	result = query.getFiles(new Field[]{new Limit(100)});//Фильтр на количество ожидаемых обьектов , по умолчанию 20  
+	result = query.getFiles(new Limit(100));//Фильтр на количество ожидаемых обьектов , по умолчанию 20  
 
 	Logger.getLogger(this.getClass().getSimpleName()).info(result.toString());
 

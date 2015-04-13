@@ -3,18 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ua.andxbes;
+package ua.andxbes.query;
 
-import com.google.gson.Gson;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
 import java.rmi.ConnectException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ua.andxbes.DiskJsonObjects.Disk;
@@ -24,73 +15,29 @@ import ua.andxbes.DiskJsonObjects.Link;
 import ua.andxbes.DiskJsonObjects.Operation;
 import ua.andxbes.DiskJsonObjects.PublicResourcesList;
 import ua.andxbes.DiskJsonObjects.Resource;
+import ua.andxbes.Token;
 import ua.andxbes.fieldsForQuery.Field;
 import ua.andxbes.fieldsForQuery.Fields;
 import ua.andxbes.fieldsForQuery.Limit;
 import ua.andxbes.fieldsForQuery.MediaType;
 import ua.andxbes.fieldsForQuery.OperationId;
 import ua.andxbes.fieldsForQuery.Path;
-import ua.andxbes.util.QueryString;
 
 /**
  *
  * @author Andr
  */
-public class Query {
+public class QueryController {
 
     protected final Logger log = Logger.getLogger(this.getClass().getSimpleName());
 
-    public static final String PATH = "path",
-	    MEDIA_TYPE = "media_type",
-	    SORT = "sort";
-    protected final String baseUrl = "https://cloud-api.yandex.net:443";
-    protected final String token;
+    
+    static final String baseUrl = "https://cloud-api.yandex.net:443";
+    static String token;
+    private static final Get GET = new Get();
 
-    public Query(Token token) {
-	this.token = token.toString();
-    }
-
-    protected String GET(String operation, QueryString qParam) {
-	String param = qParam.toString().isEmpty() ? "" : "?" + qParam.toString();
-	StringBuilder result = new StringBuilder();
-	URL url;
-	HttpURLConnection conn;
-	BufferedReader br;
-	String line;
-	try {
-
-	    url = new URL(baseUrl + operation + param);
-	    conn = (HttpURLConnection) url.openConnection();
-	    conn.setRequestMethod("GET");
-	    conn.addRequestProperty("Authorization", "OAuth " + token);
-
-	    br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-
-	    while ((line = br.readLine()) != null) {
-		result.append(line);
-	    }
-
-	    int code = conn.getResponseCode();
-	    log.log(Level.INFO, "code = {0}", code);
-	    if (code != 200) {
-		throw new ConnectException(new Gson().fromJson(result.toString(), ua.andxbes.DiskJsonObjects.Error.class).toString());
-	    }
-
-	} catch (MalformedURLException ex) {
-	    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
-	} catch (ProtocolException ex) {
-	    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
-	} catch (IOException ex) {
-	    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
-	}
-
-	return result.toString();
-    }
-
-    protected String GET(String operation, Field[] fields){
-	QueryString qParams = new QueryString();
-	qParams.add(fields);
-	return GET(operation, qParams);
+    public QueryController(Token token) {
+	QueryController.token = token.toString();
     }
 
     /**
@@ -116,16 +63,7 @@ public class Query {
 	return temp;
     }
 
-    protected <T> T getObgect(Class<T> clazz, String operation, Field[] fields){
-	T object = null;
-
-	String responce = GET(operation, fields);
-
-	if (responce != null) {
-	    object = new Gson().fromJson(responce, clazz);
-	}
-	return object;
-    }
+  
 //==============================================================================
 //============================  public methods  ================================
 //==============================================================================
@@ -138,7 +76,7 @@ public class Query {
      */
     public Disk getDiskInfo() {
 	String operation = "/v1/disk";
-	return getObgect(Disk.class, operation, null);
+	return GET.getObgectGetRequest( operation, null, Disk.class);
     }
 
     /**
@@ -157,7 +95,7 @@ public class Query {
 	    throw new NoSuchFieldError();
 	}
 	String operation = "/v1/disk/resources";
-	return getObgect(Resource.class, operation, fields);
+	return GET.getObgectGetRequest(operation, fields,Resource.class);
     }
 
     /**
@@ -177,7 +115,7 @@ public class Query {
 	    throw new NoSuchFieldError();
 	}
 	String operation = "/v1/disk/resources/download";
-	return getObgect(Link.class, operation, fields);
+	return GET.getObgectGetRequest(operation, fields,Link.class);
     }
 
     /**
@@ -194,7 +132,7 @@ public class Query {
      */
     public FilesResouceList getFiles(Field... fields){
 	String operation = "/v1/disk/resources/files";
-	return getObgect(FilesResouceList.class, operation, fields);
+	return GET.getObgectGetRequest(operation, fields,FilesResouceList.class);
     }
 
     /**
@@ -211,7 +149,7 @@ public class Query {
      */
     public LastUploadedResourceList getLastUploadedList(Field... fields) {
 	String operation = "/v1/disk/resources/last-uploaded";
-	return getObgect(LastUploadedResourceList.class, operation, fields);
+	return GET.getObgectGetRequest(operation, fields,LastUploadedResourceList.class);
     }
     
     
@@ -229,7 +167,7 @@ public class Query {
      */
     public PublicResourcesList getPublicResources(Field... fields) {
 	String operation = "/v1/disk/resources/last-uploaded";
-	return getObgect(PublicResourcesList.class, operation, fields);
+	return GET.getObgectGetRequest(operation, fields,PublicResourcesList.class);
     }
     
     /**
@@ -248,7 +186,7 @@ public class Query {
 	    throw new NoSuchFieldError();
 	}
 	String operation = "/v1/disk/resources/upload";
-	return getObgect(Link.class, operation, fields);
+	return GET.getObgectGetRequest(operation, fields,Link.class);
     }
     
     /**
@@ -272,8 +210,12 @@ public class Query {
 	    if(OperationId.class.isInstance(field)) operationId = field.getField();
 	}
 	String operation = "/v1/disk/operations/" + operationId;
-	return getObgect(Operation.class, operation, fields);
+	return GET.getObgectGetRequest(operation, fields,Operation.class);
     }
     
 
+}
+class RequestConteyner{
+    String response;
+    String code;
 }

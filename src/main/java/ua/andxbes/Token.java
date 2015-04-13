@@ -8,7 +8,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import ua.andxbes.util.QueryString;
-import ua.andxbes.util.ShowPage;
+import ua.andxbes.UI.ShowPage;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
