@@ -18,6 +18,7 @@ import ua.andxbes.DiskJsonObjects.Resource;
 import ua.andxbes.Token;
 import ua.andxbes.fieldsForQuery.Field;
 import ua.andxbes.fieldsForQuery.Fields;
+import ua.andxbes.fieldsForQuery.From;
 import ua.andxbes.fieldsForQuery.Limit;
 import ua.andxbes.fieldsForQuery.MediaType;
 import ua.andxbes.fieldsForQuery.OperationId;
@@ -31,10 +32,9 @@ public class QueryController {
 
     protected final Logger log = Logger.getLogger(this.getClass().getSimpleName());
 
-    
     static final String baseUrl = "https://cloud-api.yandex.net:443";
     static String token;
-    private static final Query GET = new Query();
+    private static final Query query = new Query();
 
     public QueryController(Token token) {
 	QueryController.token = token.toString();
@@ -63,11 +63,9 @@ public class QueryController {
 	return temp;
     }
 
-  
 //==============================================================================
 //============================  public methods  ================================
 //==============================================================================
-
     /**
      *
      * Query information about the Ya-disk
@@ -76,7 +74,7 @@ public class QueryController {
      */
     public Disk getDiskInfo() throws ConnectException {
 	String operation = "/v1/disk";
-	return GET.getObgect(Query.GET, operation, null, Disk.class);
+	return query.getObgect(Query.GET, operation, null, Disk.class);
     }
 
     /**
@@ -90,12 +88,12 @@ public class QueryController {
      */
     public Resource getResource(Field... fields)
 	    throws ConnectException, NoSuchFieldError {
-	
+
 	if (!checkRequiredField(fields, new Class[]{Path.class})) {
 	    throw new NoSuchFieldError();
 	}
 	String operation = "/v1/disk/resources";
-	return GET.getObgect(Query.GET, operation, fields,Resource.class);
+	return query.getObgect(Query.GET, operation, fields, Resource.class);
     }
 
     /**
@@ -110,12 +108,12 @@ public class QueryController {
      */
     public Link getLinkToDownload(Field... fields)
 	    throws NoSuchFieldError, ConnectException {
-	
+
 	if (!checkRequiredField(fields, new Class[]{Path.class})) {
 	    throw new NoSuchFieldError();
 	}
 	String operation = "/v1/disk/resources/download";
-	return GET.getObgect(Query.GET, operation, fields,Link.class);
+	return query.getObgect(Query.GET, operation, fields, Link.class);
     }
 
     /**
@@ -130,16 +128,16 @@ public class QueryController {
      * @see MediaType
      *
      */
-    public FilesResouceList getFiles(Field... fields) throws ConnectException{
+    public FilesResouceList getFiles(Field... fields) throws ConnectException {
 	String operation = "/v1/disk/resources/files";
-	return GET.getObgect(Query.GET, operation, fields,FilesResouceList.class);
+	return query.getObgect(Query.GET, operation, fields, FilesResouceList.class);
     }
 
     /**
      * Query list of file by Last update
      *
-     * @param fields hendled arguments (Fields , Limit , MediaType )
-     * Offset , PrevievCroup , Previev_Size)
+     * @param fields hendled arguments (Fields , Limit , MediaType ) Offset ,
+     * PrevievCroup , Previev_Size)
      * @return FilesResouceList
      * @see LastUploadedResourceList
      * @see Limit
@@ -149,15 +147,14 @@ public class QueryController {
      */
     public LastUploadedResourceList getLastUploadedList(Field... fields) throws ConnectException {
 	String operation = "/v1/disk/resources/last-uploaded";
-	return GET.getObgect(Query.GET, operation, fields,LastUploadedResourceList.class);
+	return query.getObgect(Query.GET, operation, fields, LastUploadedResourceList.class);
     }
-    
-    
+
     /**
-     * Query list of public resources 
+     * Query list of public resources
      *
-     * @param fields hendled arguments (Fields , Limit ,Type ) 
-     * Offset , PrevievCroup , Previev_Size)
+     * @param fields hendled arguments (Fields , Limit ,Type ) Offset ,
+     * PrevievCroup , Previev_Size)
      * @return FilesResouceList
      * @see PublicResourcesList
      * @see Limit
@@ -167,9 +164,9 @@ public class QueryController {
      */
     public PublicResourcesList getPublicResources(Field... fields) throws ConnectException {
 	String operation = "/v1/disk/resources/last-uploaded";
-	return GET.getObgect(Query.GET, operation, fields,PublicResourcesList.class);
+	return query.getObgect(Query.GET, operation, fields, PublicResourcesList.class);
     }
-    
+
     /**
      *
      * Query link for file Upload
@@ -181,37 +178,46 @@ public class QueryController {
      */
     public Link getLinkForUpload(Field... fields)
 	    throws NoSuchFieldError, ConnectException {
-	
+
 	if (!checkRequiredField(fields, new Class[]{Path.class})) {
 	    throw new NoSuchFieldError();
 	}
 	String operation = "/v1/disk/resources/upload";
-	return GET.getObgect(Query.GET, operation, fields,Link.class);
+	return query.getObgect(Query.GET, operation, fields, Link.class);
     }
-    
+
     /**
      *
-     * Query status asynchronous operation 
+     * Query status asynchronous operation
      *
      * @param fields Operation(mandatory field) , Fields
-     * @return status asynchronous operation 
+     * @return status asynchronous operation
      * @throws NoSuchFieldError not OperationId field
      * @see Operation
      * @see OperationId
      */
     public Operation getStatusOperationId(Field... fields)//TODO Не на чём ,пока, тестировать . 
 	    throws NoSuchFieldError, ConnectException {
-	
+
 	if (!checkRequiredField(fields, new Class[]{OperationId.class})) {
 	    throw new NoSuchFieldError();
 	}
 	String operationId = "";
-	for(Field field : fields){
-	    if(OperationId.class.isInstance(field)) operationId = field.getField();
+	for (Field field : fields) {
+	    if (OperationId.class.isInstance(field)) {
+		operationId = field.getField();
+	    }
 	}
 	String operation = "/v1/disk/operations/" + operationId;
-	return GET.getObgect(Query.GET, operation, fields,Operation.class);
+	return query.getObgect(Query.GET, operation, fields, Operation.class);
     }
-    
+
+    public Link postCopy(Field... fields) throws ConnectException {
+	if (!checkRequiredField(fields, new Class[]{Path.class,From.class})) {
+	    throw new NoSuchFieldError();
+	}
+	String operation = "/v1/disk/resources/copy" ;
+	return query.getObgect(Query.POST, operation, fields, Link.class);
+    }
 
 }

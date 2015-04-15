@@ -10,7 +10,7 @@ package ua.andxbes.DiskJsonObjects;
  * @author Andr
  */
 public class Error {
-    private String massage
+    private String message
 	    ,description
 	    ,error;
 
@@ -18,14 +18,14 @@ public class Error {
 
     @Override
     public String toString() {
-	return "Error{" + "massage=" + getMassage() + ", description=" + getDescription() + ", error=" + getError() + '}';
+	return "Error{" + "message=" + getMessage() + ", description=" + getDescription() + ", error=" + getError() + '}';
     }
 
     /**
      * @return the massage
      */
-    public String getMassage() {
-	return massage;
+    public String getMessage() {
+	return message;
     }
 
     /**

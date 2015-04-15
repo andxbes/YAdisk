@@ -27,8 +27,10 @@ import ua.andxbes.DiskJsonObjects.ResourceList;
 import ua.andxbes.Token;
 import ua.andxbes.fieldsForQuery.Field;
 import ua.andxbes.fieldsForQuery.Fields;
+import ua.andxbes.fieldsForQuery.From;
 import ua.andxbes.fieldsForQuery.Limit;
 import ua.andxbes.fieldsForQuery.MediaType;
+import ua.andxbes.fieldsForQuery.Overwrite;
 import ua.andxbes.fieldsForQuery.Path;
 import ua.andxbes.fieldsForQuery.Type;
 
@@ -189,4 +191,17 @@ public class QueryControllerIT {
 
     }
 
+    @Test
+    public void postCopyIT(){
+
+	Link link = null ;
+	try {
+	    link = query.postCopy(new From("/dev_foto/"),new Path("/dev_foto2/"), new Overwrite(true));
+	} catch (ConnectException ex) {
+	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
+	    Assert.fail(ex.getMessage());
+	}
+	 Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, link.toString());
+    
+    }
 }
