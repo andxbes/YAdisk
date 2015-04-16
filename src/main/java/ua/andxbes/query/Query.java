@@ -15,9 +15,11 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.rmi.ConnectException;
+import java.rmi.server.Operation;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import ua.andxbes.fieldsForQuery.Field;
+import ua.andxbes.fieldsForQuery.OperationId;
 import ua.andxbes.util.QueryString;
 
 /**
@@ -31,11 +33,12 @@ class Query {
 	    DELETE = "DELETE",
 	    PUT = "PUT", PATCH = "PATCH";
     private final Logger log = Logger.getLogger(this.getClass().getSimpleName());
+    private Object query;
 
-    <T> T getObgect(String method, String operation, Field[] fields, Class<T> clazz) throws ConnectException {
+    <T> T getObgect(String method, String operation, Field[] fields, Class<T> clazz, String data) throws ConnectException {
 	T object = null;
 
-	String responce = query(method, operation, fields);
+	String responce = query(method, operation, fields, data);
 
 	if (!responce.equals("")) {
 	    object = new Gson().fromJson(responce, clazz);
@@ -43,7 +46,8 @@ class Query {
 	return object;
     }
 
-    String query(String method, String operation, QueryString qParam) throws ConnectException {
+    String query(String method, String operation, QueryString qParam, String data) throws ConnectException {
+	String param = qParam.toString().isEmpty() ? "" : "?" + qParam.toString();
 	StringBuilder result = new StringBuilder();
 	URL url;
 	HttpURLConnection conn;
@@ -51,19 +55,15 @@ class Query {
 	String line;
 	try {
 
-	    if (method.equals(GET)) {
-		String param = qParam.toString().isEmpty() ? "" : "?" + qParam.toString();
-		url = new URL(QueryController.baseUrl + operation + param);
-	    } else {
-		url = new URL(QueryController.baseUrl + operation);
-	    }
+	    url = new URL(QueryController.baseUrl + operation + param);
+
 	    conn = (HttpURLConnection) url.openConnection();
 	    conn.setRequestMethod(method);
 	    //we dispatch our token
 	    conn.addRequestProperty("Authorization", "OAuth " + QueryController.token);
 	    conn.addRequestProperty("Content-Type", "application/json ");
 
-	    if (!method.equals(GET)) {
+	    if (data != null) {
 		conn.setDoOutput(true);
 		DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
 		wr.writeBytes(qParam.toString());
@@ -72,7 +72,7 @@ class Query {
 	    }
 
 	    int code = conn.getResponseCode();
-	    log.log(Level.INFO, "code = {0} , method = {1} ,\n param = {2} ,\n url = {3} ", new Object[]{ code , conn.getRequestMethod() , qParam.toString() ,conn.getURL() });
+	    log.log(Level.INFO, "code = {0} , method = {1} ,\n param = {2} ,\n url = {3} ", new Object[]{code, conn.getRequestMethod(), qParam.toString(), conn.getURL()});
 
 	    if (code == HttpURLConnection.HTTP_OK || code == HttpURLConnection.HTTP_CREATED) {
 		br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -106,10 +106,37 @@ class Query {
 	return result.toString();
     }
 
-    String query(String method, String operation, Field[] fields) throws ConnectException {
+    String query(String method, String operation, QueryString qParam) throws ConnectException {
+	return query(method, operation, qParam, null);
+    }
+
+    String query(String method, String operation, Field[] fields, String data) throws ConnectException {
 	QueryString qParams = new QueryString();
 	qParams.add(fields);
-	return query(method, operation, qParams);
+	return query(method, operation, qParams, data);
+    }
+
+    String query(String method, String operation, Field[] fields) throws ConnectException {
+	return query(method, operation, fields, null);
+    }
+
+    /**
+     *
+     * Query status asynchronous operation
+     *
+     * @param fields Operation(mandatory field) , Fields
+     * @return status asynchronous operation
+     * @throws NoSuchFieldError not OperationId field
+     * @see Operation
+     * @see OperationId
+     */
+    public void getStatusOperationId(String operationId) throws ConnectException//TODO Не на чём ,пока, тестировать . 
+    {
+	String operation = "/v1/disk/operations/" + operationId;
+	String response = null;
+	while (true) {
+	    response = query(GET, operation, new QueryString());
+	}
     }
 
 }

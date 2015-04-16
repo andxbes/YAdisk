@@ -12,7 +12,6 @@ import ua.andxbes.DiskJsonObjects.Disk;
 import ua.andxbes.DiskJsonObjects.FilesResouceList;
 import ua.andxbes.DiskJsonObjects.LastUploadedResourceList;
 import ua.andxbes.DiskJsonObjects.Link;
-import ua.andxbes.DiskJsonObjects.Operation;
 import ua.andxbes.DiskJsonObjects.PublicResourcesList;
 import ua.andxbes.DiskJsonObjects.Resource;
 import ua.andxbes.Token;
@@ -21,7 +20,6 @@ import ua.andxbes.fieldsForQuery.Fields;
 import ua.andxbes.fieldsForQuery.From;
 import ua.andxbes.fieldsForQuery.Limit;
 import ua.andxbes.fieldsForQuery.MediaType;
-import ua.andxbes.fieldsForQuery.OperationId;
 import ua.andxbes.fieldsForQuery.Path;
 
 /**
@@ -74,7 +72,7 @@ public class QueryController {
      */
     public Disk getDiskInfo() throws ConnectException {
 	String operation = "/v1/disk";
-	return query.getObgect(Query.GET, operation, null, Disk.class);
+	return query.getObgect(Query.GET, operation, null, Disk.class,null);
     }
 
     /**
@@ -93,7 +91,7 @@ public class QueryController {
 	    throw new NoSuchFieldError();
 	}
 	String operation = "/v1/disk/resources";
-	return query.getObgect(Query.GET, operation, fields, Resource.class);
+	return query.getObgect(Query.GET, operation, fields, Resource.class,null);
     }
 
     /**
@@ -113,7 +111,7 @@ public class QueryController {
 	    throw new NoSuchFieldError();
 	}
 	String operation = "/v1/disk/resources/download";
-	return query.getObgect(Query.GET, operation, fields, Link.class);
+	return query.getObgect(Query.GET, operation, fields, Link.class,null);
     }
 
     /**
@@ -130,7 +128,7 @@ public class QueryController {
      */
     public FilesResouceList getFiles(Field... fields) throws ConnectException {
 	String operation = "/v1/disk/resources/files";
-	return query.getObgect(Query.GET, operation, fields, FilesResouceList.class);
+	return query.getObgect(Query.GET, operation, fields, FilesResouceList.class,null);
     }
 
     /**
@@ -147,7 +145,7 @@ public class QueryController {
      */
     public LastUploadedResourceList getLastUploadedList(Field... fields) throws ConnectException {
 	String operation = "/v1/disk/resources/last-uploaded";
-	return query.getObgect(Query.GET, operation, fields, LastUploadedResourceList.class);
+	return query.getObgect(Query.GET, operation, fields, LastUploadedResourceList.class,null);
     }
 
     /**
@@ -164,7 +162,7 @@ public class QueryController {
      */
     public PublicResourcesList getPublicResources(Field... fields) throws ConnectException {
 	String operation = "/v1/disk/resources/last-uploaded";
-	return query.getObgect(Query.GET, operation, fields, PublicResourcesList.class);
+	return query.getObgect(Query.GET, operation, fields, PublicResourcesList.class,null);
     }
 
     /**
@@ -183,41 +181,17 @@ public class QueryController {
 	    throw new NoSuchFieldError();
 	}
 	String operation = "/v1/disk/resources/upload";
-	return query.getObgect(Query.GET, operation, fields, Link.class);
+	return query.getObgect(Query.GET, operation, fields, Link.class,null);
     }
 
-    /**
-     *
-     * Query status asynchronous operation
-     *
-     * @param fields Operation(mandatory field) , Fields
-     * @return status asynchronous operation
-     * @throws NoSuchFieldError not OperationId field
-     * @see Operation
-     * @see OperationId
-     */
-    public Operation getStatusOperationId(Field... fields)//TODO Не на чём ,пока, тестировать . 
-	    throws NoSuchFieldError, ConnectException {
-
-	if (!checkRequiredField(fields, new Class[]{OperationId.class})) {
-	    throw new NoSuchFieldError();
-	}
-	String operationId = "";
-	for (Field field : fields) {
-	    if (OperationId.class.isInstance(field)) {
-		operationId = field.getField();
-	    }
-	}
-	String operation = "/v1/disk/operations/" + operationId;
-	return query.getObgect(Query.GET, operation, fields, Operation.class);
-    }
+   
 
     public Link postCopy(Field... fields) throws ConnectException {
 	if (!checkRequiredField(fields, new Class[]{Path.class,From.class})) {
 	    throw new NoSuchFieldError();
 	}
 	String operation = "/v1/disk/resources/copy" ;
-	return query.getObgect(Query.POST, operation, fields, Link.class);
+	return query.getObgect(Query.POST, operation, fields, Link.class,null);
     }
 
 }
