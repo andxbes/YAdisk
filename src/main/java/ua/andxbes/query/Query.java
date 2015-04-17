@@ -15,11 +15,9 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.rmi.ConnectException;
-import java.rmi.server.Operation;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import ua.andxbes.fieldsForQuery.Field;
-import ua.andxbes.fieldsForQuery.OperationId;
 import ua.andxbes.util.QueryString;
 
 /**
@@ -84,7 +82,7 @@ class Query {
 		while ((line = br.readLine()) != null) {
 		    result.append(line);
 		}
-		throw new UnsupportedOperationException(result.toString());
+		//getStatusOperationId( new Gson().fromJson(result.toString(), Link.class));
 	    } else {
 		br = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
 		while ((line = br.readLine()) != null) {
@@ -130,13 +128,25 @@ class Query {
      * @see Operation
      * @see OperationId
      */
-    public void getStatusOperationId(String operationId) throws ConnectException//TODO Не на чём ,пока, тестировать . 
-    {
-	String operation = "/v1/disk/operations/" + operationId;
-	String response = null;
-	while (true) {
-	    response = query(GET, operation, new QueryString());
-	}
-    }
+//    public void getStatusOperationId(Link link) throws ConnectException//TODO Не на чём ,пока, тестировать . 
+//    {
+//	
+//
+//	String response = null;
+//	for (int i = 0; i < 4; i++) {
+//
+//	    {
+//		response = query(GET, operation, new Field[]{new OperationId(operationId)});
+//		log.info(operationId);
+//		try {
+//		    Thread.sleep(1000);
+//		} catch (InterruptedException ex) {
+//		    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
+//		}
+//	    }
+//	}
+//    }
+    
+    
 
 }
