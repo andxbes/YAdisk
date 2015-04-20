@@ -72,7 +72,7 @@ public class QueryController {
      */
     public Disk getDiskInfo() throws ConnectException {
 	String operation = "/v1/disk";
-	return query.getObgect(Query.GET, operation, null, Disk.class,null);
+	return query.getObgect(Query.GET, operation, null, Disk.class);
     }
 
     /**
@@ -91,7 +91,7 @@ public class QueryController {
 	    throw new NoSuchFieldError();
 	}
 	String operation = "/v1/disk/resources";
-	return query.getObgect(Query.GET, operation, fields, Resource.class,null);
+	return query.getObgect(Query.GET, operation, fields, Resource.class);
     }
 
     /**
@@ -111,7 +111,7 @@ public class QueryController {
 	    throw new NoSuchFieldError();
 	}
 	String operation = "/v1/disk/resources/download";
-	return query.getObgect(Query.GET, operation, fields, Link.class,null);
+	return query.getObgect(Query.GET, operation, fields, Link.class);
     }
 
     /**
@@ -145,7 +145,7 @@ public class QueryController {
      */
     public LastUploadedResourceList getLastUploadedList(Field... fields) throws ConnectException {
 	String operation = "/v1/disk/resources/last-uploaded";
-	return query.getObgect(Query.GET, operation, fields, LastUploadedResourceList.class,null);
+	return query.getObgect(Query.GET, operation, fields, LastUploadedResourceList.class);
     }
 
     /**
@@ -162,7 +162,7 @@ public class QueryController {
      */
     public PublicResourcesList getPublicResources(Field... fields) throws ConnectException {
 	String operation = "/v1/disk/resources/last-uploaded";
-	return query.getObgect(Query.GET, operation, fields, PublicResourcesList.class,null);
+	return query.getObgect(Query.GET, operation, fields, PublicResourcesList.class);
     }
 
     /**
@@ -181,7 +181,7 @@ public class QueryController {
 	    throw new NoSuchFieldError();
 	}
 	String operation = "/v1/disk/resources/upload";
-	return query.getObgect(Query.GET, operation, fields, Link.class,null);
+	return query.getObgect(Query.GET, operation, fields, Link.class);
     }
 
    
@@ -191,7 +191,7 @@ public class QueryController {
 	    throw new NoSuchFieldError();
 	}
 	String operation = "/v1/disk/resources/copy" ;
-	return query.getObgect(Query.POST, operation, fields, Link.class,null);
+	return query.getObgect(Query.POST, operation, fields, Link.class);
     }
 
 }
