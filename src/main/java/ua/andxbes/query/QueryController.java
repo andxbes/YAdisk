@@ -226,32 +226,18 @@ public class QueryController {
 	Link link ;
 	try {
 	    link = query.getObgect(Query.POST, operation, fields, Link.class);
-
-	    new Thread(() -> {
-		try {
-		    refrashStatusOperationId(link);
-		} catch (ConnectException ex) {
-		    Logger.getLogger(QueryController.class.getName()).log(Level.SEVERE, null, ex);
-		}
-	    }).start();
-	} catch (RuntimeException e) {
+	    new Thread(() -> refrashStatusOperationId(link)).start();
+	} catch (Query.Ok e) {
               throw new Query.Ok(e.toString());
 	}
-
 	return link;
     }
 
     /**
      *
      * Query status asynchronous operation
-     *
-     * @param fields Operation(mandatory field) , Fields
-     * @return status asynchronous operation
-     * @throws NoSuchFieldError not OperationId field
-     * @see Operation
-     * @see OperationId
      */
-    void refrashStatusOperationId(Link link) throws  NoSuchFieldError ,ConnectException {
+    public void refrashStatusOperationId(Link link)   {
 	 log.log(Level.INFO, "Start.Length of the  list = {0}", getIn_progress().size());
 	getIn_progress().add(link);
 	    URL url = null;
@@ -268,7 +254,6 @@ public class QueryController {
 	    Pattern pattern = Pattern.compile("[\"|}|{]");
 	    boolean end = false;
 	    while (!end) {
-
 		try {
 
 		    String response = query.query(link.getMethod(), url, null);
@@ -276,15 +261,12 @@ public class QueryController {
 		    String status = pattern.matcher(response.split(":")[1]).replaceAll("");
 		    log.log(Level.INFO, "\n s = {0}", status);
 
-		    if (status.equals("success")) {
-			end = true;
-		    }
+		    if (status.equals("success")) end = true;
 		    try {
 			Thread.sleep(2000);
 		    } catch (InterruptedException ex) {
 			Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
 		    }
-
 		} catch (ConnectException ex) {
 		    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
 		}
