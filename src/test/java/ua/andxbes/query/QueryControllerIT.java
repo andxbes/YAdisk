@@ -39,7 +39,7 @@ import ua.andxbes.fieldsForQuery.Type;
  */
 public class QueryControllerIT {
 
-    private QueryController query;
+    private final QueryController query;
 
     public QueryControllerIT() {
 
@@ -71,6 +71,34 @@ public class QueryControllerIT {
 
     }
 
+    private String getAnyFolder() {
+	return getAnyResources(Type.DIR);
+    }
+
+    private String getAnyFile() {
+	return getAnyResources(Type.FILE);
+    }
+
+    private String getAnyResources(String type) {
+	String result = null;
+
+	try {
+	    Resource resource = query.getResource(new Field[]{new Path("/")});
+	    Resource[] list = resource.getEmbedded().getItems();
+
+	    for (int i = 0; i < list.length; i++) {
+		if (list[i].getType().equals(type)) {
+		    result = list[i].getPath();
+		    break;
+		}
+	    }
+	} catch (ConnectException | NoSuchFieldError ex) {
+	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
+	}
+
+	return result;
+    }
+
     @Test
     public void getResource() throws ConnectException {
 
@@ -84,46 +112,10 @@ public class QueryControllerIT {
 	Logger.getLogger("Test getResourceList()").info(resource.toString());
 
     }
-    
-    private String getAnyFolder(){
-	String result = null;
-	try {
-	    Resource resource = query.getResource(new Field[]{new Path("/")});
-	    Resource[] list = resource.getEmbedded().getItems();
-	   
-	    
-	    for (int i = 0; i < list.length; i++) {
-		if (list[i].getType().equals(Type.DIR)) {
-		    result = list[i].getPath();
-		    break;
-		}
-	    }
-	    
-	    //result = result.split(":")[1];
-	} catch (ConnectException ex) {
-	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
-	} catch (NoSuchFieldError ex) {
-	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
-	}
-    return result;
-    
-    }
 
     @Test
     public void getLinkToDownloadIT() throws FileNotFoundException, UnsupportedEncodingException, ConnectException {
-
-	Resource resource = query.getResource(new Field[]{new Path("/")});
-	Resource[] list = resource.getEmbedded().getItems();
-	String pathToFile = null;
-
-	for (int i = 0; i < list.length; i++) {
-	    if (list[i].getType().equals(Type.FILE)) {
-		pathToFile = list[i].getPath();
-		break;
-	    }
-	}
-
-	pathToFile = pathToFile.split(":")[1];
+	String pathToFile = getAnyFile();
 	Logger.getLogger("Test getResourceList()").info("\n" + pathToFile);
 
 	Link link = query.getLinkToDownload(new Field[]{new Path(pathToFile)});
@@ -133,19 +125,7 @@ public class QueryControllerIT {
 
     @Test
     public void getLinkForUpload() throws FileNotFoundException, UnsupportedEncodingException, ConnectException {
-
-	Resource resource = query.getResource(new Field[]{new Path("/")});
-	Resource[] list = resource.getEmbedded().getItems();
-	String pathToFile = null;
-
-	for (int i = 0; i < list.length; i++) {
-	    if (list[i].getType().equals(Type.DIR)) {
-		pathToFile = list[i].getPath();
-		break;
-	    }
-	}
-
-	pathToFile = pathToFile.split(":")[1];
+	String pathToFile = getAnyFolder();
 	Logger.getLogger("Test getResourceList()").info("\n" + pathToFile);
 
 	Link link = query.getLinkToDownload(new Field[]{new Path(pathToFile)});
@@ -215,26 +195,36 @@ public class QueryControllerIT {
     }
 
     @Test
-    public void postCopyIT() {
+    public void postCopyIT() throws InterruptedException {
 
-	Link link = null;
+	Link link;
 	try {
 	    link = query.postCopy(new From(getAnyFolder()), new Path("/folderFortests/"), new Overwrite(true));
+
+	    /* Я так понял , все тесты запускаются в разных потоках ,
+	     и основной поток при закрытии ни как не ждет завершения дочерних потоков  .
+	     Потому создаем еще один поток , которого будем в тесте ждать .
+	     */
+	    Thread t = new Thread(new Runnable() {
+
+		public void run() {
+		    try {
+			query.refrashStatusOperationId(link);
+		    } catch (ConnectException ex) {
+			Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
+		    }
+		}
+	    });
+	    t.start();
+	    t.join();//waiting result of assynchronous operation
+
+	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.INFO, "\nresult  = {0}", link.toString());
 	} catch (ConnectException ex) {
 	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
 	    Assert.fail(ex.getMessage());
+	} catch (RuntimeException e) {
+	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, e);
 	}
-	Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, link.toString());
-	
-        // тут ,почему-то ,основной  поток не ждет завершения дочернего потока, перед своим закрытием  , потому заставляем его подождать 
-	while (query.getCurrentTask() != 0) {
-	    try {
-		Thread.sleep(100);
-	    } catch (InterruptedException ex) {
-		Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
-	    }
-	}
-	
 
     }
 }

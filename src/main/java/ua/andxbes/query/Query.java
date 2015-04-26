@@ -15,13 +15,8 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.rmi.ConnectException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
-import ua.andxbes.DiskJsonObjects.Link;
 import ua.andxbes.fieldsForQuery.Field;
 import ua.andxbes.util.QueryString;
 
@@ -31,8 +26,7 @@ import ua.andxbes.util.QueryString;
  */
 class Query {
 
-    //List with assinc operation 
-    private static final List<Link> in_progress = Collections.synchronizedList(new ArrayList<Link>());
+   
 
     final static String GET = "GET",
 	    POST = "POST",
@@ -40,12 +34,6 @@ class Query {
 	    PUT = "PUT", PATCH = "PATCH";
     private static final Logger log = Logger.getLogger("Qery");
 
-    /**
-     * @return the in_progress
-     */
-    public static List<Link> getIn_progress() {
-	return in_progress;
-    }
 
     <T> T getObgect(String method, String operation, Field[] fields, Class<T> clazz, String data) throws ConnectException {
 	T object = null;
@@ -99,19 +87,13 @@ class Query {
 	    int code = conn.getResponseCode();
 	    log.log(Level.INFO, "code = {0} , method = {1} ,\n data = {2} ,\n url = {3} ", new Object[]{code, conn.getRequestMethod(), data, conn.getURL()});
 
-	    if (code == HttpURLConnection.HTTP_OK || code == HttpURLConnection.HTTP_CREATED) {//201 or 200
+	    if (code == HttpURLConnection.HTTP_OK ||code == HttpURLConnection.HTTP_ACCEPTED) {//202 or 200
 		br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 		while ((line = br.readLine()) != null) {
 		    result.append(line);
 		}
-	    } else if (code == HttpURLConnection.HTTP_ACCEPTED) {//202
-		br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-		while ((line = br.readLine()) != null) {
-		    result.append(line);
-		}
-
-		getStatusOperationId(new Gson().fromJson(result.toString(), Link.class));
-
+	    } else if (code == HttpURLConnection.HTTP_CREATED) {//201
+		throw new Ok("not assinchronous method");
 	    } else {//error
 		br = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
 		while ((line = br.readLine()) != null) {
@@ -139,69 +121,13 @@ class Query {
 	return query(method, operation, qParams, data);
     }
 
-    /**
-     *
-     * Query status asynchronous operation
-     *
-     * @param fields Operation(mandatory field) , Fields
-     * @return status asynchronous operation
-     * @throws NoSuchFieldError not OperationId field
-     * @see Operation
-     * @see OperationId
-     */
-    public void getStatusOperationId(Link link) throws ConnectException {
-	getIn_progress().add(link);
-	log.log(Level.INFO, "Length of the  list = {0}", getIn_progress().size());
-	
-	new Thread(new Runnable() {
+    //if server return code 201 throw this  exception
+static class Ok extends RuntimeException{
 
-	    @Override
-	    public void run() {
-
-		URL url = null;
-		try {
-		    url = new URL(link.getHref());
-		} catch (MalformedURLException ex) {
-		    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
-		}
-		/*
-		 response = {"status":"in-progress"}
-		 response = {"status":"success"}
-	
-		 */
-		Pattern pattern = Pattern.compile("[\"|}|{]");
-		boolean end = false;
-		while (!end) {
-
-		    try {
-
-			String response = query(link.getMethod(), url, null);
-
-			String status = pattern.matcher(response.split(":")[1]).replaceAll("");
-			log.log(Level.INFO, "\n s = {0}", status);
-
-			if (status.equals("success")) {
-			    end = true;
-			}
-			try {
-			    Thread.sleep(1000);
-			} catch (InterruptedException ex) {
-			    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
-			}
-
-		    } catch (ConnectException ex) {
-			Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
-		    }
-		   
-		    
-		}
-		getIn_progress().remove(link);
-		log.log(Level.INFO, "Length of the  list = {0}", getIn_progress().size());
-
-	    }
-	}).start();
-	log.log(Level.INFO, "Length of the  list = {0}", getIn_progress().size());
-
-    }
-
+	public Ok(String message) {
+	  super(message);
+	}
+     
 }
+}
+

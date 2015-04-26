@@ -5,8 +5,15 @@
  */
 package ua.andxbes.query;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.rmi.ConnectException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import ua.andxbes.DiskJsonObjects.Disk;
 import ua.andxbes.DiskJsonObjects.FilesResouceList;
@@ -28,18 +35,23 @@ import ua.andxbes.fieldsForQuery.Path;
  */
 public class QueryController {
 
+   
+
     protected final Logger log = Logger.getLogger(this.getClass().getSimpleName());
 
     static final String baseUrl = "https://cloud-api.yandex.net:443";
     static String token;
     private static final Query query = new Query();
 
+    //List with assinc operation 
+    private static final List<Link> in_progress = Collections.synchronizedList(new ArrayList<Link>());
+
     public QueryController(Token token) {
 	QueryController.token = token.toString();
     }
-    
-    public int getCurrentTask (){
-      return Query.getIn_progress().size();
+
+    public int getCurrentTask() {
+	return getIn_progress().size();
     }
 
     /**
@@ -68,6 +80,14 @@ public class QueryController {
 //==============================================================================
 //============================  public methods  ================================
 //==============================================================================
+    
+     /**
+     * @return the in_progress
+     */
+    public static List<Link> getIn_progress() {
+	return in_progress;
+    }
+    
     /**
      *
      * Query information about the Ya-disk
@@ -132,7 +152,7 @@ public class QueryController {
      */
     public FilesResouceList getFiles(Field... fields) throws ConnectException {
 	String operation = "/v1/disk/resources/files";
-	return query.getObgect(Query.GET, operation, fields, FilesResouceList.class,null);
+	return query.getObgect(Query.GET, operation, fields, FilesResouceList.class, null);
     }
 
     /**
@@ -188,23 +208,93 @@ public class QueryController {
 	return query.getObgect(Query.GET, operation, fields, Link.class);
     }
 
-   
-/**
+    /**
      *
-     * Query link for file copy disk to  disk 
+     * Query link for file copy disk to disk
      *
      * @param fields Path ,From(mandatory field)
      * @return Link
-     * @throws NoSuchFieldError  us not Path ,From
+     * @throws NoSuchFieldError us not Path ,From
      * @see Link
      */
-    public Link postCopy(Field... fields) throws ConnectException {
-	if (!checkRequiredField(fields, new Class[]{Path.class,From.class})) {
+    public Link postCopy(Field... fields)
+	    throws NoSuchFieldError, ConnectException {
+	if (!checkRequiredField(fields, new Class[]{Path.class, From.class})) {
 	    throw new NoSuchFieldError();
 	}
-	String operation = "/v1/disk/resources/copy" ;
-	return query.getObgect(Query.POST, operation, fields, Link.class);
+	String operation = "/v1/disk/resources/copy";
+	Link link ;
+	try {
+	    link = query.getObgect(Query.POST, operation, fields, Link.class);
+
+	    new Thread(() -> {
+		try {
+		    refrashStatusOperationId(link);
+		} catch (ConnectException ex) {
+		    Logger.getLogger(QueryController.class.getName()).log(Level.SEVERE, null, ex);
+		}
+	    }).start();
+	} catch (RuntimeException e) {
+              throw new Query.Ok(e.toString());
+	}
+
+	return link;
     }
 
+    /**
+     *
+     * Query status asynchronous operation
+     *
+     * @param fields Operation(mandatory field) , Fields
+     * @return status asynchronous operation
+     * @throws NoSuchFieldError not OperationId field
+     * @see Operation
+     * @see OperationId
+     */
+    void refrashStatusOperationId(Link link) throws  NoSuchFieldError ,ConnectException {
+	 log.log(Level.INFO, "Start.Length of the  list = {0}", getIn_progress().size());
+	getIn_progress().add(link);
+	    URL url = null;
+	    try {
+		url = new URL(link.getHref());
+	    } catch (MalformedURLException ex) {
+		Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
+	    }
+	    /*
+	     response = {"status":"in-progress"}
+	     response = {"status":"success"}
+	    
+	     */
+	    Pattern pattern = Pattern.compile("[\"|}|{]");
+	    boolean end = false;
+	    while (!end) {
+
+		try {
+
+		    String response = query.query(link.getMethod(), url, null);
+
+		    String status = pattern.matcher(response.split(":")[1]).replaceAll("");
+		    log.log(Level.INFO, "\n s = {0}", status);
+
+		    if (status.equals("success")) {
+			end = true;
+		    }
+		    try {
+			Thread.sleep(2000);
+		    } catch (InterruptedException ex) {
+			Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
+		    }
+
+		} catch (ConnectException ex) {
+		    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
+		}
+
+	    }
+	    getIn_progress().remove(link);
+	    log.log(Level.INFO, "Length of the  list = {0}", getIn_progress().size());
+	
+    }
     
+   
+
 }
