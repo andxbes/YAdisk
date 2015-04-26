@@ -5,7 +5,6 @@
  */
 package ua.andxbes.query;
 
-
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.rmi.ConnectException;
@@ -85,6 +84,30 @@ public class QueryControllerIT {
 	Logger.getLogger("Test getResourceList()").info(resource.toString());
 
     }
+    
+    private String getAnyFolder(){
+	String result = null;
+	try {
+	    Resource resource = query.getResource(new Field[]{new Path("/")});
+	    Resource[] list = resource.getEmbedded().getItems();
+	   
+	    
+	    for (int i = 0; i < list.length; i++) {
+		if (list[i].getType().equals(Type.DIR)) {
+		    result = list[i].getPath();
+		    break;
+		}
+	    }
+	    
+	    //result = result.split(":")[1];
+	} catch (ConnectException ex) {
+	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
+	} catch (NoSuchFieldError ex) {
+	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
+	}
+    return result;
+    
+    }
 
     @Test
     public void getLinkToDownloadIT() throws FileNotFoundException, UnsupportedEncodingException, ConnectException {
@@ -136,7 +159,7 @@ public class QueryControllerIT {
 	try {
 	    ResourceList expResult = null;
 	    FilesResouceList result = null;
-	    
+
 	    result = query.getFiles(new Limit(100));//Фильтр на количество ожидаемых обьектов , по умолчанию 20
 
 	    Logger.getLogger(this.getClass().getSimpleName()).info(result.toString());
@@ -157,7 +180,7 @@ public class QueryControllerIT {
 	    result = query.getLastUploadedList(new Field[]{new Limit(100)});//Фильтр на количество ожидаемых обьектов , по умолчанию 20  
 	} catch (ConnectException ex) {
 	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
-	     Assert.fail();
+	    Assert.fail();
 	}
 
 	Logger.getLogger(this.getClass().getSimpleName()).info(result.toString());
@@ -173,7 +196,7 @@ public class QueryControllerIT {
 	    result = query.getPublicResources(new Field[]{new Limit(100)});//Фильтр на количество ожидаемых обьектов , по умолчанию 20  
 	} catch (ConnectException ex) {
 	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
-	     Assert.fail();
+	    Assert.fail();
 	}
 
 	Logger.getLogger(this.getClass().getSimpleName()).info(result.toString());
@@ -192,16 +215,26 @@ public class QueryControllerIT {
     }
 
     @Test
-    public void postCopyIT(){
+    public void postCopyIT() {
 
-	Link link = null ;
+	Link link = null;
 	try {
-	    link = query.postCopy(new From("/dev_foto/"),new Path("/dev_foto2/"), new Overwrite(true));
+	    link = query.postCopy(new From(getAnyFolder()), new Path("/folderFortests/"), new Overwrite(true));
 	} catch (ConnectException ex) {
 	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
 	    Assert.fail(ex.getMessage());
 	}
-	 Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, link.toString());
-    
+	Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, link.toString());
+	
+        // тут ,почему-то ,основной  поток не ждет завершения дочернего потока, перед своим закрытием  , потому заставляем его подождать 
+	while (query.getCurrentTask() != 0) {
+	    try {
+		Thread.sleep(100);
+	    } catch (InterruptedException ex) {
+		Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
+	    }
+	}
+	
+
     }
 }

@@ -37,6 +37,10 @@ public class QueryController {
     public QueryController(Token token) {
 	QueryController.token = token.toString();
     }
+    
+    public int getCurrentTask (){
+      return Query.getIn_progress().size();
+    }
 
     /**
      * Checking <b> fields <\b> for the presence of specific types
@@ -185,7 +189,15 @@ public class QueryController {
     }
 
    
-
+/**
+     *
+     * Query link for file copy disk to  disk 
+     *
+     * @param fields Path ,From(mandatory field)
+     * @return Link
+     * @throws NoSuchFieldError  us not Path ,From
+     * @see Link
+     */
     public Link postCopy(Field... fields) throws ConnectException {
 	if (!checkRequiredField(fields, new Class[]{Path.class,From.class})) {
 	    throw new NoSuchFieldError();
@@ -194,4 +206,5 @@ public class QueryController {
 	return query.getObgect(Query.POST, operation, fields, Link.class);
     }
 
+    
 }
