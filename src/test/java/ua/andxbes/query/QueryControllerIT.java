@@ -205,9 +205,7 @@ public class QueryControllerIT {
 	     и основной поток при закрытии ни как не ждет завершения дочерних потоков  .
 	     Потому создаем еще один поток , которого будем в тесте ждать .
 	     */
-	    Thread t = new Thread(() -> query.refrashStatusOperationId(link));
-	    t.start();
-	    t.join();//waiting result of assynchronous operation
+	    query.refrashStatusOperationId(link).join(); //waiting result of assynchronous operation
 
 	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.INFO, "\nresult  = {0}", link.toString());
 	} catch (ConnectException ex) {

@@ -35,8 +35,6 @@ import ua.andxbes.fieldsForQuery.Path;
  */
 public class QueryController {
 
-   
-
     protected final Logger log = Logger.getLogger(this.getClass().getSimpleName());
 
     static final String baseUrl = "https://cloud-api.yandex.net:443";
@@ -80,14 +78,13 @@ public class QueryController {
 //==============================================================================
 //============================  public methods  ================================
 //==============================================================================
-    
-     /**
+    /**
      * @return the in_progress
      */
     public static List<Link> getIn_progress() {
 	return in_progress;
     }
-    
+
     /**
      *
      * Query information about the Ya-disk
@@ -223,12 +220,12 @@ public class QueryController {
 	    throw new NoSuchFieldError();
 	}
 	String operation = "/v1/disk/resources/copy";
-	Link link ;
+	Link link;
 	try {
 	    link = query.getObgect(Query.POST, operation, fields, Link.class);
-	    new Thread(() -> refrashStatusOperationId(link)).start();
+	    refrashStatusOperationId(link);
 	} catch (Query.Ok e) {
-              throw new Query.Ok(e.toString());
+	    throw new Query.Ok(e.toString());
 	}
 	return link;
     }
@@ -237,9 +234,10 @@ public class QueryController {
      *
      * Query status asynchronous operation
      */
-    public void refrashStatusOperationId(Link link)   {
-	 log.log(Level.INFO, "Start.Length of the  list = {0}", getIn_progress().size());
-	getIn_progress().add(link);
+    public Thread refrashStatusOperationId(Link link) {
+	Thread t = new Thread(() -> {
+	    log.log(Level.INFO, "Start.Length of the  list = {0}", getIn_progress().size());
+	    getIn_progress().add(link);
 	    URL url = null;
 	    try {
 		url = new URL(link.getHref());
@@ -247,21 +245,23 @@ public class QueryController {
 		Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
 	    }
 	    /*
-	     response = {"status":"in-progress"}
-	     response = {"status":"success"}
+	    response = {"status":"in-progress"}
+	    response = {"status":"success"}
 	    
-	     */
+	    */
 	    Pattern pattern = Pattern.compile("[\"|}|{]");
 	    boolean end = false;
 	    while (!end) {
 		try {
-
+		    
 		    String response = query.query(link.getMethod(), url, null);
-
+		    
 		    String status = pattern.matcher(response.split(":")[1]).replaceAll("");
 		    log.log(Level.INFO, "\n s = {0}", status);
-
-		    if (status.equals("success")) end = true;
+		    
+		    if (status.equals("success")) {
+			end = true;
+		    }
 		    try {
 			Thread.sleep(2000);
 		    } catch (InterruptedException ex) {
@@ -274,9 +274,10 @@ public class QueryController {
 	    }
 	    getIn_progress().remove(link);
 	    log.log(Level.INFO, "Length of the  list = {0}", getIn_progress().size());
-	
+	});
+
+	t.start();
+	return t;
     }
-    
-   
 
 }
