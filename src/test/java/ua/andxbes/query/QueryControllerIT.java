@@ -5,7 +5,9 @@
  */
 package ua.andxbes.query;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.rmi.ConnectException;
 import java.util.logging.Level;
@@ -130,9 +132,6 @@ public class QueryControllerIT {
 
 	Link link = query.getLinkToDownload(new Field[]{new Path(pathToFile)});
 	Logger.getLogger("Test getResourceList()").info(link.toString());
-	
-	//todo
-
     }
 
     @Test
@@ -217,5 +216,15 @@ public class QueryControllerIT {
 	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, e);
 	}
 
+    }
+    
+    @Test
+    public void uploadFile() throws NoSuchFieldError, FileNotFoundException, IOException{
+	File f = new File("./gradlew.bat");
+	String root = "/testFolder/";
+	Path path = new Path(root + f.getName());
+        query.putToServer(f,path,new Overwrite(true));
+    
+    
     }
 }

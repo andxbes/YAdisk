@@ -19,14 +19,17 @@ import java.nio.channels.FileChannel;
 import java.rmi.ConnectException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
+import ua.andxbes.DiskJsonObjects.Link;
 import ua.andxbes.fieldsForQuery.Field;
+import static ua.andxbes.query.QueryController.getIn_progress;
 import ua.andxbes.util.QueryString;
 
 /**
  *
  * @author Andr
  */
-class Query {
+class Query2 {
 
     final static String GET = "GET",
 	    POST = "POST",
@@ -126,6 +129,54 @@ class Query {
 	QueryString qParams = new QueryString();
 	qParams.add(fields);
 	return query(method, operation, qParams, data);
+    }
+    
+    
+     private Thread refrashStatusOperationId(Link link) {
+	
+	Thread t = new Thread(() -> {
+	    log.log(Level.INFO, "Start.Length of the  list = {0}", getIn_progress().size());
+	    getIn_progress().add(link);
+	    URL url = null;
+	    try {
+		url = new URL(link.getHref());
+	    } catch (MalformedURLException ex) {
+		Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
+	    }
+	    /*
+	     response = {"status":"in-progress"}
+	     response = {"status":"success"}
+	    
+	     */
+	    Pattern pattern = Pattern.compile("[\"|}|{]");
+	    boolean end = false;
+	    while (!end) {
+		try {
+
+		    String response = query(link.getMethod(), url, null);
+
+		    String status = pattern.matcher(response.split(":")[1]).replaceAll("");
+		    log.log(Level.INFO, "\n s = {0}", status);
+
+		    if (status.equals("success")) {
+			end = true;
+		    }
+		    try {
+			Thread.sleep(2000);
+		    } catch (InterruptedException ex) {
+			Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
+		    }
+		} catch (ConnectException ex) {
+		    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
+		}
+
+	    }
+	    getIn_progress().remove(link);
+	    log.log(Level.INFO, "Length of the  list = {0}", getIn_progress().size());
+	});
+
+	t.start();
+	return t;
     }
 
 }

@@ -15,6 +15,7 @@ public class Link {
 	    method;
 	    
     private boolean templated;
+    private boolean async = false;
 
     @Override
     public String toString() {
@@ -40,5 +41,19 @@ public class Link {
      */
     public boolean isTemplated() {
 	return templated;
+    }
+
+    /**
+     * @return the async
+     */
+    public boolean isAsync() {
+	return async;
+    }
+
+    /**
+     * @param async the async to set
+     */
+    public void setAsync(boolean async) {
+	this.async = async;
     }
 }

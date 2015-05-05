@@ -5,8 +5,13 @@
  */
 package ua.andxbes.query;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.channels.FileChannel;
 import java.rmi.ConnectException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -194,6 +199,7 @@ public class QueryController {
      * @param fields Path(mandatory field)
      * @return Link
      * @throws NoSuchFieldError not Path field
+     * @throws java.rmi.ConnectException
      * @see Link
      */
     public Link getLinkForUpload(Field... fields)
@@ -213,6 +219,7 @@ public class QueryController {
      * @param fields Path ,From(mandatory field)
      * @return Link
      * @throws NoSuchFieldError us not Path ,From
+     * @throws java.rmi.ConnectException
      * @see Link
      */
     public Link postCopy(Field... fields)
@@ -222,23 +229,21 @@ public class QueryController {
 	}
 	String operation = "/v1/disk/resources/copy";
 	Link link;
-	try {
-	    link = query.getObgect(Query.POST, operation, fields, Link.class);
-	    refrashStatusOperationId(link);
-	} catch (Query.Ok e) {
-	    throw new Query.Ok(e.toString());
-	}
+	link = query.getObgect(Query.POST, operation, fields, Link.class);
+	if(link.isAsync()) refrashStatusOperationId(link);
 	return link;
     }
 
     /**
      *
-     * Query status asynchronous operation
-     * result avalibel throught the getCurrentTask .If it size is Empty , then all tasks completed
-     * @param link on assinchorous operation 
+     * Query status asynchronous operation result avalibel throught the
+     * getCurrentTask .If it size is Empty , then all tasks completed
+     *
+     * @param link on assinchorous operation
      * @return Thread
      */
     public Thread refrashStatusOperationId(Link link) {
+	
 	Thread t = new Thread(() -> {
 	    log.log(Level.INFO, "Start.Length of the  list = {0}", getIn_progress().size());
 	    getIn_progress().add(link);
@@ -249,20 +254,20 @@ public class QueryController {
 		Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
 	    }
 	    /*
-	    response = {"status":"in-progress"}
-	    response = {"status":"success"}
+	     response = {"status":"in-progress"}
+	     response = {"status":"success"}
 	    
-	    */
+	     */
 	    Pattern pattern = Pattern.compile("[\"|}|{]");
 	    boolean end = false;
 	    while (!end) {
 		try {
-		    
+
 		    String response = query.query(link.getMethod(), url, null);
-		    
+
 		    String status = pattern.matcher(response.split(":")[1]).replaceAll("");
 		    log.log(Level.INFO, "\n s = {0}", status);
-		    
+
 		    if (status.equals("success")) {
 			end = true;
 		    }
@@ -282,6 +287,16 @@ public class QueryController {
 
 	t.start();
 	return t;
+    }
+
+    public void putToServer(File file, Field... field) throws NoSuchFieldError, ConnectException, FileNotFoundException, IOException {
+	Link l = getLinkForUpload(field);
+	FileChannel fc = new FileInputStream(file).getChannel();
+	log.log(Level.INFO, "size = {0}", fc.size());
+	for (Field field1 : field) {
+	    System.out.println(field1.toString());
+	}
+	System.out.println(query.query(l.getMethod(), new URL(l.getHref()), fc));
     }
 
 }
