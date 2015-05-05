@@ -130,6 +130,8 @@ public class QueryControllerIT {
 
 	Link link = query.getLinkToDownload(new Field[]{new Path(pathToFile)});
 	Logger.getLogger("Test getResourceList()").info(link.toString());
+	
+	//todo
 
     }
 

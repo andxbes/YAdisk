@@ -90,6 +90,7 @@ public class QueryController {
      * Query information about the Ya-disk
      *
      * @return Disk
+     * @throws java.rmi.ConnectException
      */
     public Disk getDiskInfo() throws ConnectException {
 	String operation = "/v1/disk";
@@ -233,6 +234,9 @@ public class QueryController {
     /**
      *
      * Query status asynchronous operation
+     * result avalibel throught the getCurrentTask .If it size is Empty , then all tasks completed
+     * @param link on assinchorous operation 
+     * @return Thread
      */
     public Thread refrashStatusOperationId(Link link) {
 	Thread t = new Thread(() -> {

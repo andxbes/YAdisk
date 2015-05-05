@@ -1,5 +1,7 @@
 package ua.andxbes;
 
+import javax.swing.JOptionPane;
+
 
 
 public class Start {
@@ -10,7 +12,7 @@ public class Start {
      */
     public static void main(String[] args) {
         
-	
+	JOptionPane.showMessageDialog(null, "Hello");
 	System.out.println("Hello");
     
     }

@@ -1,8 +1,10 @@
 import org.ajoberstar.grgit.*
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: "application"
 
 
+def mainclass = "ua.andxbes.Start"
 sourceCompatibility = '1.8'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
@@ -14,9 +16,9 @@ sourceCompatibility = '1.8'
 // prefer. In this case NetBeans will not add these tasks but you may rely on
 // your own implementation.
 if (!hasProperty('mainClass')) {
-    ext.mainClass = 'ua.andxbes.Start'
+    ext.mainClass = mainclass
 }
-
+//mainClass = "ua.andxbes.Start"
 repositories {
     mavenCentral()
     mavenLocal()
@@ -33,15 +35,23 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.10'
     testCompile "org.mockito:mockito-all:1.9.+"
     compile "com.google.code.gson:gson:2.3.+"
+   
   
     
 }
 
-//создадим батник для запуска сборки без градл
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.11'
+    gradleVersion = '2.2.1'
 }
 
+task customJar(type: Jar){
+         manifest{
+            attributes 'Main-Class': mainclass
+         }
+         archiveName = 'YaDisk.jar'
+         destinationDir = file("${buildDir}/jars")
+         from sourceSets.main.output
+}
 
 
 //buildscript {
