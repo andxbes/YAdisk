@@ -13,9 +13,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.rmi.ConnectException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -44,17 +41,11 @@ public class QueryController {
 
     static final String baseUrl = "https://cloud-api.yandex.net:443";
     static String token;
-    private static final Query query = new Query();
-
-    //List with assinc operation 
-    private static final List<Link> in_progress = Collections.synchronizedList(new ArrayList<Link>());
+    private  final Query query ;
 
     public QueryController(Token token) {
 	QueryController.token = token.toString();
-    }
-
-    public int getCurrentTask() {
-	return getIn_progress().size();
+	query = new Query();
     }
 
     /**
@@ -83,13 +74,9 @@ public class QueryController {
 //==============================================================================
 //============================  public methods  ================================
 //==============================================================================
-    /**
-     * @return the in_progress
-     */
-    public static List<Link> getIn_progress() {
-	return in_progress;
-    }
+   
 
+  
     /**
      *
      * Query information about the Ya-disk
@@ -230,7 +217,11 @@ public class QueryController {
 	String operation = "/v1/disk/resources/copy";
 	Link link;
 	link = query.getObgect(Query.POST, operation, fields, Link.class);
-	if(link.isAsync()) refrashStatusOperationId(link);
+	if (link.isAsync()) {
+	    
+	    log.log(Level.INFO, "info{0}", link.toString());
+	    refrashStatusOperationId(link);
+	}
 	return link;
     }
 
@@ -242,61 +233,74 @@ public class QueryController {
      * @param link on assinchorous operation
      * @return Thread
      */
-    public Thread refrashStatusOperationId(Link link) {
+     public boolean refrashStatusOperationId(Link link) {
 	
-	Thread t = new Thread(() -> {
-	    log.log(Level.INFO, "Start.Length of the  list = {0}", getIn_progress().size());
-	    getIn_progress().add(link);
-	    URL url = null;
-	    try {
-		url = new URL(link.getHref());
-	    } catch (MalformedURLException ex) {
-		Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
-	    }
-	    /*
-	     response = {"status":"in-progress"}
-	     response = {"status":"success"}
+	/*
+	 response = {"status":"in-progress"}
+	 response = {"status":"success"}
 	    
-	     */
-	    Pattern pattern = Pattern.compile("[\"|}|{]");
-	    boolean end = false;
-	    while (!end) {
-		try {
+	 */
+	Pattern pattern = Pattern.compile("[\"|}|{]");
 
-		    String response = query.query(link.getMethod(), url, null);
+	try {
+	    query.query(link.getMethod(), new URL(link.getHref()), null);
+	    String status = pattern.matcher(query.getResponse().split(":")[1]).replaceAll("");
+	    log.log(Level.INFO, "\n s = {0}", status);
 
-		    String status = pattern.matcher(response.split(":")[1]).replaceAll("");
-		    log.log(Level.INFO, "\n s = {0}", status);
-
-		    if (status.equals("success")) {
-			end = true;
-		    }
-		    try {
-			Thread.sleep(2000);
-		    } catch (InterruptedException ex) {
-			Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
-		    }
-		} catch (ConnectException ex) {
-		    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
-		}
-
+	    if (status.equals("success")) {
+		return true;
 	    }
-	    getIn_progress().remove(link);
-	    log.log(Level.INFO, "Length of the  list = {0}", getIn_progress().size());
-	});
-
-	t.start();
-	return t;
+	} catch (ConnectException | MalformedURLException ex) {
+	    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
+	}
+	return false;
     }
 
-    public void putToServer(File file, Field... field) throws NoSuchFieldError, ConnectException, FileNotFoundException, IOException {
+    public void putFileToServer(File file, Field... field) throws NoSuchFieldError, ConnectException, FileNotFoundException, IOException {
 	Link l = getLinkForUpload(field);
 	FileChannel fc = new FileInputStream(file).getChannel();
-	log.log(Level.INFO, "size = {0}", fc.size());
-	for (Field field1 : field) {
-	    System.out.println(field1.toString());
-	}
-	System.out.println(query.query(l.getMethod(), new URL(l.getHref()), fc));
+	query.query(l.getMethod(), new URL(l.getHref()), fc);
+	log.log(Level.INFO, "data = {0}code = {1}", new Object[]{query.getResponse(), query.getCode()});
     }
+
+    public Link createFolderInDisk( Field... field) throws NoSuchFieldError, ConnectException, FileNotFoundException, IOException {
+	String operation = "/v1/disk/resources";
+	return query.getObgect(Query.PUT, operation, field, Link.class);
+    }
+
+    /**
+     *
+     * @param field
+     * @return
+     * @throws NoSuchFieldError
+     * @throws ConnectException
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    public void deleteFileOrFolder(Field... field) throws NoSuchFieldError, ConnectException, FileNotFoundException, IOException {
+	String operation = "/v1/disk/resources";
+        query.query(Query.DELETE, operation, field,null);
+    }
+    
+    /**
+     *
+     * @param field
+     * Если параметр path не задан или указывает на корень Корзины, 
+     * то корзина будет полностью очищена, иначе из Корзины будет удалён только тот ресурс,
+     * на который указывает path.
+     * @return
+     * @throws NoSuchFieldError
+     * @throws ConnectException
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    public Link CleanTrashFolder(Field... field) throws NoSuchFieldError, ConnectException, FileNotFoundException, IOException {
+	String operation = "/v1/disk/trash/resources";
+	return query.getObgect(Query.DELETE, operation, field, Link.class);
+    }
+    
+    
+
+
 
 }

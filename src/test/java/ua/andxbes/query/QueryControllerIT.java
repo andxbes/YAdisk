@@ -41,11 +41,12 @@ import ua.andxbes.fieldsForQuery.Type;
  */
 public class QueryControllerIT {
 
-    private final QueryController query;
+    private final QueryController queryController;
+    private final String ROOT_FOLDER = "/testFolder/";
 
     public QueryControllerIT() {
 
-	query = new QueryController(Token.instance());
+	queryController = new QueryController(Token.instance());
     }
 
     @BeforeClass
@@ -67,7 +68,7 @@ public class QueryControllerIT {
     @Test
     public void getDiskInfo() throws ConnectException {
 
-	Disk disk = query.getDiskInfo();
+	Disk disk = queryController.getDiskInfo();
 
 	Logger.getLogger("Test disk testQuery").info(disk.toString());
 
@@ -85,7 +86,7 @@ public class QueryControllerIT {
 	String result = null;
 
 	try {
-	    Resource resource = query.getResource(new Field[]{new Path("/")});
+	    Resource resource = queryController.getResource(new Field[]{new Path("/")});
 	    Resource[] list = resource.getEmbedded().getItems();
 
 	    for (int i = 0; i < list.length; i++) {
@@ -106,7 +107,7 @@ public class QueryControllerIT {
 
 	Resource resource = null;
 	try {
-	    resource = query.getResource(new Path("/"));
+	    resource = queryController.getResource(new Path("/"));
 	} catch (NoSuchFieldError ex) {
 	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
 	}
@@ -120,7 +121,7 @@ public class QueryControllerIT {
 	String pathToFile = getAnyFile();
 	Logger.getLogger("Test getResourceList()").info("\n" + pathToFile);
 
-	Link link = query.getLinkToDownload(new Field[]{new Path(pathToFile)});
+	Link link = queryController.getLinkToDownload(new Field[]{new Path(pathToFile)});
 	Logger.getLogger("Test getResourceList()").info(link.toString());
 
     }
@@ -130,7 +131,7 @@ public class QueryControllerIT {
 	String pathToFile = getAnyFolder();
 	Logger.getLogger("Test getResourceList()").info("\n" + pathToFile);
 
-	Link link = query.getLinkToDownload(new Field[]{new Path(pathToFile)});
+	Link link = queryController.getLinkToDownload(new Field[]{new Path(pathToFile)});
 	Logger.getLogger("Test getResourceList()").info(link.toString());
     }
 
@@ -141,7 +142,7 @@ public class QueryControllerIT {
 	    ResourceList expResult = null;
 	    FilesResouceList result = null;
 
-	    result = query.getFiles(new Limit(100));//Фильтр на количество ожидаемых обьектов , по умолчанию 20
+	    result = queryController.getFiles(new Limit(100));//Фильтр на количество ожидаемых обьектов , по умолчанию 20
 
 	    Logger.getLogger(this.getClass().getSimpleName()).info(result.toString());
 	} catch (ConnectException ex) {
@@ -158,7 +159,7 @@ public class QueryControllerIT {
 	LastUploadedResourceList result = null;
 
 	try {
-	    result = query.getLastUploadedList(new Field[]{new Limit(100)});//Фильтр на количество ожидаемых обьектов , по умолчанию 20  
+	    result = queryController.getLastUploadedList(new Field[]{new Limit(100)});//Фильтр на количество ожидаемых обьектов , по умолчанию 20  
 	} catch (ConnectException ex) {
 	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
 	    Assert.fail();
@@ -174,7 +175,7 @@ public class QueryControllerIT {
 	PublicResourcesList result = null;
 
 	try {
-	    result = query.getPublicResources(new Field[]{new Limit(100)});//Фильтр на количество ожидаемых обьектов , по умолчанию 20  
+	    result = queryController.getPublicResources(new Field[]{new Limit(100)});//Фильтр на количество ожидаемых обьектов , по умолчанию 20  
 	} catch (ConnectException ex) {
 	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
 	    Assert.fail();
@@ -187,11 +188,11 @@ public class QueryControllerIT {
     public void testCheck() {
 	Field[] list = new Field[]{new MediaType("doc"), new Fields("111")};
 
-	Assert.assertTrue(query.checkRequiredField(list, new Class[]{MediaType.class}));
-	Assert.assertFalse(query.checkRequiredField(list, new Class[]{Limit.class}));
+	Assert.assertTrue(queryController.checkRequiredField(list, new Class[]{MediaType.class}));
+	Assert.assertFalse(queryController.checkRequiredField(list, new Class[]{Limit.class}));
 
-	Assert.assertFalse(query.checkRequiredField(list, new Class[]{Limit.class, Type.class}));
-	Assert.assertTrue(query.checkRequiredField(list, new Class[]{Fields.class, MediaType.class}));
+	Assert.assertFalse(queryController.checkRequiredField(list, new Class[]{Limit.class, Type.class}));
+	Assert.assertTrue(queryController.checkRequiredField(list, new Class[]{Fields.class, MediaType.class}));
 
     }
 
@@ -200,14 +201,18 @@ public class QueryControllerIT {
 
 	Link link;
 	try {
-	    link = query.postCopy(new From(getAnyFolder()), new Path("/folderFortests/"), new Overwrite(true));
+	    link = queryController.postCopy(new From(getAnyFolder()), new Path("/folderFortests/"), new Overwrite(true));
 
 	    /* Я так понял , все тесты запускаются в разных потоках ,
 	     и основной поток при закрытии ни как не ждет завершения дочерних потоков  .
 	     Потому создаем еще один поток , которого будем в тесте ждать .
 	     */
-	    query.refrashStatusOperationId(link).join(); //waiting result of assynchronous operation
-
+	    
+	    if(link.isAsync()){
+		while( !queryController.refrashStatusOperationId(link)){
+		     Thread.sleep(2000);
+		}
+	    }
 	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.INFO, "\nresult  = {0}", link.toString());
 	} catch (ConnectException ex) {
 	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
@@ -221,10 +226,21 @@ public class QueryControllerIT {
     @Test
     public void uploadFile() throws NoSuchFieldError, FileNotFoundException, IOException{
 	File f = new File("./gradlew.bat");
-	String root = "/testFolder/";
-	Path path = new Path(root + f.getName());
-        query.putToServer(f,path,new Overwrite(true));
-    
-    
+	Path path = new Path(ROOT_FOLDER + f.getName());
+        queryController.putFileToServer(f,path,new Overwrite(true));
     }
+  
+    @Test
+    public void deleteFileOrFolder() throws NoSuchFieldError, FileNotFoundException, IOException{
+	createFolderInDisk();
+	
+	queryController.deleteFileOrFolder(new Path(ROOT_FOLDER + "ololo"),new Overwrite(true));
+    }
+    
+    public void createFolderInDisk() throws NoSuchFieldError, FileNotFoundException, IOException{
+	
+	Link l = queryController.createFolderInDisk( new Path(ROOT_FOLDER + "ololo"),new Overwrite(true));
+        Logger.getLogger(QueryControllerIT.class.getName()).log(Level.INFO, "\nresult  = {0}", l.toString());
+    }
+    
 }

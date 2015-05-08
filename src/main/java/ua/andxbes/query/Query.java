@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -19,6 +20,7 @@ import java.nio.channels.FileChannel;
 import java.rmi.ConnectException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import ua.andxbes.DiskJsonObjects.Link;
 import ua.andxbes.fieldsForQuery.Field;
 import ua.andxbes.util.QueryString;
 
@@ -28,20 +30,28 @@ import ua.andxbes.util.QueryString;
  */
 class Query {
 
+    private String response;
+    private int code;
+
     final static String GET = "GET",
 	    POST = "POST",
 	    DELETE = "DELETE",
 	    PUT = "PUT", PATCH = "PATCH";
+
     private static final Logger log = Logger.getLogger("Qery");
 
     <T> T getObgect(String method, String operation, Field[] fields, Class<T> clazz, FileChannel data) throws ConnectException {
 	T object = null;
 
-	String responce = query(method, operation, fields, data);
+	query(method, operation, fields, data);
 
-	if (!responce.equals("")) {
-	    object = new Gson().fromJson(responce, clazz);
+	log.info(getResponse());
+	object = new Gson().fromJson(getResponse(), clazz);
+	
+	if (Link.class.isInstance(object) && code == 202) {
+	    ((Link) object).setAsync(true);
 	}
+
 	return object;
     }
 
@@ -49,7 +59,7 @@ class Query {
 	return getObgect(method, operation, fields, clazz, null);
     }
 
-    String query(String method, String operation, QueryString qParam, FileChannel data) throws ConnectException {
+    Query query(String method, String operation, QueryString qParam, FileChannel data) throws ConnectException {
 	String param = qParam.toString().isEmpty() ? "" : "?" + qParam.toString();
 	URL url = null;
 
@@ -58,11 +68,11 @@ class Query {
 	} catch (MalformedURLException ex) {
 	    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
 	}
-	return query(method, url, data);
-
+	query(method, url, data);
+	return this;
     }
 
-    String query(String method, URL url, FileChannel data) throws ConnectException {
+    Query query(String method, URL url, FileChannel data) throws ConnectException {
 	StringBuilder result = new StringBuilder();
 	HttpURLConnection conn;
 	BufferedReader br;
@@ -78,10 +88,10 @@ class Query {
 		conn.addRequestProperty("Authorization", "OAuth " + QueryController.token);
 	    }
 
-	    int code = conn.getResponseCode();
-	    log.log(Level.INFO, "code = {0} , method = {1} ,\n data = {2} ,\n url = {3} ", new Object[]{code, conn.getRequestMethod(), data, conn.getURL()});
+	    code = conn.getResponseCode();
+	    log.log(Level.INFO, "code = {0} , method = {1} ,\n data = {2} ,\n url = {3} ", new Object[]{getCode(), conn.getRequestMethod(), data, conn.getURL()});
 
-	    if (code == HttpURLConnection.HTTP_OK || code == HttpURLConnection.HTTP_ACCEPTED || code == HttpURLConnection.HTTP_CREATED) {//202 or 200 or 201 
+	    if (getCode() == HttpURLConnection.HTTP_OK || getCode() == HttpURLConnection.HTTP_ACCEPTED || getCode() == HttpURLConnection.HTTP_CREATED || getCode() == HttpURLConnection.HTTP_NO_CONTENT) {//202 or 200 or 201 
 		br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 		while ((line = br.readLine()) != null) {
 		    result.append(line);
@@ -94,7 +104,6 @@ class Query {
 		}
 		throw new ConnectException((new Gson().fromJson(result.toString(), ua.andxbes.DiskJsonObjects.Error.class).toString()));
 	    }
-
 	} catch (MalformedURLException ex) {
 	    Logger.getLogger(QueryController.class.getName()).log(Level.SEVERE, null, ex);
 	} catch (ProtocolException ex) {
@@ -105,27 +114,58 @@ class Query {
 	    Logger.getLogger(QueryController.class.getName()).log(Level.SEVERE, null, ex);
 	}
 
-	return result.toString();
+	response = result.toString();
+	return this;
     }
 
     private void writeData(HttpURLConnection conn, FileChannel data) throws IOException {
 	conn.setDoOutput(true);
-	DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
-
-	ByteBuffer bb = ByteBuffer.allocate(1024);
-	while (data.read(bb) != -1) {
-	    bb.flip();
-	    wr.write(bb.array());
-	    bb.clear();
+	try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {
+	    ByteBuffer bb = ByteBuffer.allocate(1024);
+	    while (data.read(bb) != -1) {
+		bb.flip();
+		wr.write(bb.array());
+		bb.clear();
+	    }
+	    wr.flush();
 	}
-	wr.flush();
-	wr.close();
     }
 
-    String query(String method, String operation, Field[] fields, FileChannel data) throws ConnectException {
+    Query query(String method, String operation, Field[] fields, FileChannel data) throws ConnectException {
 	QueryString qParams = new QueryString();
 	qParams.add(fields);
+
 	return query(method, operation, qParams, data);
+    }
+    
+    InputStream  downloadFile(URL url ){
+	InputStream input = null;
+   
+	try {
+	    HttpURLConnection conn  =(HttpURLConnection) url.openConnection();
+	    conn.setRequestMethod(GET);
+	    conn.setDoOutput(true);
+	    conn.connect();
+	    input = conn.getInputStream();
+	} catch (IOException ex) {
+	    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
+	}
+	return input;
+    
+    }
+
+    /**
+     * @return the response
+     */
+    public String getResponse() {
+	return response;
+    }
+
+    /**
+     * @return the code
+     */
+    public int getCode() {
+	return code;
     }
 
 }
