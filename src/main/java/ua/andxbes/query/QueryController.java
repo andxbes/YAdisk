@@ -11,7 +11,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
 import java.rmi.ConnectException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -298,7 +300,16 @@ public class QueryController {
 	String operation = "/v1/disk/trash/resources";
 	return query.getObgect(Query.DELETE, operation, field, Link.class);
     }
-    
+    public ReadableByteChannel downloadFile(Link link){
+      ReadableByteChannel rbch = null;
+	try {
+	    rbch = Channels.newChannel( query.downloadFile(new URL(link.getHref())));
+	} catch (MalformedURLException ex) {
+	    Logger.getLogger(QueryController.class.getName()).log(Level.SEVERE, null, ex);
+	}
+      return rbch;
+	
+    }
     
 
 

@@ -16,7 +16,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
 import java.rmi.ConnectException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,14 +40,14 @@ class Query {
 
     private static final Logger log = Logger.getLogger("Qery");
 
-    <T> T getObgect(String method, String operation, Field[] fields, Class<T> clazz, FileChannel data) throws ConnectException {
+    <T> T getObgect(String method, String operation, Field[] fields, Class<T> clazz, ReadableByteChannel data) throws ConnectException {
 	T object = null;
 
 	query(method, operation, fields, data);
 
 	log.info(getResponse());
 	object = new Gson().fromJson(getResponse(), clazz);
-	
+
 	if (Link.class.isInstance(object) && code == 202) {
 	    ((Link) object).setAsync(true);
 	}
@@ -59,7 +59,14 @@ class Query {
 	return getObgect(method, operation, fields, clazz, null);
     }
 
-    Query query(String method, String operation, QueryString qParam, FileChannel data) throws ConnectException {
+    Query query(String method, String operation, Field[] fields, ReadableByteChannel data) throws ConnectException {
+	QueryString qParams = new QueryString();
+	qParams.add(fields);
+
+	return query(method, operation, qParams, data);
+    }
+
+    Query query(String method, String operation, QueryString qParam, ReadableByteChannel data) throws ConnectException {
 	String param = qParam.toString().isEmpty() ? "" : "?" + qParam.toString();
 	URL url = null;
 
@@ -72,7 +79,7 @@ class Query {
 	return this;
     }
 
-    Query query(String method, URL url, FileChannel data) throws ConnectException {
+    Query query(String method, URL url, ReadableByteChannel data) throws ConnectException {
 	StringBuilder result = new StringBuilder();
 	HttpURLConnection conn;
 	BufferedReader br;
@@ -118,7 +125,7 @@ class Query {
 	return this;
     }
 
-    private void writeData(HttpURLConnection conn, FileChannel data) throws IOException {
+    private void writeData(HttpURLConnection conn, ReadableByteChannel data) throws IOException {
 	conn.setDoOutput(true);
 	try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {
 	    ByteBuffer bb = ByteBuffer.allocate(1024);
@@ -131,18 +138,11 @@ class Query {
 	}
     }
 
-    Query query(String method, String operation, Field[] fields, FileChannel data) throws ConnectException {
-	QueryString qParams = new QueryString();
-	qParams.add(fields);
-
-	return query(method, operation, qParams, data);
-    }
-    
-    InputStream  downloadFile(URL url ){
+    InputStream downloadFile(URL url) {
 	InputStream input = null;
-   
+
 	try {
-	    HttpURLConnection conn  =(HttpURLConnection) url.openConnection();
+	    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 	    conn.setRequestMethod(GET);
 	    conn.setDoOutput(true);
 	    conn.connect();
@@ -151,7 +151,7 @@ class Query {
 	    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
 	}
 	return input;
-    
+
     }
 
     /**
@@ -167,5 +167,7 @@ class Query {
     public int getCode() {
 	return code;
     }
+    
+   
 
 }
