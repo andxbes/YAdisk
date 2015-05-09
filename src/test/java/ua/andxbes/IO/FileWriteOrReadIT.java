@@ -84,8 +84,8 @@ public class FileWriteOrReadIT {
 
     @Test
     public void testGenerateMd5Hash() throws NoSuchFieldError, ConnectException {
-	//String name_Of_File_In_The_Disk = "/eclipse.7z";
-	String name_Of_File_In_The_Disk ="/Вопросы на собеседованиях.doc";
+	String name_Of_File_In_The_Disk = "/eclipse.7z";
+	//String name_Of_File_In_The_Disk ="/Вопросы на собеседованиях.doc";
 	QueryController qc = new QueryController(Token.instance());
 
 	Link link = qc.getLinkToDownload(new Path(name_Of_File_In_The_Disk));
@@ -99,8 +99,12 @@ public class FileWriteOrReadIT {
 	    ReadableByteChannel rbch = qc.downloadFile(link);
 	    file.write(r.getPath().split(":")[1], rbch);
 	}
-	log.log(Level.INFO, " in Yadisk = {0}, in your disk {1}", new Object[]{r.getMd5(), file.get_Md5_Hash(file.readFile(name_Of_File_In_The_Disk))});
+	String yadiskMd5 = r.getMd5();
+	String myDiskMD5 = file.get_Md5_Hash(file.readFile(name_Of_File_In_The_Disk));
 	
+	
+	log.log(Level.INFO, " in Yadisk = \n{0}\n, in your disk \n{1}\n", new Object[]{yadiskMd5, myDiskMD5 });
+	Assert.assertTrue(yadiskMd5.equals(myDiskMD5));
     }
 
 }

@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
@@ -94,27 +95,26 @@ public class FileWriteOrRead {
     }
 
     public String get_Md5_Hash(ReadableByteChannel bch) {
+	String checsumm = null;
 	MessageDigest md5;
-	StringBuilder sb = new StringBuilder();
 	try {
 	    md5 = MessageDigest.getInstance("md5");
 	    md5.reset();
-	    ByteBuffer bb = ByteBuffer.allocate(1000);
+	    ByteBuffer bb = ByteBuffer.allocate(1024);
 	    while (bch.read(bb) != -1) {
 		bb.flip();
 		md5.update(bb);
 		bb.clear();
 	    }
 	    byte massageDigest[] = md5.digest();
-	    for (int i = 0; i < massageDigest.length; i++) {
-		sb.append(Integer.toHexString(0xFF & massageDigest[i]));
-	    }
-
+	    checsumm = new BigInteger(1, massageDigest).toString(16);
 	} catch (IOException | NoSuchAlgorithmException ex) {
 	    Logger.getLogger(FileWriteOrRead.class.getName()).log(Level.SEVERE, null, ex);
 	}
-	return sb.toString();
+	return checsumm;
     }
+    
+    
 
     //сортировать файлы по дате обновления 
 }
