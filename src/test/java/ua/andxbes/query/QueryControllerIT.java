@@ -42,15 +42,44 @@ import ua.andxbes.fieldsForQuery.Type;
 public class QueryControllerIT {
 
     private final QueryController queryController;
-    private final String ROOT_FOLDER = "/testFolder/";
+    private final String ROOT_FOLDER = "/testFolder/",
+	    ROOT_FOLDER2 = "/testFolder2/";
+    private static boolean createFolder = false;
 
     public QueryControllerIT() {
 
 	queryController = new QueryController(Token.instance());
+
+	addFolder();
+
+    }
+
+    private void addFolder() {
+	if (!createFolder) {
+	    try {
+		queryController.getResource(new Path(ROOT_FOLDER));
+	    } catch (ConnectException ex) {
+		try {
+		    queryController.createFolderInDisk(new Path(ROOT_FOLDER2), new Overwrite(true));
+		    queryController.createFolderInDisk(new Path(ROOT_FOLDER), new Overwrite(true));
+		    createFolder = true;
+		} catch (NoSuchFieldError ex1) {
+		    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex1);
+		} catch (FileNotFoundException ex1) {
+		    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex1);
+		} catch (IOException ex1) {
+		    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex1);
+		}
+
+	    } catch (NoSuchFieldError ex) {
+		Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
+	    }
+	}
     }
 
     @BeforeClass
     public static void setUpClass() {
+
     }
 
     @AfterClass
@@ -89,9 +118,9 @@ public class QueryControllerIT {
 	    Resource resource = queryController.getResource(new Field[]{new Path("/")});
 	    Resource[] list = resource.getEmbedded().getItems();
 
-	    for (int i = 0; i < list.length; i++) {
-		if (list[i].getType().equals(type)) {
-		    result = list[i].getPath();
+	    for (Resource list1 : list) {
+		if (list1.getType().equals(type)) {
+		    result = list1.getPath();
 		    break;
 		}
 	    }
@@ -201,16 +230,15 @@ public class QueryControllerIT {
 
 	Link link;
 	try {
-	    link = queryController.postCopy(new From(getAnyFolder()), new Path("/folderFortests/"), new Overwrite(true));
+	    link = queryController.postCopy(new From(ROOT_FOLDER), new Path(ROOT_FOLDER2), new Overwrite(true));
 
 	    /* Я так понял , все тесты запускаются в разных потоках ,
 	     и основной поток при закрытии ни как не ждет завершения дочерних потоков  .
 	     Потому создаем еще один поток , которого будем в тесте ждать .
 	     */
-	    
-	    if(link.isAsync()){
-		while( !queryController.refrashStatusOperationId(link)){
-		     Thread.sleep(2000);
+	    if (link.isAsync()) {
+		while (!queryController.refrashStatusOperationId(link)) {
+		    Thread.sleep(2000);
 		}
 	    }
 	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.INFO, "\nresult  = {0}", link.toString());
@@ -222,25 +250,24 @@ public class QueryControllerIT {
 	}
 
     }
-    
+
     @Test
-    public void uploadFile() throws NoSuchFieldError, FileNotFoundException, IOException{
+    public void uploadFile() throws NoSuchFieldError, FileNotFoundException, IOException {
 	File f = new File("./gradlew.bat");
 	Path path = new Path(ROOT_FOLDER + f.getName());
-        queryController.putFileToServer(f,path,new Overwrite(true));
+	queryController.putFileToServer(f, path, new Overwrite(true));
     }
-  
+
     @Test
-    public void deleteFileOrFolder() throws NoSuchFieldError, FileNotFoundException, IOException{
+    public void deleteFileOrFolder() throws NoSuchFieldError, FileNotFoundException, IOException {
 	createFolderInDisk();
-	
-	queryController.deleteFileOrFolder(new Path(ROOT_FOLDER + "ololo"),new Overwrite(true));
+
+	queryController.deleteFileOrFolder(new Path(ROOT_FOLDER + "ololo"), new Overwrite(true));
     }
-    
-    public void createFolderInDisk() throws NoSuchFieldError, FileNotFoundException, IOException{
-	
-	Link l = queryController.createFolderInDisk( new Path(ROOT_FOLDER + "ololo"),new Overwrite(true));
-        Logger.getLogger(QueryControllerIT.class.getName()).log(Level.INFO, "\nresult  = {0}", l.toString());
+
+    public void createFolderInDisk() throws NoSuchFieldError, FileNotFoundException, IOException {
+	Link l = queryController.createFolderInDisk(new Path(ROOT_FOLDER + "ololo"), new Overwrite(true));
+	Logger.getLogger(QueryControllerIT.class.getName()).log(Level.INFO, "\nresult  = {0}", l.toString());
     }
-    
+
 }

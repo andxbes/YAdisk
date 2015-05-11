@@ -48,7 +48,7 @@ class Query {
 	log.info(getResponse());
 	object = new Gson().fromJson(getResponse(), clazz);
 
-	if (Link.class.isInstance(object) && code == 202) {
+	if (Link.class.isInstance(object) && (code == 202)) {
 	    ((Link) object).setAsync(true);
 	}
 

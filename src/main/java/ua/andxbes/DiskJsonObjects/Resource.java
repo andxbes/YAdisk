@@ -104,6 +104,9 @@ public class Resource {
      * @return the path .<b>Путь к ресурсу</b>.
      */
     public String getPath() {
+	
+	if(path.contains(":"))
+	    path = path.split(":")[1];
 	return path;
     }
 
@@ -147,6 +150,126 @@ public class Resource {
      */
     public ResourceList getEmbedded() {
 	return _embedded;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public Resource setName(String name) {
+	this.name = name;
+	return this;
+    }
+
+    /**
+     * @param public_key the public_key to set
+     */
+    public Resource setPublic_key(String public_key) {
+	this.public_key = public_key;
+	return this;
+    }
+
+    /**
+     * @param origin_path the origin_path to set
+     */
+    public Resource setOrigin_path(String origin_path) {
+	this.origin_path = origin_path;
+	return this;
+    }
+
+    /**
+     * @param created the created to set
+     */
+    public Resource setCreated(String created) {
+	this.created = created;
+	return this;
+    }
+
+    /**
+     * @param public_url the public_url to set
+     */
+    public Resource setPublic_url(String public_url) {
+	this.public_url = public_url;
+	return this;
+    }
+
+    /**
+     * @param modified the modified to set
+     */
+    public Resource setModified(String modified) {
+	this.modified = modified;
+	return this;
+    }
+
+    /**
+     * @param md5 the md5 to set
+     */
+    public Resource setMd5(String md5) {
+	this.md5 = md5;
+	return this;
+    }
+
+    /**
+     * @param media_type the media_type to set
+     */
+    public Resource setMedia_type(String media_type) {
+	this.media_type = media_type;
+	return this;
+    }
+
+    /**
+     * @param path the path to set
+     */
+    public Resource setPath(String path) {
+	this.path = path;
+	return this;
+    }
+
+    /**
+     * @param preview the preview to set
+     */
+    public Resource setPreview(String preview) {
+	this.preview = preview;
+	return this;
+    }
+
+    /**
+     * @param type the type to set
+     */
+    public Resource setType(String type) {
+	this.type = type;
+	return this ;
+    }
+
+    /**
+     * @param mime_type the mime_type to set
+     */
+    public Resource setMime_type(String mime_type) {
+	this.mime_type = mime_type;
+        return this;
+    }
+
+    /**
+     * @param custom_properties the custom_properties to set
+     */
+    public Resource setCustom_properties(String custom_properties) {
+	this.custom_properties = custom_properties;
+	return this;
+    }
+
+    /**
+     * @param size the size to set
+     */
+    public Resource setSize(long size) {
+	this.size = size;
+	return this;
+    }
+
+    /**
+     * @param _embedded the _embedded to set
+     */
+    public Resource setEmbedded(ResourceList _embedded) {
+	this._embedded = _embedded;
+	return this;
     }
 
 }

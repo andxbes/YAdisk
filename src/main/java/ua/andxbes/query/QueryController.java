@@ -206,7 +206,11 @@ public class QueryController {
      * Query link for file copy disk to disk
      *
      * @param fields Path ,From(mandatory field)
-     * @return Link
+     * @return Link 
+     * Если копирование происходит асинхронно, 
+     * то вернёт ответ с кодом 202 и ссылкой на асинхронную операцию. 
+     * Иначе вернёт ответ с кодом 201 и ссылкой на созданный ресурс.
+     * в нашем случае определить можно по флагу в обьекте 
      * @throws NoSuchFieldError us not Path ,From
      * @throws java.rmi.ConnectException
      * @see Link
@@ -219,11 +223,31 @@ public class QueryController {
 	String operation = "/v1/disk/resources/copy";
 	Link link;
 	link = query.getObgect(Query.POST, operation, fields, Link.class);
-	if (link.isAsync()) {
-	    
-	    log.log(Level.INFO, "info{0}", link.toString());
-	    refrashStatusOperationId(link);
+	return link;
+    }
+    
+    /**
+     *
+     * Query link for file copy disk to disk
+     *
+     * @param fields Path ,From(mandatory field)
+     * @return Link 
+     * Если перемещение происходит асинхронно, 
+     * то вернёт ответ с кодом 202 и ссылкой на асинхронную операцию. 
+     * Иначе вернёт ответ с кодом 201 и ссылкой на созданный ресурс.
+     * в нашем случае определить можно по флагу в обьекте 
+     * @throws NoSuchFieldError us not Path ,From
+     * @throws java.rmi.ConnectException
+     * @see Link
+     */
+    public Link postMove(Field... fields)
+	    throws NoSuchFieldError, ConnectException {
+	if (!checkRequiredField(fields, new Class[]{Path.class, From.class})) {
+	    throw new NoSuchFieldError();
 	}
+	String operation = "/v1/disk/resources/move";
+	Link link;
+	link = query.getObgect(Query.POST, operation, fields, Link.class);
 	return link;
     }
 
@@ -273,15 +297,15 @@ public class QueryController {
     /**
      *
      * @param field
-     * @return
+     * @return Если удаление происходит асинхронно, то вернёт ответ со статусом 202 и ссылкой на асинхронную операцию. Иначе вернёт ответ со статусом 204 и пустым телом.
      * @throws NoSuchFieldError
      * @throws ConnectException
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public void deleteFileOrFolder(Field... field) throws NoSuchFieldError, ConnectException, FileNotFoundException, IOException {
+    public Link deleteFileOrFolder(Field... field) throws NoSuchFieldError, ConnectException, FileNotFoundException, IOException {
 	String operation = "/v1/disk/resources";
-        query.query(Query.DELETE, operation, field,null);
+        return  query.getObgect(Query.DELETE, operation, field,Link.class);
     }
     
     /**
