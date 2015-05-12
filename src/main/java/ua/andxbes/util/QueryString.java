@@ -34,6 +34,11 @@ public class QueryString {
 	}
 	return this;
     }
+    
+//     public synchronized QueryString add(String name, String value) {
+//	    result.put(name, value);
+//	return this;
+//    }
 
     public synchronized QueryString add(Field... fields) {
 	if (null == fields) {

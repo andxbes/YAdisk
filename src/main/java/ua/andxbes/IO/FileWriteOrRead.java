@@ -16,6 +16,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,15 +31,22 @@ import ua.andxbes.DiskJsonObjects.Resource;
  */
 public class FileWriteOrRead {
 
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss'+00:00'");
     private final static Logger log = Logger.getLogger("IO");
-    final static String ROOT = "./Ya-disk";
-    private File file;
+    private String rootDir ;
+    private final File fileRootDir;
     private Map<String, List<Resource>> mapTree;
 
     public FileWriteOrRead() {
-	file = new File(ROOT);
-	if (!file.exists()) {
-	    file.mkdir();
+	this("./Ya-disk");
+    }
+    
+     public FileWriteOrRead(String rootDir) {
+	this.rootDir = rootDir;
+	
+	fileRootDir = new File(rootDir);
+	if (!fileRootDir.exists()) {
+	    fileRootDir.mkdir();
 	}
     }
 
@@ -48,7 +56,7 @@ public class FileWriteOrRead {
      * @param path "/rrrr.doc" -> "Ya-disk/rrrr.doc"
      */
     public void deleteFolderOrFile(String path) {
-	deletefile(new File(ROOT + path));
+	deletefile(new File(getPathToRootDir() + path));
     }
 
     private void deletefile(File path) {
@@ -65,8 +73,11 @@ public class FileWriteOrRead {
     }
 
     public void write(String path, ReadableByteChannel i) {
-
-	File f = new File(ROOT + path);
+	File f = new File(getPathToRootDir() + path);
+	write(f, i);
+    }
+    
+    public void write(File f, ReadableByteChannel i) {
 	if (!f.exists()) {
 	    //File folders = new File(f.getParent());
 	    File folders = f.getParentFile();
@@ -90,7 +101,7 @@ public class FileWriteOrRead {
     }
 
     public ReadableByteChannel readFile(String path) throws FileNotFoundException {
-	file = new File(ROOT + path);
+	File file = new File(getPathToRootDir() + path);
 	FileChannel fch = new FileInputStream(file).getChannel();
 	return fch;
     }
@@ -116,10 +127,12 @@ public class FileWriteOrRead {
     }
 
     // = =========================== 
-
     public Map<String, List<Resource>> getMapOfFile() {
+	if (mapTree != null) {
+	    mapTree.clear();
+	}
 	mapTree = new HashMap<>();
-	buildTree(new File(ROOT + "/"));
+	buildTree(new File(getPathToRootDir() + "/"));
 	return mapTree;
     }
 
@@ -144,13 +157,16 @@ public class FileWriteOrRead {
 	    Resource r = new Resource();
 
 	    try {
-		r.setSize(f.length()).setMd5(get_Md5_Hash(new FileInputStream(f).getChannel())).
-			setName(f.getName()).setPath(f.getPath().replace(ROOT, "")).setSize(f.length());
-		// добавить дату создания 
+		r.setSize(f.length())
+			.setMd5(get_Md5_Hash(new FileInputStream(f).getChannel()))
+			.setName(f.getName())
+			.setPath(f.getPath().replace(getPathToRootDir(), ""))
+			.setSize(f.length())
+			.setModified(dateFormat.format(f.lastModified()));
 	    } catch (FileNotFoundException ex) {
 		Logger.getLogger(FileWriteOrRead.class.getName()).log(Level.SEVERE, null, ex);
 	    }
-	    
+
 	    if (mapTree.get(f.getParent()) == null) {
 		List<Resource> l = new ArrayList<>();
 		l.add(r);
@@ -161,4 +177,11 @@ public class FileWriteOrRead {
 	}
     }
     //сортировать файлы по дате обновления 
+
+    /**
+     * @return the fileRootDir
+     */
+    public String getPathToRootDir() {
+	return fileRootDir.getPath();
+    }
 }

@@ -7,7 +7,6 @@ package ua.andxbes.query;
 
 import com.google.gson.Gson;
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -16,7 +15,9 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.rmi.ConnectException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -69,9 +70,9 @@ class Query {
     Query query(String method, String operation, QueryString qParam, ReadableByteChannel data) throws ConnectException {
 	String param = qParam.toString().isEmpty() ? "" : "?" + qParam.toString();
 	URL url = null;
-
 	try {
 	    url = new URL(QueryController.baseUrl + operation + param);
+	    log.log(Level.INFO, "URL ==================  {0}", url.toString());
 	} catch (MalformedURLException ex) {
 	    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
 	}
@@ -125,16 +126,15 @@ class Query {
 	return this;
     }
 
-    private void writeData(HttpURLConnection conn, ReadableByteChannel data) throws IOException {
+     private void writeData(HttpURLConnection conn, ReadableByteChannel data) throws IOException {
 	conn.setDoOutput(true);
-	try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {
+	try (WritableByteChannel wr = Channels.newChannel(conn.getOutputStream())) {
 	    ByteBuffer bb = ByteBuffer.allocate(1024);
 	    while (data.read(bb) != -1) {
 		bb.flip();
-		wr.write(bb.array());
+		wr.write(bb);
 		bb.clear();
 	    }
-	    wr.flush();
 	}
     }
 

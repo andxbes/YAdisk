@@ -10,7 +10,7 @@ package ua.andxbes.fieldsForQuery;
  * @author Andr
  */
 public class Path extends Field {
-    private String path;
+    private final String path;
    
     public Path(String path) {
 	this.path = path;
@@ -19,7 +19,7 @@ public class Path extends Field {
 
     @Override
     public String getField() {
-	return path;
+	return path.replace("\\", "/");
     }
  
 }

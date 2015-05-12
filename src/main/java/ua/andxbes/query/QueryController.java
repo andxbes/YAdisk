@@ -193,7 +193,6 @@ public class QueryController {
      */
     public Link getLinkForUpload(Field... fields)
 	    throws NoSuchFieldError, ConnectException {
-
 	if (!checkRequiredField(fields, new Class[]{Path.class})) {
 	    throw new NoSuchFieldError();
 	}
@@ -282,8 +281,8 @@ public class QueryController {
 	return false;
     }
 
-    public void putFileToServer(File file, Field... field) throws NoSuchFieldError, ConnectException, FileNotFoundException, IOException {
-	Link l = getLinkForUpload(field);
+    public void putFileToServer(File file, Field... fields) throws NoSuchFieldError, ConnectException, FileNotFoundException, IOException {
+	Link l = getLinkForUpload(fields);
 	FileChannel fc = new FileInputStream(file).getChannel();
 	query.query(l.getMethod(), new URL(l.getHref()), fc);
 	log.log(Level.INFO, "data = {0}code = {1}", new Object[]{query.getResponse(), query.getCode()});

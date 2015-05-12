@@ -269,5 +269,7 @@ public class QueryControllerIT {
 	Link l = queryController.createFolderInDisk(new Path(ROOT_FOLDER + "ololo"), new Overwrite(true));
 	Logger.getLogger(QueryControllerIT.class.getName()).log(Level.INFO, "\nresult  = {0}", l.toString());
     }
+    
+
 
 }
