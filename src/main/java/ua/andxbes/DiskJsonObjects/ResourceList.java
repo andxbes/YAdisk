@@ -32,8 +32,8 @@ public class ResourceList {
 	    itemsString.append(item.toString()).append("\n");
 	}
 
-	return "ResourceList{" + "sort = " + getSort() + ", path = " + getPath() + ", linit = " + getLimit() + ", offset = " + getOffset()
-		+ ", total = " + getTotal() + ",\n items = \n"
+	return "ResourceList{" + "sort = " + getSort() + ", path = " + getPath() + ", limit = " + getLimit() + ", offset = " + getOffset()
+		+ ", total = " + getTotal() + ",\n\n +++++++++++++++++++++++ items +++++++++++++++++++++++++ = \n"
 		+ itemsString.toString() + '}';
     }
 
@@ -48,6 +48,8 @@ public class ResourceList {
      * @return the path <b>Путь к ресурсу, для которого построен список</b>
      */
     public String getPath() {
+	if(path.contains(":"))
+	    path = path.split(":")[1];
 	return path;
     }
 

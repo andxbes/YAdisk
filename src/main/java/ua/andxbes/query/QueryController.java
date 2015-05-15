@@ -5,16 +5,17 @@
  */
 package ua.andxbes.query;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.rmi.ConnectException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -31,19 +32,20 @@ import ua.andxbes.fieldsForQuery.Fields;
 import ua.andxbes.fieldsForQuery.From;
 import ua.andxbes.fieldsForQuery.Limit;
 import ua.andxbes.fieldsForQuery.MediaType;
+import ua.andxbes.fieldsForQuery.Overwrite;
 import ua.andxbes.fieldsForQuery.Path;
 
 /**
  *
  * @author Andr
  */
-public class QueryController {
+public class QueryController implements ua.andxbes.Disk {
 
     protected final Logger log = Logger.getLogger(this.getClass().getSimpleName());
 
     static final String baseUrl = "https://cloud-api.yandex.net:443";
     static String token;
-    private  final Query query ;
+    private final Query query;
 
     public QueryController(Token token) {
 	QueryController.token = token.toString();
@@ -76,9 +78,6 @@ public class QueryController {
 //==============================================================================
 //============================  public methods  ================================
 //==============================================================================
-   
-
-  
     /**
      *
      * Query information about the Ya-disk
@@ -136,6 +135,7 @@ public class QueryController {
      * @param fields hendled arguments (Fields , Limit , MediaType , Sort )
      * Offset , PrevievCroup , Previev_Size)
      * @return FilesResouceList
+     * @throws java.rmi.ConnectException
      * @see FilesResouceList
      * @see Limit
      * @see Fields
@@ -153,6 +153,7 @@ public class QueryController {
      * @param fields hendled arguments (Fields , Limit , MediaType ) Offset ,
      * PrevievCroup , Previev_Size)
      * @return FilesResouceList
+     * @throws java.rmi.ConnectException
      * @see LastUploadedResourceList
      * @see Limit
      * @see Fields
@@ -170,6 +171,7 @@ public class QueryController {
      * @param fields hendled arguments (Fields , Limit ,Type ) Offset ,
      * PrevievCroup , Previev_Size)
      * @return FilesResouceList
+     * @throws java.rmi.ConnectException
      * @see PublicResourcesList
      * @see Limit
      * @see Fields
@@ -197,7 +199,30 @@ public class QueryController {
 	    throw new NoSuchFieldError();
 	}
 	String operation = "/v1/disk/resources/upload";
-	return query.getObgect(Query.GET, operation, fields, Link.class);
+	Link link = null;
+
+	try {
+	    link = query.getObgect(Query.GET, operation, fields, Link.class);
+	} catch (ConnectException ex) {
+	    if(query.getCode() == 409){
+		
+		String path = returnPath(fields);
+		
+		String pathEl[] = path.split("/");
+		path = path.replaceAll(pathEl[pathEl.length-1], "");
+		
+		System.out.println(path);
+		try {
+		    createFolderInDisk(new Path(path));
+		    link = getLinkForUpload(fields);
+		} catch (IOException ex1) {
+		    Logger.getLogger(QueryController.class.getName()).log(Level.SEVERE, null, ex1);
+		}
+		
+	    }else
+	    throw new ConnectException("Error", ex);
+	}
+	return link;
     }
 
     /**
@@ -205,11 +230,10 @@ public class QueryController {
      * Query link for file copy disk to disk
      *
      * @param fields Path ,From(mandatory field)
-     * @return Link 
-     * Если копирование происходит асинхронно, 
-     * то вернёт ответ с кодом 202 и ссылкой на асинхронную операцию. 
-     * Иначе вернёт ответ с кодом 201 и ссылкой на созданный ресурс.
-     * в нашем случае определить можно по флагу в обьекте 
+     * @return Link Если копирование происходит асинхронно, то вернёт ответ с
+     * кодом 202 и ссылкой на асинхронную операцию. Иначе вернёт ответ с кодом
+     * 201 и ссылкой на созданный ресурс. в нашем случае определить можно по
+     * флагу в обьекте
      * @throws NoSuchFieldError us not Path ,From
      * @throws java.rmi.ConnectException
      * @see Link
@@ -224,17 +248,16 @@ public class QueryController {
 	link = query.getObgect(Query.POST, operation, fields, Link.class);
 	return link;
     }
-    
+
     /**
      *
      * Query link for file copy disk to disk
      *
      * @param fields Path ,From(mandatory field)
-     * @return Link 
-     * Если перемещение происходит асинхронно, 
-     * то вернёт ответ с кодом 202 и ссылкой на асинхронную операцию. 
-     * Иначе вернёт ответ с кодом 201 и ссылкой на созданный ресурс.
-     * в нашем случае определить можно по флагу в обьекте 
+     * @return Link Если перемещение происходит асинхронно, то вернёт ответ с
+     * кодом 202 и ссылкой на асинхронную операцию. Иначе вернёт ответ с кодом
+     * 201 и ссылкой на созданный ресурс. в нашем случае определить можно по
+     * флагу в обьекте
      * @throws NoSuchFieldError us not Path ,From
      * @throws java.rmi.ConnectException
      * @see Link
@@ -258,8 +281,8 @@ public class QueryController {
      * @param link on assinchorous operation
      * @return Thread
      */
-     public boolean refrashStatusOperationId(Link link) {
-	
+    public boolean refrashStatusOperationId(Link link) {
+
 	/*
 	 response = {"status":"in-progress"}
 	 response = {"status":"success"}
@@ -281,38 +304,80 @@ public class QueryController {
 	return false;
     }
 
-    public void putFileToServer(File file, Field... fields) throws NoSuchFieldError, ConnectException, FileNotFoundException, IOException {
+    public void putFileToServer(ReadableByteChannel fc, Field... fields) throws NoSuchFieldError, ConnectException, MalformedURLException {
 	Link l = getLinkForUpload(fields);
-	FileChannel fc = new FileInputStream(file).getChannel();
 	query.query(l.getMethod(), new URL(l.getHref()), fc);
 	log.log(Level.INFO, "data = {0}code = {1}", new Object[]{query.getResponse(), query.getCode()});
     }
 
-    public Link createFolderInDisk( Field... field) throws NoSuchFieldError, ConnectException, FileNotFoundException, IOException {
+    public Link createFolderInDisk(Field... field) throws NoSuchFieldError, ConnectException, FileNotFoundException, IOException {
+	//201 - ок
+	//409 - this folder there is , or is not
 	String operation = "/v1/disk/resources";
-	return query.getObgect(Query.PUT, operation, field, Link.class);
+	Link link = new Link();
+	try {
+	    link = query.getObgect(Query.PUT, operation, field, Link.class);
+	} catch (ConnectException ex) {
+	   
+	    if (query.getCode() == 409) {
+		createTheMissingFolders(field);
+	    } else {
+		throw new ConnectException("error", ex);
+	    }
+	}
+	return link;
+    }
+
+    private void createTheMissingFolders(Field[] field) throws NoSuchFieldError, IOException {
+        String operation = "/v1/disk/resources";
+	String path = returnPath(field);
+	String elfromPath[] = path.split("/");
+	String ccurentUrl = "";
+	for (String elfromPath1 : elfromPath) {
+	    try {
+		ccurentUrl +=  elfromPath1+"/" ;
+		query.getObgect(Query.PUT, operation, new Field[]{new Path(ccurentUrl)}, Link.class);
+	    } catch (ConnectException e) {
+		if (query.getCode() != 409) {
+		    throw new ConnectException("errrrr", e);
+		}
+	    }
+	}
+    }
+
+    private String returnPath(Field[] field) {
+	String path = null;
+	System.out.println("innnnn");
+	for (Field field1 : field) {
+	    if (field1.getNameField().equals("path")) {
+		path = field1.getField();
+		System.out.println("path = "+path);
+	    }
+	}
+	return path;
     }
 
     /**
      *
      * @param field
-     * @return Если удаление происходит асинхронно, то вернёт ответ со статусом 202 и ссылкой на асинхронную операцию. Иначе вернёт ответ со статусом 204 и пустым телом.
+     * @return Если удаление происходит асинхронно, то вернёт ответ со статусом
+     * 202 и ссылкой на асинхронную операцию. Иначе вернёт ответ со статусом 204
+     * и пустым телом.
      * @throws NoSuchFieldError
      * @throws ConnectException
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public Link deleteFileOrFolder(Field... field) throws NoSuchFieldError, ConnectException, FileNotFoundException, IOException {
+    public Link deleteFileOrFolder(Field... field) throws NoSuchFieldError, ConnectException, IOException {
 	String operation = "/v1/disk/resources";
-        return  query.getObgect(Query.DELETE, operation, field,Link.class);
+	return query.getObgect(Query.DELETE, operation, field, Link.class);
     }
-    
+
     /**
      *
-     * @param field
-     * Если параметр path не задан или указывает на корень Корзины, 
-     * то корзина будет полностью очищена, иначе из Корзины будет удалён только тот ресурс,
-     * на который указывает path.
+     * @param field Если параметр path не задан или указывает на корень Корзины,
+     * то корзина будет полностью очищена, иначе из Корзины будет удалён только
+     * тот ресурс, на который указывает path.
      * @return
      * @throws NoSuchFieldError
      * @throws ConnectException
@@ -323,18 +388,83 @@ public class QueryController {
 	String operation = "/v1/disk/trash/resources";
 	return query.getObgect(Query.DELETE, operation, field, Link.class);
     }
-    public ReadableByteChannel downloadFile(Link link){
-      ReadableByteChannel rbch = null;
+
+    public ReadableByteChannel downloadFile(Link link) {
+	ReadableByteChannel rbch = null;
 	try {
-	    rbch = Channels.newChannel( query.downloadFile(new URL(link.getHref())));
+	    rbch = Channels.newChannel(query.downloadFile(new URL(link.getHref())));
 	} catch (MalformedURLException ex) {
 	    Logger.getLogger(QueryController.class.getName()).log(Level.SEVERE, null, ex);
 	}
-      return rbch;
-	
+	return rbch;
+
     }
-    
 
+    @Override
+    public Map<String, List<Resource>> getResource() {
+	return getResource("/");
+    }
 
+    private Map<String, List<Resource>> map = null;
+
+    public Map<String, List<Resource>> getResource(String path) {
+	map = new HashMap<>();
+	readFolder(path);
+	return map;
+    }
+
+    protected void readFolder(String path) {
+	map.put(path, new ArrayList<>());
+	Resource resource = null;
+	try {
+	    resource = getResource(new Path(path));
+	} catch (ConnectException | NoSuchFieldError ex) {
+	    Logger.getLogger(QueryController.class.getName()).log(Level.SEVERE, null, ex);
+	}
+	Resource[] list = null;
+
+	if (resource != null && (list = resource.getEmbedded().getItems()) != null) {
+	    for (Resource list1 : list) {
+		if (list1.getType().equals("dir")) {
+		    readFolder(list1.getPath());
+		} else {
+		    map.get(path).add(list1);
+		}
+	    }
+	}
+
+    }
+
+    @Override
+    public ReadableByteChannel read(String path) throws FileNotFoundException {
+	ReadableByteChannel result = null;
+	try {
+	    result = downloadFile(getLinkToDownload(new Path(path)));
+	} catch (NoSuchFieldError ex) {
+	    Logger.getLogger(QueryController.class.getName()).log(Level.SEVERE, null, ex);
+	} catch (ConnectException ex) {
+	    throw new FileNotFoundException(ex.toString());
+	}
+	return result;
+    }
+
+    @Override
+    public void write(String path, ReadableByteChannel i) {
+	try {
+	    //todo проверить есть ли на сервере такая папка, если  нет - создать 
+	    putFileToServer(i, new Path(path), new Overwrite(true));
+	} catch (NoSuchFieldError | ConnectException | MalformedURLException ex) {
+	    Logger.getLogger(QueryController.class.getName()).log(Level.SEVERE, null, ex);
+	}
+    }
+
+    @Override
+    public void deleteFolderOrFile(String path) {
+	try {
+	    deleteFileOrFolder(new Path(path));
+	} catch (NoSuchFieldError | IOException ex) {
+	    Logger.getLogger(QueryController.class.getName()).log(Level.SEVERE, null, ex);
+	}
+    }
 
 }

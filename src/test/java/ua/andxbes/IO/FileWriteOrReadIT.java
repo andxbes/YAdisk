@@ -8,10 +8,12 @@ package ua.andxbes.IO;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.rmi.ConnectException;
 import java.util.List;
@@ -35,7 +37,7 @@ import ua.andxbes.query.QueryController;
  *
  * @author Andr
  */
-public class FileWriteOrReadIT {
+public class FileWriteOrReadIT  {
 
     private static final Logger log = Logger.getLogger("TestIO");
     private FileWriteOrRead instance;
@@ -53,7 +55,7 @@ public class FileWriteOrReadIT {
 
     @Before
     public void setUp() {
-	instance = new FileWriteOrRead();
+	instance = new FileWriteOrRead("./Ya-disk");
     }
 
     @After
@@ -100,13 +102,15 @@ public class FileWriteOrReadIT {
 
 	Link link = qc.getLinkForUpload(new Path(name_Of_File_In_The_Disk),new Overwrite(true));
 	try {
-	    qc.putFileToServer(f, new Path(name_Of_File_In_The_Disk),new Overwrite(true));
+	    // todo заменить на собственный метод чтения 
+	    FileChannel fc = new FileInputStream(f).getChannel();
+	    qc.putFileToServer(fc, new Path(name_Of_File_In_The_Disk),new Overwrite(true));
 	    
 	    Resource r = qc.getResource(new Path(name_Of_File_In_The_Disk));
 
 
 	String yadiskMd5 = r.getMd5();
-	String myDiskMD5 = instance.get_Md5_Hash(instance.readFile(name_Of_File_In_The_Disk));
+	String myDiskMD5 = instance.get_Md5_Hash(instance.read(name_Of_File_In_The_Disk));
 
 	log.log(Level.INFO, " in Yadisk = \n{0}\n, in your disk \n{1}\n", new Object[]{yadiskMd5, myDiskMD5});
 	Assert.assertTrue(yadiskMd5.equals(myDiskMD5));
@@ -118,7 +122,7 @@ public class FileWriteOrReadIT {
     @Test
     public void getTree() {
 	StringBuilder sb = new StringBuilder();
-	Map<String, List<Resource>> map = instance.getMapOfFile();
+	Map<String, List<Resource>> map = instance.getResource();
 	for (Map.Entry<String, List<Resource>> entrySet : map.entrySet()) {
 	    String key = entrySet.getKey();
 

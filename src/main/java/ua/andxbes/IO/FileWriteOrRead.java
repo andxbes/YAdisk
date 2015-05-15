@@ -23,27 +23,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import ua.andxbes.Disk;
 import ua.andxbes.DiskJsonObjects.Resource;
 
 /**
  *
  * @author Andr
  */
-public class FileWriteOrRead {
+public class FileWriteOrRead implements Disk{
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss'+00:00'");
     private final static Logger log = Logger.getLogger("IO");
-    private String rootDir ;
-    private final File fileRootDir;
+    private String rootDir;
+    private static File fileRootDir;
     private Map<String, List<Resource>> mapTree;
 
-    public FileWriteOrRead() {
-	this("./Ya-disk");
-    }
-    
-     public FileWriteOrRead(String rootDir) {
+    public FileWriteOrRead(String rootDir) {
 	this.rootDir = rootDir;
-	
+
 	fileRootDir = new File(rootDir);
 	if (!fileRootDir.exists()) {
 	    fileRootDir.mkdir();
@@ -55,6 +52,7 @@ public class FileWriteOrRead {
      *
      * @param path "/rrrr.doc" -> "Ya-disk/rrrr.doc"
      */
+    @Override
     public void deleteFolderOrFile(String path) {
 	deletefile(new File(getPathToRootDir() + path));
     }
@@ -72,11 +70,12 @@ public class FileWriteOrRead {
 	path.delete();
     }
 
+    @Override
     public void write(String path, ReadableByteChannel i) {
 	File f = new File(getPathToRootDir() + path);
 	write(f, i);
     }
-    
+
     public void write(File f, ReadableByteChannel i) {
 	if (!f.exists()) {
 	    //File folders = new File(f.getParent());
@@ -100,13 +99,14 @@ public class FileWriteOrRead {
 
     }
 
-    public ReadableByteChannel readFile(String path) throws FileNotFoundException {
+    @Override
+    public ReadableByteChannel read(String path) throws FileNotFoundException {
 	File file = new File(getPathToRootDir() + path);
 	FileChannel fch = new FileInputStream(file).getChannel();
 	return fch;
     }
 
-    public String get_Md5_Hash(ReadableByteChannel bch) {
+    public static  String get_Md5_Hash(ReadableByteChannel bch) {
 	String checsumm = null;
 	MessageDigest md5;
 	try {
@@ -127,7 +127,8 @@ public class FileWriteOrRead {
     }
 
     // = =========================== 
-    public Map<String, List<Resource>> getMapOfFile() {
+    @Override
+    public Map<String, List<Resource>> getResource() {
 	if (mapTree != null) {
 	    mapTree.clear();
 	}
@@ -154,10 +155,10 @@ public class FileWriteOrRead {
 	if (f.isDirectory() && mapTree.get(f.toString()) == null) {
 	    mapTree.put(f.toString(), new ArrayList<>());
 	} else if (f.isFile()) {
-	    Resource r = new Resource();
+	    Resource resource = new Resource();
 
 	    try {
-		r.setSize(f.length())
+		resource.setSize(f.length())
 			.setMd5(get_Md5_Hash(new FileInputStream(f).getChannel()))
 			.setName(f.getName())
 			.setPath(f.getPath().replace(getPathToRootDir(), ""))
@@ -169,10 +170,10 @@ public class FileWriteOrRead {
 
 	    if (mapTree.get(f.getParent()) == null) {
 		List<Resource> l = new ArrayList<>();
-		l.add(r);
+		l.add(resource);
 		mapTree.put(f.getParent(), l);
 	    } else {
-		mapTree.get(f.getParent()).add(r);
+		mapTree.get(f.getParent()).add(resource);
 	    }
 	}
     }
@@ -181,7 +182,7 @@ public class FileWriteOrRead {
     /**
      * @return the fileRootDir
      */
-    public String getPathToRootDir() {
+    public static  String getPathToRootDir() {
 	return fileRootDir.getPath();
     }
 }

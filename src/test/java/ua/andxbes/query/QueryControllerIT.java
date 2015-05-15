@@ -6,10 +6,14 @@
 package ua.andxbes.query;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.channels.FileChannel;
 import java.rmi.ConnectException;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.After;
@@ -41,6 +45,7 @@ import ua.andxbes.fieldsForQuery.Type;
  */
 public class QueryControllerIT {
 
+    private static final Logger log = Logger.getLogger("QueryControllerIT");
     private final QueryController queryController;
     private final String ROOT_FOLDER = "/testFolder/",
 	    ROOT_FOLDER2 = "/testFolder2/";
@@ -254,22 +259,45 @@ public class QueryControllerIT {
     @Test
     public void uploadFile() throws NoSuchFieldError, FileNotFoundException, IOException {
 	File f = new File("./gradlew.bat");
-	Path path = new Path(ROOT_FOLDER + f.getName());
-	queryController.putFileToServer(f, path, new Overwrite(true));
+	Path path = new Path(ROOT_FOLDER +"f/s/d/f/"+ f.getName());
+	FileChannel fc = new FileInputStream(f).getChannel();
+	queryController.putFileToServer(fc, path, new Overwrite(true));
     }
 
     @Test
     public void deleteFileOrFolder() throws NoSuchFieldError, FileNotFoundException, IOException {
 	createFolderInDisk();
-
+        
 	queryController.deleteFileOrFolder(new Path(ROOT_FOLDER + "ololo"), new Overwrite(true));
     }
 
     public void createFolderInDisk() throws NoSuchFieldError, FileNotFoundException, IOException {
-	Link l = queryController.createFolderInDisk(new Path(ROOT_FOLDER + "ololo"), new Overwrite(true));
+	Link l = queryController.createFolderInDisk(new Path(ROOT_FOLDER + "ololo"), new Overwrite(true));	
+	Logger.getLogger(QueryControllerIT.class.getName()).log(Level.INFO, "\nresult  = {0}", l.toString());
+    }
+    
+    @Test
+    public void createFolderInDisk2() throws NoSuchFieldError, FileNotFoundException, IOException {
+	Link l = queryController.createFolderInDisk(new Path(ROOT_FOLDER + "wer/wer/wer/wer"), new Overwrite(true));	
 	Logger.getLogger(QueryControllerIT.class.getName()).log(Level.INFO, "\nresult  = {0}", l.toString());
     }
     
 
+    @Test
+    public void getResorceMap() {
+	Map<String, List<Resource>> map = queryController.getResource();
+	StringBuilder sb = new StringBuilder();
+	for (Map.Entry<String, List<Resource>> entrySet : map.entrySet()) {
+	    sb.append("\n----------------------------(").append(entrySet.getKey()).append(")-----------------------------------\n");
+	    List<Resource> value = entrySet.getValue();
+	    for (Resource value1 : value) {
+		sb.append("\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
+		sb.append(value1);
+	    }
+	    sb.append("\n------------------------------( end ").append(entrySet.getKey()).append(")-------------------------------------\n");
+
+	}
+	log.info(sb.toString());
+    }
 
 }
