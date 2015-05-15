@@ -5,17 +5,23 @@
  */
 package ua.andxbes.DiskJsonObjects;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author Andr
- * 
- * <b>Описание ресурса, мета-информация о файле или папке. 
- * Включается в ответ на запрос метаинформации.</b>
+ *
+ * <b>Описание ресурса, мета-информация о файле или папке. Включается в ответ на
+ * запрос метаинформации.</b>
  */
 public class Resource {
+    public final  static SimpleDateFormat sdf =  new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss'+00:00'");
 
     private String name,
-	    public_key, 
+	    public_key,
 	    origin_path,
 	    created,
 	    public_url,
@@ -31,24 +37,22 @@ public class Resource {
 
     private ResourceList _embedded;
 
-
-
     @Override
     public String toString() {
-	return "\nResource{" + "\n____ name = " + getName() 
+	return "\nResource{" + "\n____ name = " + getName()
 		+ "\nxxxxxx public_key = " + getPublic_key()
-		+ "\nxxxxxx origin_path = " + getOrigin_path() 
+		+ "\nxxxxxx origin_path = " + getOrigin_path()
 		+ "\nxxxxxx created = " + getCreated()
-		+ "\nxxxxxx public_url = " + getPublic_url() 
+		+ "\nxxxxxx public_url = " + getPublic_url()
 		+ "\nxxxxxx modified = " + getModified()
 		+ "\nxxxxxx md5 = " + getMd5()
-		+ "\nxxxxxx media_type = " + getMedia_type() 
+		+ "\nxxxxxx media_type = " + getMedia_type()
 		+ "\nxxxxxx path = " + getPath()
 		+ "\nxxxxxx preview = " + getPreview()
-		+ "\nxxxxxx type = " + getType() 
-		+ "\nxxxxxx mime_type = " + getMime_type() 
+		+ "\nxxxxxx type = " + getType()
+		+ "\nxxxxxx mime_type = " + getMime_type()
 		+ "\nxxxxxx custom_properties = " + getCustom_properties()
-		+ "\nxxxxxx size = " + getSize() 
+		+ "\nxxxxxx size = " + getSize()
 		+ "\nxxxxxx _embedded = " + getEmbedded() + '}';
     }
 
@@ -80,6 +84,10 @@ public class Resource {
 	return created;
     }
 
+    public long getCreated_InMilliseconds() {
+	return unFormatDate(created);
+    }
+
     /**
      * @return the public_url <b>Публичный URL</b>
      */
@@ -92,6 +100,10 @@ public class Resource {
      */
     public String getModified() {
 	return modified;
+    }
+
+    public long getModified_InMilliseconds() {
+	return unFormatDate(modified);
     }
 
     /**
@@ -112,9 +124,10 @@ public class Resource {
      * @return the path .<b>Путь к ресурсу</b>.
      */
     public String getPath() {
-	
-	if(path.contains(":"))
+
+	if (path.contains(":")) {
 	    path = path.split(":")[1];
+	}
 	return path;
     }
 
@@ -228,11 +241,11 @@ public class Resource {
      * @param path the path to set
      */
     public Resource setPath(String path) {
-	
-	if(path.contains("\\")){
-	path = path.replace("\\", "/");
+
+	if (path.contains("\\")) {
+	    path = path.replace("\\", "/");
 	}
-	
+
 	this.path = path;
 	return this;
     }
@@ -250,7 +263,7 @@ public class Resource {
      */
     public Resource setType(String type) {
 	this.type = type;
-	return this ;
+	return this;
     }
 
     /**
@@ -258,7 +271,7 @@ public class Resource {
      */
     public Resource setMime_type(String mime_type) {
 	this.mime_type = mime_type;
-        return this;
+	return this;
     }
 
     /**
@@ -283,6 +296,19 @@ public class Resource {
     public Resource setEmbedded(ResourceList _embedded) {
 	this._embedded = _embedded;
 	return this;
+    }
+
+    private long unFormatDate(String data) {
+	long result = 0;
+
+	try {
+	    result = sdf.parse(data).getTime();
+	} catch (ParseException ex) {
+	    Logger.getLogger(Resource.class.getName()).log(Level.SEVERE, null, ex);
+	}
+
+	return result;
+
     }
 
 }

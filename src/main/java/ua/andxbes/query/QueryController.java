@@ -211,7 +211,6 @@ public class QueryController implements ua.andxbes.Disk {
 		String pathEl[] = path.split("/");
 		path = path.replaceAll(pathEl[pathEl.length-1], "");
 		
-		System.out.println(path);
 		try {
 		    createFolderInDisk(new Path(path));
 		    link = getLinkForUpload(fields);
@@ -347,11 +346,9 @@ public class QueryController implements ua.andxbes.Disk {
 
     private String returnPath(Field[] field) {
 	String path = null;
-	System.out.println("innnnn");
 	for (Field field1 : field) {
 	    if (field1.getNameField().equals("path")) {
 		path = field1.getField();
-		System.out.println("path = "+path);
 	    }
 	}
 	return path;
@@ -451,7 +448,6 @@ public class QueryController implements ua.andxbes.Disk {
     @Override
     public void write(String path, ReadableByteChannel i) {
 	try {
-	    //todo проверить есть ли на сервере такая папка, если  нет - создать 
 	    putFileToServer(i, new Path(path), new Overwrite(true));
 	} catch (NoSuchFieldError | ConnectException | MalformedURLException ex) {
 	    Logger.getLogger(QueryController.class.getName()).log(Level.SEVERE, null, ex);

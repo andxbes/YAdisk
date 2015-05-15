@@ -30,7 +30,7 @@ import ua.andxbes.DiskJsonObjects.Resource;
  *
  * @author Andr
  */
-public class FileWriteOrRead implements Disk{
+public class FileWriteOrRead implements Disk {
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss'+00:00'");
     private final static Logger log = Logger.getLogger("IO");
@@ -106,7 +106,7 @@ public class FileWriteOrRead implements Disk{
 	return fch;
     }
 
-    public static  String get_Md5_Hash(ReadableByteChannel bch) {
+    public static String get_Md5_Hash(ReadableByteChannel bch) {
 	String checsumm = null;
 	MessageDigest md5;
 	try {
@@ -134,7 +134,7 @@ public class FileWriteOrRead implements Disk{
 	}
 	mapTree = new HashMap<>();
 	buildTree(new File(getPathToRootDir() + "/"));
-	return mapTree;
+	return toFormatYaDisk();
     }
 
     private void buildTree(File f) {
@@ -177,12 +177,25 @@ public class FileWriteOrRead implements Disk{
 	    }
 	}
     }
-    //сортировать файлы по дате обновления 
+
+    private Map<String, List<Resource>> toFormatYaDisk() {
+	Map<String, List<Resource>> map = new HashMap<>();
+
+	for (Map.Entry<String, List<Resource>> entrySet : mapTree.entrySet()) {
+	    String localKey = entrySet.getKey().replace(getPathToRootDir(), "").replace("\\", "/");
+	    if (localKey.isEmpty()) {
+		localKey = "/";
+	    }
+	    map.put(localKey, entrySet.getValue());
+	}
+
+	return map;
+    }
 
     /**
      * @return the fileRootDir
      */
-    public static  String getPathToRootDir() {
+    public static String getPathToRootDir() {
 	return fileRootDir.getPath();
     }
 }

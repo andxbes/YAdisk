@@ -36,9 +36,9 @@ public class Synchronizer {
      * @param localePathToRootDir Like as './rootFolder'
      */
     public Synchronizer(String localePathToRootDir) {
-	
 	localePathToRootDir = checkCorrect(localePathToRootDir);
 	localDisk = new FileWriteOrRead(localePathToRootDir);
+	remoteDisk = new QueryController(Token.instance());
     }
 
     protected String checkCorrect(String localePathToRootDir) {
@@ -53,16 +53,13 @@ public class Synchronizer {
 	Future<Map<String, List<Resource>>> fLocalTreeMap = threads.submit(() -> localDisk.getResource());
 	remoteTreeMap = fRemoteTreeMap.get();
 	localTreeMap = fLocalTreeMap.get();
-	//System.out.println(" \n remote \n"+remoteTreeMap + " \n\n\n\n\n\n locale \n" + localTreeMap);
+	System.out.println(" \n remote \n"+remoteTreeMap + " \n\n\n\n\n\n locale \n" + localTreeMap);
 
     }
 
     public void compare() {
 	for (Map.Entry<String, List<Resource>> entrySet : localTreeMap.entrySet()) {
-	    String key = entrySet.getKey().replace(localDisk.getPathToRootDir(), "").replace("\\", "/");
-	    if (key.isEmpty()) {
-		key = "/";
-	    }
+	    String key = entrySet.getKey();
 	    List<Resource> value = entrySet.getValue();
 	    
 	    
