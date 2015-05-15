@@ -56,19 +56,48 @@ public class Synchronizer {
 	System.out.println(" \n remote \n"+remoteTreeMap + " \n\n\n\n\n\n locale \n" + localTreeMap);
 
     }
+    
+    public void sync() {
+	compare(localTreeMap, remoteTreeMap);
+	compare(remoteTreeMap, localTreeMap);
+    }
 
-    public void compare() {
-	for (Map.Entry<String, List<Resource>> entrySet : localTreeMap.entrySet()) {
-	    String key = entrySet.getKey();
-	    List<Resource> value = entrySet.getValue();
-	    
-	    
-	    for (Map.Entry<String, List<Resource>> remoteEntry : remoteTreeMap.entrySet()) {
-		String remoteKey = remoteEntry.getKey();
-		List<Resource> remoteValue = remoteEntry.getValue();
+    protected void compare(Map<String, List<Resource>> AMap, Map<String, List<Resource>> BMap) {
+	for (Map.Entry<String, List<Resource>> AEntry : AMap.entrySet()) {
+	    String AKey = AEntry.getKey();
+	    List<Resource> AValue = AEntry.getValue();
+	    boolean isCoincedenceKey = false;
+	    for (Map.Entry<String, List<Resource>> BEntry : BMap.entrySet()) {
+		String BKey = BEntry.getKey();
+		List<Resource> BValue = BEntry.getValue();
 
-		
-		
+		if (AKey.equals(BKey)) {
+		    isCoincedenceKey = true;
+	            	    
+		    for (Resource AValue1 : AValue) {
+			boolean isCoincedenceValue = false ;
+			for (Resource BValue1 : BValue) {
+			    if(AValue1.getName().equals(BValue1.getName())){
+				isCoincedenceValue = true;
+			        //проверить на то кто кого старше и на контрольные ссыммы .
+				// и заменить старый файл на новый 
+				System.out.println( AValue1.getName()+" = "+ BValue1.getName());
+			    } 
+			    
+			}
+			 if(!isCoincedenceValue){
+			//не нашли такого элемента в Б , скопировать из А в Б
+			System.out.println("не нашли в "+ BKey + " : " + AValue1.getName());
+		    }
+		    }
+		   
+
+		}
+
+	    }
+	    if(!isCoincedenceKey){
+	       //не нашли такой папки в Б , скопировать все содиржимое из А в Б 
+	       System.out.println("не нашли в B " + AKey);
 	    }
 
 	}
