@@ -104,7 +104,7 @@ public class Synchronizer {
 			}
 			if (!isCoincedenceValue) {
 			    //не нашли такого элемента в Б , скопировать из А в Б
-			    System.out.println("не нашли в " + BKey + " : " + AValue1.getName()+" , path - "+AValue1.getPath());
+			    log.log(Level.FINE, "\u043d\u0435 \u043d\u0430\u0448\u043b\u0438 \u0432 {0} : {1} , path - {2}", new Object[]{BKey, AValue1.getName(), AValue1.getPath()});
 			    copyFile(AValue1, diskB);
 			}
 		    }
@@ -114,7 +114,7 @@ public class Synchronizer {
 	    }
 	    if (!isCoincedenceKey) {
 		//не нашли такой папки в Б , скопировать все содиржимое из А в Б 
-		System.out.println("не нашли в B " + AKey);
+		log.fine("не нашли в B " + AKey);
 		for (Resource AValue1 : AValue) {
 		    copyFile(AValue1, diskB);
 		}
