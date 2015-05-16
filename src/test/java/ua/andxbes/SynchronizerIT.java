@@ -6,6 +6,7 @@
 package ua.andxbes;
 
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.Assert;
@@ -20,13 +21,17 @@ import org.junit.Test;
  * @author Andr
  */
 public class SynchronizerIT {
-    final  Logger log = Logger.getLogger("SynchronazerIT");
+    final static   Logger log = Logger.getLogger("SynchronazerIT");
     Synchronizer instance;
     public SynchronizerIT() {
     }
     
     @BeforeClass
     public static void setUpClass() {
+	for (Handler h : Logger.getLogger("").getHandlers()) {
+	    h.setLevel( Level.ALL );
+	}
+	log.setLevel(Level.ALL);
     }
     
     @AfterClass

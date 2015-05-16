@@ -21,24 +21,29 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import ua.andxbes.Disk;
+import ua.andxbes.DiskForAll;
 import ua.andxbes.DiskJsonObjects.Resource;
 
 /**
  *
  * @author Andr
  */
-public class FileWriteOrRead implements Disk {
+public class FileWriteOrRead implements DiskForAll {
 
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss'+00:00'");
+    public  final SimpleDateFormat dateFormat ;
     private final static Logger log = Logger.getLogger("IO");
     private String rootDir;
     private static File fileRootDir;
     private Map<String, List<Resource>> mapTree;
 
     public FileWriteOrRead(String rootDir) {
+	dateFormat = new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss'+00:00'");
+	//привести дату изменения к 00 часовому поясу 
+	dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
 	this.rootDir = rootDir;
 
 	fileRootDir = new File(rootDir);
@@ -163,7 +168,8 @@ public class FileWriteOrRead implements Disk {
 			.setName(f.getName())
 			.setPath(f.getPath().replace(getPathToRootDir(), ""))
 			.setSize(f.length())
-			.setModified(dateFormat.format(f.lastModified()));
+			.setModified(dateFormat.format(f.lastModified()))
+			.setDisk(this);
 	    } catch (FileNotFoundException ex) {
 		Logger.getLogger(FileWriteOrRead.class.getName()).log(Level.SEVERE, null, ex);
 	    }

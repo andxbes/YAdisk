@@ -5,12 +5,15 @@
  */
 package ua.andxbes;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import ua.andxbes.DiskJsonObjects.Resource;
 import ua.andxbes.IO.FileWriteOrRead;
 import ua.andxbes.query.QueryController;
@@ -21,7 +24,8 @@ import ua.andxbes.query.QueryController;
  */
 public class Synchronizer {
 
-    private ExecutorService threads = Executors.newCachedThreadPool();
+    private final static Logger log = Logger.getLogger("Synchronizer");
+    private final  ExecutorService threads = Executors.newCachedThreadPool();
     private Map<String, List<Resource>> localTreeMap;
     private Map<String, List<Resource>> remoteTreeMap;
     private QueryController remoteDisk;
@@ -53,10 +57,10 @@ public class Synchronizer {
 	Future<Map<String, List<Resource>>> fLocalTreeMap = threads.submit(() -> localDisk.getResource());
 	remoteTreeMap = fRemoteTreeMap.get();
 	localTreeMap = fLocalTreeMap.get();
-	System.out.println(" \n remote \n"+remoteTreeMap + " \n\n\n\n\n\n locale \n" + localTreeMap);
+	//System.out.println(" \n remote \n"+remoteTreeMap + " \n\n\n\n\n\n locale \n" + localTreeMap);
 
     }
-    
+
     public void sync() {
 	compare(localTreeMap, remoteTreeMap);
 	compare(remoteTreeMap, localTreeMap);
@@ -73,35 +77,63 @@ public class Synchronizer {
 
 		if (AKey.equals(BKey)) {
 		    isCoincedenceKey = true;
-	            	    
+
 		    for (Resource AValue1 : AValue) {
-			boolean isCoincedenceValue = false ;
+			boolean isCoincedenceValue = false;
 			for (Resource BValue1 : BValue) {
-			    if(AValue1.getName().equals(BValue1.getName())){
+			    if (AValue1.getName().equals(BValue1.getName())) {
 				isCoincedenceValue = true;
-			        //проверить на то кто кого старше и на контрольные ссыммы .
+				//проверить на то кто кого старше и на контрольные ссыммы .
 				// и заменить старый файл на новый 
-				System.out.println( AValue1.getName()+" = "+ BValue1.getName());
-			    } 
-			    
+				log.fine(AValue1.getName() + " = " + AKey + " = " + BValue1.getName());
+				if (!(AValue1.getMd5().equals(BValue1.getMd5()))) {
+				    substitude(AValue1, BValue1);
+				}
+
+			    }
+
 			}
-			 if(!isCoincedenceValue){
-			//не нашли такого элемента в Б , скопировать из А в Б
-			System.out.println("не нашли в "+ BKey + " : " + AValue1.getName());
+			if (!isCoincedenceValue) {
+			    //не нашли такого элемента в Б , скопировать из А в Б
+			    log.fine("не нашли в " + BKey + " : " + AValue1.getName());
+			}
 		    }
-		    }
-		   
 
 		}
 
 	    }
-	    if(!isCoincedenceKey){
-	       //не нашли такой папки в Б , скопировать все содиржимое из А в Б 
-	       System.out.println("не нашли в B " + AKey);
+	    if (!isCoincedenceKey) {
+		//не нашли такой папки в Б , скопировать все содиржимое из А в Б 
+		log.fine("не нашли в B " + AKey);
 	    }
 
 	}
 
+    }
+    
+    
+    private void substitude( Resource a , Resource b ){
+          System.out.println("заменяем ");
+	  
+	  if(a.getModified_InMilliseconds() > b.getModified_InMilliseconds()){
+	    log.fine("a = " + a.getModified_InMilliseconds() + " >, b = "+b.getModified_InMilliseconds());
+	    log.fine("a = " + a.getModified() + " >, b = "+b.getModified());
+	    copyFile(a, b);
+	  }else{
+	       log.fine("a = " + a.getModified_InMilliseconds() + " <, b = "+b.getModified_InMilliseconds());
+	       log.fine("a = " + a.getModified() + " <, b = "+b.getModified());
+	       copyFile(b, a);
+	  }
+	  
+    }
+
+    private void copyFile(Resource actual, Resource override) {
+	String aPath = actual.getPath();
+	try {
+	    override.getDisk().write(aPath,actual.getDisk().read(aPath));
+	} catch (FileNotFoundException ex) {
+	    Logger.getLogger(Synchronizer.class.getName()).log(Level.SEVERE, null, ex);
+	}
     }
 
 }

@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import ua.andxbes.DiskForAll;
 
 /**
  *
@@ -19,6 +20,7 @@ import java.util.logging.Logger;
  */
 public class Resource {
     public final  static SimpleDateFormat sdf =  new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss'+00:00'");
+    private DiskForAll disk ;
 
     private String name,
 	    public_key,
@@ -310,5 +312,21 @@ public class Resource {
 	return result;
 
     }
+
+    /**
+     * @return the disk
+     */
+    public DiskForAll getDisk() {
+	return disk;
+    }
+
+    /**
+     * @param disk the disk to set
+     */
+    public void setDisk(DiskForAll disk) {
+	this.disk = disk;
+    }
+
+  
 
 }

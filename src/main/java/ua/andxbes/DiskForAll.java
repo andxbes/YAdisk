@@ -15,7 +15,8 @@ import ua.andxbes.DiskJsonObjects.Resource;
  *
  * @author Andr
  */
-public interface Disk {
+public interface DiskForAll {
+    
     public Map<String, List<Resource>> getResource();
     public ReadableByteChannel read(String path)throws FileNotFoundException;
     public void write(String path, ReadableByteChannel i);

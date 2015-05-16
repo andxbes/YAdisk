@@ -39,7 +39,7 @@ import ua.andxbes.fieldsForQuery.Path;
  *
  * @author Andr
  */
-public class QueryController implements ua.andxbes.Disk {
+public class QueryController implements ua.andxbes.DiskForAll {
 
     protected final Logger log = Logger.getLogger(this.getClass().getSimpleName());
 
@@ -82,7 +82,7 @@ public class QueryController implements ua.andxbes.Disk {
      *
      * Query information about the Ya-disk
      *
-     * @return Disk
+     * @return DiskForAll
      * @throws java.rmi.ConnectException
      */
     public Disk getDiskInfo() throws ConnectException {
@@ -425,6 +425,7 @@ public class QueryController implements ua.andxbes.Disk {
 		if (list1.getType().equals("dir")) {
 		    readFolder(list1.getPath());
 		} else {
+		    list1.setDisk(this);
 		    map.get(path).add(list1);
 		}
 	    }
