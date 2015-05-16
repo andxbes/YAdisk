@@ -5,11 +5,13 @@
  */
 package ua.andxbes.query;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.rmi.ConnectException;
 import java.util.List;
@@ -298,6 +300,13 @@ public class QueryControllerIT {
 
 	}
 	log.info(sb.toString());
+    }
+    
+    @Test
+    public void writeTest(){
+        String writS = "/wwq/Новый текстовый документ (2).txt";   
+	queryController.write(writS, Channels.newChannel(new ByteArrayInputStream(writS.getBytes())));
+    
     }
 
 }

@@ -25,7 +25,7 @@ import ua.andxbes.query.QueryController;
 public class Synchronizer {
 
     private final static Logger log = Logger.getLogger("Synchronizer");
-    private final  ExecutorService threads = Executors.newCachedThreadPool();
+    private final ExecutorService threads = Executors.newCachedThreadPool();
     private Map<String, List<Resource>> localTreeMap;
     private Map<String, List<Resource>> remoteTreeMap;
     private QueryController remoteDisk;
@@ -71,9 +71,16 @@ public class Synchronizer {
 	    String AKey = AEntry.getKey();
 	    List<Resource> AValue = AEntry.getValue();
 	    boolean isCoincedenceKey = false;
+
+	    DiskForAll diskB = null;
+
 	    for (Map.Entry<String, List<Resource>> BEntry : BMap.entrySet()) {
 		String BKey = BEntry.getKey();
 		List<Resource> BValue = BEntry.getValue();
+
+		if (!BValue.isEmpty()) {
+		    diskB = BValue.get(0).getDisk();
+		}
 
 		if (AKey.equals(BKey)) {
 		    isCoincedenceKey = true;
@@ -81,13 +88,15 @@ public class Synchronizer {
 		    for (Resource AValue1 : AValue) {
 			boolean isCoincedenceValue = false;
 			for (Resource BValue1 : BValue) {
+
 			    if (AValue1.getName().equals(BValue1.getName())) {
 				isCoincedenceValue = true;
+
 				//проверить на то кто кого старше и на контрольные ссыммы .
 				// и заменить старый файл на новый 
 				log.fine(AValue1.getName() + " = " + AKey + " = " + BValue1.getName());
 				if (!(AValue1.getMd5().equals(BValue1.getMd5()))) {
-				    substitude(AValue1, BValue1);
+				    replace(AValue1, BValue1);
 				}
 
 			    }
@@ -95,7 +104,8 @@ public class Synchronizer {
 			}
 			if (!isCoincedenceValue) {
 			    //не нашли такого элемента в Б , скопировать из А в Б
-			    log.fine("не нашли в " + BKey + " : " + AValue1.getName());
+			    System.out.println("не нашли в " + BKey + " : " + AValue1.getName()+" , path - "+AValue1.getPath());
+			    copyFile(AValue1, diskB);
 			}
 		    }
 
@@ -104,36 +114,37 @@ public class Synchronizer {
 	    }
 	    if (!isCoincedenceKey) {
 		//не нашли такой папки в Б , скопировать все содиржимое из А в Б 
-		log.fine("не нашли в B " + AKey);
+		System.out.println("не нашли в B " + AKey);
+		for (Resource AValue1 : AValue) {
+		    copyFile(AValue1, diskB);
+		}
 	    }
 
 	}
 
     }
-    
-    
-    private void substitude( Resource a , Resource b ){
-          System.out.println("заменяем ");
-	  
-	  if(a.getModified_InMilliseconds() > b.getModified_InMilliseconds()){
-	    log.fine("a = " + a.getModified_InMilliseconds() + " >, b = "+b.getModified_InMilliseconds());
-	    log.fine("a = " + a.getModified() + " >, b = "+b.getModified());
-	    copyFile(a, b);
-	  }else{
-	       log.fine("a = " + a.getModified_InMilliseconds() + " <, b = "+b.getModified_InMilliseconds());
-	       log.fine("a = " + a.getModified() + " <, b = "+b.getModified());
-	       copyFile(b, a);
-	  }
-	  
+//=============================================================================
+
+    private void replace(Resource a, Resource b) {
+	log.fine("replace ");
+
+	if (a.getModified_InMilliseconds() > b.getModified_InMilliseconds()) {
+	    log.log(Level.FINE, "a = {0} >, b = {1}", new Object[]{a.getModified(), b.getModified()});
+	    copyFile(a, b.getDisk());
+	} else {
+	    log.log(Level.FINE, "a = {0} <, b = {1}", new Object[]{a.getModified(), b.getModified()});
+	    copyFile(b, a.getDisk());
+	}
+
     }
 
-    private void copyFile(Resource actual, Resource override) {
+    private void copyFile(Resource actual, DiskForAll diskWrite) {
 	String aPath = actual.getPath();
 	try {
-	    override.getDisk().write(aPath,actual.getDisk().read(aPath));
+	    diskWrite.write(aPath, actual.getDisk().read(aPath));
 	} catch (FileNotFoundException ex) {
 	    Logger.getLogger(Synchronizer.class.getName()).log(Level.SEVERE, null, ex);
 	}
     }
-
+//=============================================================================
 }
