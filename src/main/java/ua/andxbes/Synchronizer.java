@@ -65,7 +65,7 @@ public class Synchronizer {
 	compare(localTreeMap, remoteTreeMap);
 	compare(remoteTreeMap, localTreeMap);
     }
-
+    // сдесь нужно будет заменить  выполнение задачь на  их планировку 
     protected void compare(Map<String, List<Resource>> AMap, Map<String, List<Resource>> BMap) {
 	for (Map.Entry<String, List<Resource>> AEntry : AMap.entrySet()) {
 	    String AKey = AEntry.getKey();
@@ -92,9 +92,9 @@ public class Synchronizer {
 			    if (AValue1.getName().equals(BValue1.getName())) {
 				isCoincedenceValue = true;
 
-				//проверить на то кто кого старше и на контрольные ссыммы .
+				//проверить на то, кто кого старше и на контрольные ссыммы .
 				// и заменить старый файл на новый 
-				log.fine(AValue1.getName() + " = " + AKey + " = " + BValue1.getName());
+				log.log(Level.FINE, "{0} = {1} = {2}", new Object[]{AValue1.getName(), AKey, BValue1.getName()});
 				if (!(AValue1.getMd5().equals(BValue1.getMd5()))) {
 				    replace(AValue1, BValue1);
 				}
@@ -104,7 +104,8 @@ public class Synchronizer {
 			}
 			if (!isCoincedenceValue) {
 			    //не нашли такого элемента в Б , скопировать из А в Б
-			    log.log(Level.FINE, "\u043d\u0435 \u043d\u0430\u0448\u043b\u0438 \u0432 {0} : {1} , path - {2}", new Object[]{BKey, AValue1.getName(), AValue1.getPath()});
+			    log.log(Level.FINE, "\u043d\u0435 \u043d\u0430\u0448\u043b\u0438 \u0432 {0} : {1} , path - {2}"
+				    , new Object[]{BKey, AValue1.getName(), AValue1.getPath()});
 			    copyFile(AValue1, diskB);
 			}
 		    }
@@ -114,7 +115,7 @@ public class Synchronizer {
 	    }
 	    if (!isCoincedenceKey) {
 		//не нашли такой папки в Б , скопировать все содиржимое из А в Б 
-		log.fine("не нашли в B " + AKey);
+		log.log(Level.FINE, "\u043d\u0435 \u043d\u0430\u0448\u043b\u0438 \u0432 B {0}", AKey);
 		for (Resource AValue1 : AValue) {
 		    copyFile(AValue1, diskB);
 		}
