@@ -44,17 +44,17 @@ import ua.andxbes.fieldsForQuery.Type;
  *
  * @author Andr
  */
-public class QueryControllerIT {
+public class YaDiskIT {
 
     private static final Logger log = Logger.getLogger("QueryControllerIT");
-    private final QueryController queryController;
+    private final YaDisk queryController;
     private final String ROOT_FOLDER = "/testFolder/",
 	    ROOT_FOLDER2 = "/testFolder2/";
     private static boolean createFolder = false;
 
-    public QueryControllerIT() {
+    public YaDiskIT() {
 
-	queryController = QueryController.getInstance();
+	queryController = YaDisk.getInstance();
 
 	addFolder();
 
@@ -70,15 +70,15 @@ public class QueryControllerIT {
 		    queryController.createFolderInDisk(new Path(ROOT_FOLDER), new Overwrite(true));
 		    createFolder = true;
 		} catch (NoSuchFieldError ex1) {
-		    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex1);
+		    Logger.getLogger(YaDiskIT.class.getName()).log(Level.SEVERE, null, ex1);
 		} catch (FileNotFoundException ex1) {
-		    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex1);
+		    Logger.getLogger(YaDiskIT.class.getName()).log(Level.SEVERE, null, ex1);
 		} catch (IOException ex1) {
-		    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex1);
+		    Logger.getLogger(YaDiskIT.class.getName()).log(Level.SEVERE, null, ex1);
 		}
 
 	    } catch (NoSuchFieldError ex) {
-		Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
+		Logger.getLogger(YaDiskIT.class.getName()).log(Level.SEVERE, null, ex);
 	    }
 	}
     }
@@ -131,7 +131,7 @@ public class QueryControllerIT {
 		}
 	    }
 	} catch (ConnectException | NoSuchFieldError ex) {
-	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
+	    Logger.getLogger(YaDiskIT.class.getName()).log(Level.SEVERE, null, ex);
 	}
 
 	return result;
@@ -144,7 +144,7 @@ public class QueryControllerIT {
 	try {
 	    resource = queryController.getResource(new Path("/"));
 	} catch (NoSuchFieldError ex) {
-	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
+	    Logger.getLogger(YaDiskIT.class.getName()).log(Level.SEVERE, null, ex);
 	}
 
 	Logger.getLogger("Test getResourceList()").info(resource.toString());
@@ -181,7 +181,7 @@ public class QueryControllerIT {
 
 	    Logger.getLogger(this.getClass().getSimpleName()).info(result.toString());
 	} catch (ConnectException ex) {
-	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
+	    Logger.getLogger(YaDiskIT.class.getName()).log(Level.SEVERE, null, ex);
 	    Assert.fail();
 	}
 
@@ -196,7 +196,7 @@ public class QueryControllerIT {
 	try {
 	    result = queryController.getLastUploadedList(new Field[]{new Limit(100)});//Фильтр на количество ожидаемых обьектов , по умолчанию 20  
 	} catch (ConnectException ex) {
-	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
+	    Logger.getLogger(YaDiskIT.class.getName()).log(Level.SEVERE, null, ex);
 	    Assert.fail();
 	}
 
@@ -212,7 +212,7 @@ public class QueryControllerIT {
 	try {
 	    result = queryController.getPublicResources(new Field[]{new Limit(100)});//Фильтр на количество ожидаемых обьектов , по умолчанию 20  
 	} catch (ConnectException ex) {
-	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
+	    Logger.getLogger(YaDiskIT.class.getName()).log(Level.SEVERE, null, ex);
 	    Assert.fail();
 	}
 
@@ -247,12 +247,12 @@ public class QueryControllerIT {
 		    Thread.sleep(2000);
 		}
 	    }
-	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.INFO, "\nresult  = {0}", link.toString());
+	    Logger.getLogger(YaDiskIT.class.getName()).log(Level.INFO, "\nresult  = {0}", link.toString());
 	} catch (ConnectException ex) {
-	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, ex);
+	    Logger.getLogger(YaDiskIT.class.getName()).log(Level.SEVERE, null, ex);
 	    Assert.fail(ex.getMessage());
 	} catch (RuntimeException e) {
-	    Logger.getLogger(QueryControllerIT.class.getName()).log(Level.SEVERE, null, e);
+	    Logger.getLogger(YaDiskIT.class.getName()).log(Level.SEVERE, null, e);
 	}
 
     }
@@ -274,13 +274,13 @@ public class QueryControllerIT {
 
     public void createFolderInDisk() throws NoSuchFieldError, FileNotFoundException, IOException {
 	Link l = queryController.createFolderInDisk(new Path(ROOT_FOLDER + "ololo"), new Overwrite(true));	
-	Logger.getLogger(QueryControllerIT.class.getName()).log(Level.INFO, "\nresult  = {0}", l.toString());
+	Logger.getLogger(YaDiskIT.class.getName()).log(Level.INFO, "\nresult  = {0}", l.toString());
     }
     
     @Test
     public void createFolderInDisk2() throws NoSuchFieldError, FileNotFoundException, IOException {
 	Link l = queryController.createFolderInDisk(new Path(ROOT_FOLDER + "wer/wer/wer/wer"), new Overwrite(true));	
-	Logger.getLogger(QueryControllerIT.class.getName()).log(Level.INFO, "\nresult  = {0}", l.toString());
+	Logger.getLogger(YaDiskIT.class.getName()).log(Level.INFO, "\nresult  = {0}", l.toString());
     }
     
 

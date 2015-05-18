@@ -71,7 +71,7 @@ class Query {
 	String param = qParam.toString().isEmpty() ? "" : "?" + qParam.toString();
 	URL url = null;
 	try {
-	    url = new URL(QueryController.baseUrl + operation + param);
+	    url = new URL(YaDisk.baseUrl + operation + param);
 	    log.log(Level.INFO, "URL ==================  {0}", url.toString());
 	} catch (MalformedURLException ex) {
 	    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
@@ -93,7 +93,7 @@ class Query {
 		writeData(conn, data);
 	    } else {
 		conn.addRequestProperty("Content-Type", "application/json ");
-		conn.addRequestProperty("Authorization", "OAuth " + QueryController.token); 
+		conn.addRequestProperty("Authorization", "OAuth " + YaDisk.token); 
 	    }
 
 	    code = conn.getResponseCode();
@@ -113,13 +113,13 @@ class Query {
 		throw new ConnectException((new Gson().fromJson(result.toString(), ua.andxbes.DiskJsonObjects.Error.class).toString()));
 	    }
 	} catch (MalformedURLException ex) {
-	    Logger.getLogger(QueryController.class.getName()).log(Level.SEVERE, null, ex);
+	    Logger.getLogger(YaDisk.class.getName()).log(Level.SEVERE, null, ex);
 	} catch (ProtocolException ex) {
-	    Logger.getLogger(QueryController.class.getName()).log(Level.SEVERE, null, ex);
+	    Logger.getLogger(YaDisk.class.getName()).log(Level.SEVERE, null, ex);
 	} catch (ConnectException ex) {
 	    throw new ConnectException(ex.toString());
 	} catch (IOException ex) {
-	    Logger.getLogger(QueryController.class.getName()).log(Level.SEVERE, null, ex);
+	    Logger.getLogger(YaDisk.class.getName()).log(Level.SEVERE, null, ex);
 	}
 
 	response = result.toString();

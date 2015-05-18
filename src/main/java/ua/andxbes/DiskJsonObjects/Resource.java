@@ -322,6 +322,7 @@ public class Resource {
 
     /**
      * @param disk the inDisk to set
+     * @return 
      */
     public Resource setInDisk(DiskForAll disk) {
 	this.inDisk = disk;
@@ -337,6 +338,7 @@ public class Resource {
 
     /**
      * @param toDisk the toDisk to set
+     * @return 
      */
     public Resource setToDisk(DiskForAll toDisk) {
 	this.toDisk = toDisk;

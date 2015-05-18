@@ -30,18 +30,18 @@ import ua.andxbes.DiskJsonObjects.Link;
 import ua.andxbes.DiskJsonObjects.Resource;
 import ua.andxbes.fieldsForQuery.Overwrite;
 import ua.andxbes.fieldsForQuery.Path;
-import ua.andxbes.query.QueryController;
+import ua.andxbes.query.YaDisk;
 
 /**
  *
  * @author Andr
  */
-public class FileWriteOrReadIT  {
+public class LocalDiskIT  {
 
     private static final Logger log = Logger.getLogger("TestIO");
-    private FileWriteOrRead instance;
+    private LocalDisk instance;
 
-    public FileWriteOrReadIT() {
+    public LocalDiskIT() {
     }
 
     @BeforeClass
@@ -54,8 +54,8 @@ public class FileWriteOrReadIT  {
 
     @Before
     public void setUp() {
-	FileWriteOrRead.setRootDir("./Ya-disk");
-	instance = FileWriteOrRead.getInstance();
+	LocalDisk.setRootDir("./Ya-disk");
+	instance = LocalDisk.getInstance();
     }
 
     @After
@@ -98,7 +98,7 @@ public class FileWriteOrReadIT  {
 	//                                 /test.txt
 	String name_Of_File_In_The_Disk = f.getPath().replace(instance.getPathToRootDir(), "");
 	log.log(Level.INFO, "file name {0}", name_Of_File_In_The_Disk);
-	QueryController qc = QueryController.getInstance();
+	YaDisk qc = YaDisk.getInstance();
 
 	Link link = qc.getLinkForUpload(new Path(name_Of_File_In_The_Disk),new Overwrite(true));
 	try {
@@ -110,12 +110,12 @@ public class FileWriteOrReadIT  {
 
 
 	String yadiskMd5 = r.getMd5();
-	String myDiskMD5 = FileWriteOrRead.get_Md5_Hash(instance.read(name_Of_File_In_The_Disk));
+	String myDiskMD5 = LocalDisk.get_Md5_Hash(instance.read(name_Of_File_In_The_Disk));
 
 	log.log(Level.INFO, " in Yadisk = \n{0}\n, in your disk \n{1}\n", new Object[]{yadiskMd5, myDiskMD5});
 	Assert.assertTrue(yadiskMd5.equals(myDiskMD5));
 	} catch (IOException ex) {
-	    Logger.getLogger(FileWriteOrReadIT.class.getName()).log(Level.SEVERE, null, ex);
+	    Logger.getLogger(LocalDiskIT.class.getName()).log(Level.SEVERE, null, ex);
 	}
     }
 

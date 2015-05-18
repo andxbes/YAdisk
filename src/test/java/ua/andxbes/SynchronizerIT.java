@@ -51,8 +51,8 @@ public class SynchronizerIT {
     public void testCheckCorrecT() {
 	String inputStr ="./dfdfdf/";
 	String inputStr2 =".\\dfdfdf\\";
-	String result  = instance.checkCorrect(inputStr);
-	String result2  = instance.checkCorrect(inputStr2);
+	String result  = Synchronizer.checkCorrect(inputStr);
+	String result2  = Synchronizer.checkCorrect(inputStr2);
 	
 	log.log(Level.INFO, "{0} {1}", new Object[]{result, result2});
 	Assert.assertTrue(result.equals("./dfdfdf") & result2.equals(".\\dfdfdf"));

@@ -26,7 +26,7 @@ import ua.andxbes.DiskJsonObjects.LastUploadedResourceList;
 import ua.andxbes.DiskJsonObjects.Link;
 import ua.andxbes.DiskJsonObjects.PublicResourcesList;
 import ua.andxbes.DiskJsonObjects.Resource;
-import ua.andxbes.IO.FileWriteOrRead;
+import ua.andxbes.IO.LocalDisk;
 import ua.andxbes.Token;
 import ua.andxbes.fieldsForQuery.Field;
 import ua.andxbes.fieldsForQuery.Fields;
@@ -40,7 +40,7 @@ import ua.andxbes.fieldsForQuery.Path;
  *
  * @author Andr
  */
-public class QueryController implements ua.andxbes.DiskForAll {
+public class YaDisk implements ua.andxbes.DiskForAll {
 
     protected final Logger log = Logger.getLogger(this.getClass().getSimpleName());
 
@@ -48,22 +48,22 @@ public class QueryController implements ua.andxbes.DiskForAll {
     static String token;
     private final Query query;
 
-    private static volatile QueryController instance;
+    private static volatile YaDisk instance;
 
-    public synchronized static QueryController getInstance() {
-	QueryController localInstance = instance;
+    public synchronized static YaDisk getInstance() {
+	YaDisk localInstance = instance;
 	if (localInstance == null) {
-	    synchronized (QueryController.class) {
+	    synchronized (YaDisk.class) {
 		localInstance = instance;
 		if (localInstance == null) {
-		    instance = localInstance = new QueryController();
+		    instance = localInstance = new YaDisk();
 		}
 	    }
 	}
 	return localInstance;
     }
 
-    private QueryController() {
+    private YaDisk() {
 	this.token = Token.instance().toString();
 	query = new Query();
     }
@@ -231,7 +231,7 @@ public class QueryController implements ua.andxbes.DiskForAll {
 		    createFolderInDisk(new Path(path));
 		    link = getLinkForUpload(fields);
 		} catch (IOException ex1) {
-		    Logger.getLogger(QueryController.class.getName()).log(Level.SEVERE, null, ex1);
+		    Logger.getLogger(YaDisk.class.getName()).log(Level.SEVERE, null, ex1);
 		}
 
 	    } else {
@@ -408,7 +408,7 @@ public class QueryController implements ua.andxbes.DiskForAll {
 	try {
 	    rbch = Channels.newChannel(query.downloadFile(new URL(link.getHref())));
 	} catch (MalformedURLException ex) {
-	    Logger.getLogger(QueryController.class.getName()).log(Level.SEVERE, null, ex);
+	    Logger.getLogger(YaDisk.class.getName()).log(Level.SEVERE, null, ex);
 	}
 	return rbch;
 
@@ -433,7 +433,7 @@ public class QueryController implements ua.andxbes.DiskForAll {
 	try {
 	    resource = getResource(new Path(path));
 	} catch (ConnectException | NoSuchFieldError ex) {
-	    Logger.getLogger(QueryController.class.getName()).log(Level.SEVERE, null, ex);
+	    Logger.getLogger(YaDisk.class.getName()).log(Level.SEVERE, null, ex);
 	}
 	Resource[] list = null;
 
@@ -442,7 +442,7 @@ public class QueryController implements ua.andxbes.DiskForAll {
 		if (list1.getType().equals("dir")) {
 		    readFolder(list1.getPath());
 		} else {
-		    list1.setInDisk(this).setToDisk(FileWriteOrRead.getInstance());
+		    list1.setInDisk(this).setToDisk(LocalDisk.getInstance());
 		    map.get(path).add(list1);
 		}
 	    }
@@ -456,7 +456,7 @@ public class QueryController implements ua.andxbes.DiskForAll {
 	try {
 	    result = downloadFile(getLinkToDownload(new Path(path)));
 	} catch (NoSuchFieldError ex) {
-	    Logger.getLogger(QueryController.class.getName()).log(Level.SEVERE, null, ex);
+	    Logger.getLogger(YaDisk.class.getName()).log(Level.SEVERE, null, ex);
 	} catch (ConnectException ex) {
 	    throw new FileNotFoundException(ex.toString());
 	}
@@ -468,7 +468,7 @@ public class QueryController implements ua.andxbes.DiskForAll {
 	try {
 	    putFileToServer(i, new Path(path), new Overwrite(true));
 	} catch (NoSuchFieldError | ConnectException | MalformedURLException ex) {
-	    Logger.getLogger(QueryController.class.getName()).log(Level.SEVERE, null, ex);
+	    Logger.getLogger(YaDisk.class.getName()).log(Level.SEVERE, null, ex);
 	}
     }
 
@@ -477,7 +477,7 @@ public class QueryController implements ua.andxbes.DiskForAll {
 	try {
 	    deleteFileOrFolder(new Path(path));
 	} catch (NoSuchFieldError | IOException ex) {
-	    Logger.getLogger(QueryController.class.getName()).log(Level.SEVERE, null, ex);
+	    Logger.getLogger(YaDisk.class.getName()).log(Level.SEVERE, null, ex);
 	}
     }
 

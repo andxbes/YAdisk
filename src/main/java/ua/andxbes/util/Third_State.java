@@ -15,5 +15,4 @@ public class Third_State {
     Resource resource1;
     Resource resource2;
     boolean sync;
-    
 }

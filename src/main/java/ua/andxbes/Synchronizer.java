@@ -15,8 +15,8 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import ua.andxbes.DiskJsonObjects.Resource;
-import ua.andxbes.IO.FileWriteOrRead;
-import ua.andxbes.query.QueryController;
+import ua.andxbes.IO.LocalDisk;
+import ua.andxbes.query.YaDisk;
 
 /**
  *
@@ -28,8 +28,8 @@ public class Synchronizer {
     private final ExecutorService threads = Executors.newCachedThreadPool();
     private Map<String, List<Resource>> localTreeMap;
     private Map<String, List<Resource>> remoteTreeMap;
-    private QueryController remoteDisk;
-    private FileWriteOrRead localDisk;
+    private YaDisk remoteDisk;
+    private LocalDisk localDisk;
 
     public Synchronizer() {
 	this("./Ya-disk");
@@ -41,9 +41,9 @@ public class Synchronizer {
      */
     public Synchronizer(String localePathToRootDir) {
 	localePathToRootDir = checkCorrect(localePathToRootDir);
-	FileWriteOrRead.setRootDir(localePathToRootDir);
-	localDisk =  FileWriteOrRead.getInstance();
-	remoteDisk =  QueryController.getInstance();
+	LocalDisk.setRootDir(localePathToRootDir);
+	localDisk =  LocalDisk.getInstance();
+	remoteDisk =  YaDisk.getInstance();
     }
 
     protected static String checkCorrect(String localePathToRootDir) {
@@ -62,12 +62,14 @@ public class Synchronizer {
 
     }
 
-    public void sync() {
+    public void sync() throws InterruptedException, ExecutionException {
 	compare(localTreeMap, remoteTreeMap);
+	buildTree();
 	compare(remoteTreeMap, localTreeMap);
     }
     // сдесь нужно будет заменить  выполнение задачь на  их планировку 
     protected void compare(Map<String, List<Resource>> AMap, Map<String, List<Resource>> BMap) {
+	//сделать 
 	for (Map.Entry<String, List<Resource>> AEntry : AMap.entrySet()) {
 	    String AKey = AEntry.getKey();
 	    List<Resource> AValue = AEntry.getValue();
@@ -137,6 +139,7 @@ public class Synchronizer {
 
     private void copyFile(Resource actual) {
 	String aPath = actual.getPath();
+	log.log(Level.INFO, "copy {0}{1}", new Object[]{aPath, actual});
 	try {
 	    actual.getToDisk().write(aPath, actual.getInDisk().read(aPath));
 	} catch (FileNotFoundException ex) {

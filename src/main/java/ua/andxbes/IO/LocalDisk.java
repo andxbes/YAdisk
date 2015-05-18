@@ -26,13 +26,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import ua.andxbes.DiskForAll;
 import ua.andxbes.DiskJsonObjects.Resource;
-import ua.andxbes.query.QueryController;
+import ua.andxbes.query.YaDisk;
 
 /**
  *
  * @author Andr
  */
-public  class FileWriteOrRead implements DiskForAll {
+public  class LocalDisk implements DiskForAll {
 
     public  final SimpleDateFormat dateFormat ;
     private final static Logger log = Logger.getLogger("IO");
@@ -43,19 +43,19 @@ public  class FileWriteOrRead implements DiskForAll {
    
     
     public static class FileWriteOrReadHolder{
-          public static  final  FileWriteOrRead HOLDER_Instance = new FileWriteOrRead();
+          public static  final  LocalDisk HOLDER_Instance = new LocalDisk();
     }
     
-    public static FileWriteOrRead getInstance(){
+    public static LocalDisk getInstance(){
           return FileWriteOrReadHolder.HOLDER_Instance;
     }
     
-    private FileWriteOrRead() {
+    private LocalDisk() {
           this("./Ya-disk");
     }
     
 
-    private FileWriteOrRead(String rootDir) {
+    private LocalDisk(String rootDir) {
 	dateFormat = new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss'+00:00'");
 	//привести дату изменения к 00 часовому поясу 
 	dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -113,9 +113,9 @@ public  class FileWriteOrRead implements DiskForAll {
 		    buf.clear();
 		}
 	    } catch (FileNotFoundException ex) {
-		Logger.getLogger(FileWriteOrRead.class.getName()).log(Level.SEVERE, null, ex);
+		Logger.getLogger(LocalDisk.class.getName()).log(Level.SEVERE, null, ex);
 	    } catch (IOException ex) {
-		Logger.getLogger(FileWriteOrRead.class.getName()).log(Level.SEVERE, null, ex);
+		Logger.getLogger(LocalDisk.class.getName()).log(Level.SEVERE, null, ex);
 	    }
 	}
 
@@ -141,9 +141,18 @@ public  class FileWriteOrRead implements DiskForAll {
 		bb.clear();
 	    }
 	    byte massageDigest[] = md5.digest();
+	   
 	    checsumm = new BigInteger(1, massageDigest).toString(16);
 	} catch (IOException | NoSuchAlgorithmException ex) {
-	    Logger.getLogger(FileWriteOrRead.class.getName()).log(Level.SEVERE, null, ex);
+	    Logger.getLogger(LocalDisk.class.getName()).log(Level.SEVERE, null, ex);
+	}
+	
+	 //Todo срезается ноль вначале 
+	int num ;
+	if( (num = checsumm.length()) <32){
+	     for(int i = 0 ;i<32 - num;i++){
+	        checsumm = "0"+checsumm;
+	     }
 	}
 	return checsumm;
     }
@@ -173,7 +182,7 @@ public  class FileWriteOrRead implements DiskForAll {
     }
 
     private void addToMapTree(File f) {
-	System.out.println(f);
+	//System.out.println(f);
 	if (f.isDirectory() && mapTree.get(f.toString()) == null) {
 	    mapTree.put(f.toString(), new ArrayList<>());
 	} else if (f.isFile()) {
@@ -186,9 +195,9 @@ public  class FileWriteOrRead implements DiskForAll {
 			.setPath(f.getPath().replace(getPathToRootDir(), ""))
 			.setSize(f.length())
 			.setModified(dateFormat.format(f.lastModified()))
-			.setInDisk(this).setToDisk(QueryController.getInstance());
+			.setInDisk(this).setToDisk(YaDisk.getInstance());
 	    } catch (FileNotFoundException ex) {
-		Logger.getLogger(FileWriteOrRead.class.getName()).log(Level.SEVERE, null, ex);
+		Logger.getLogger(LocalDisk.class.getName()).log(Level.SEVERE, null, ex);
 	    }
 
 	    if (mapTree.get(f.getParent()) == null) {
