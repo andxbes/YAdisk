@@ -28,7 +28,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import ua.andxbes.DiskJsonObjects.Link;
 import ua.andxbes.DiskJsonObjects.Resource;
-import ua.andxbes.Token;
 import ua.andxbes.fieldsForQuery.Overwrite;
 import ua.andxbes.fieldsForQuery.Path;
 import ua.andxbes.query.QueryController;
@@ -55,7 +54,8 @@ public class FileWriteOrReadIT  {
 
     @Before
     public void setUp() {
-	instance = new FileWriteOrRead("./Ya-disk");
+	FileWriteOrRead.setRootDir("./Ya-disk");
+	instance = FileWriteOrRead.getInstance();
     }
 
     @After
@@ -98,7 +98,7 @@ public class FileWriteOrReadIT  {
 	//                                 /test.txt
 	String name_Of_File_In_The_Disk = f.getPath().replace(instance.getPathToRootDir(), "");
 	log.log(Level.INFO, "file name {0}", name_Of_File_In_The_Disk);
-	QueryController qc = new QueryController(Token.instance());
+	QueryController qc = QueryController.getInstance();
 
 	Link link = qc.getLinkForUpload(new Path(name_Of_File_In_The_Disk),new Overwrite(true));
 	try {
@@ -110,7 +110,7 @@ public class FileWriteOrReadIT  {
 
 
 	String yadiskMd5 = r.getMd5();
-	String myDiskMD5 = instance.get_Md5_Hash(instance.read(name_Of_File_In_The_Disk));
+	String myDiskMD5 = FileWriteOrRead.get_Md5_Hash(instance.read(name_Of_File_In_The_Disk));
 
 	log.log(Level.INFO, " in Yadisk = \n{0}\n, in your disk \n{1}\n", new Object[]{yadiskMd5, myDiskMD5});
 	Assert.assertTrue(yadiskMd5.equals(myDiskMD5));

@@ -31,7 +31,6 @@ import ua.andxbes.DiskJsonObjects.Link;
 import ua.andxbes.DiskJsonObjects.PublicResourcesList;
 import ua.andxbes.DiskJsonObjects.Resource;
 import ua.andxbes.DiskJsonObjects.ResourceList;
-import ua.andxbes.Token;
 import ua.andxbes.fieldsForQuery.Field;
 import ua.andxbes.fieldsForQuery.Fields;
 import ua.andxbes.fieldsForQuery.From;
@@ -55,7 +54,7 @@ public class QueryControllerIT {
 
     public QueryControllerIT() {
 
-	queryController = new QueryController(Token.instance());
+	queryController = QueryController.getInstance();
 
 	addFolder();
 

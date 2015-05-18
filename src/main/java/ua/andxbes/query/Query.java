@@ -93,7 +93,7 @@ class Query {
 		writeData(conn, data);
 	    } else {
 		conn.addRequestProperty("Content-Type", "application/json ");
-		conn.addRequestProperty("Authorization", "OAuth " + QueryController.token);
+		conn.addRequestProperty("Authorization", "OAuth " + QueryController.token); 
 	    }
 
 	    code = conn.getResponseCode();

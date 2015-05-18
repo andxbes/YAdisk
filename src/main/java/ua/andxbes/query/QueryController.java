@@ -26,6 +26,7 @@ import ua.andxbes.DiskJsonObjects.LastUploadedResourceList;
 import ua.andxbes.DiskJsonObjects.Link;
 import ua.andxbes.DiskJsonObjects.PublicResourcesList;
 import ua.andxbes.DiskJsonObjects.Resource;
+import ua.andxbes.IO.FileWriteOrRead;
 import ua.andxbes.Token;
 import ua.andxbes.fieldsForQuery.Field;
 import ua.andxbes.fieldsForQuery.Fields;
@@ -47,8 +48,23 @@ public class QueryController implements ua.andxbes.DiskForAll {
     static String token;
     private final Query query;
 
-    public QueryController(Token token) {
-	QueryController.token = token.toString();
+    private static volatile QueryController instance;
+
+    public synchronized static QueryController getInstance() {
+	QueryController localInstance = instance;
+	if (localInstance == null) {
+	    synchronized (QueryController.class) {
+		localInstance = instance;
+		if (localInstance == null) {
+		    instance = localInstance = new QueryController();
+		}
+	    }
+	}
+	return localInstance;
+    }
+
+    private QueryController() {
+	this.token = Token.instance().toString();
 	query = new Query();
     }
 
@@ -204,22 +220,23 @@ public class QueryController implements ua.andxbes.DiskForAll {
 	try {
 	    link = query.getObgect(Query.GET, operation, fields, Link.class);
 	} catch (ConnectException ex) {
-	    if(query.getCode() == 409){
-		
+	    if (query.getCode() == 409) {
+
 		String path = returnPath(fields);
-		
+
 		String pathEl[] = path.split("/");
-		path = path.replaceAll(pathEl[pathEl.length-1], "");
-		
+		path = path.replaceAll(pathEl[pathEl.length - 1], "");
+
 		try {
 		    createFolderInDisk(new Path(path));
 		    link = getLinkForUpload(fields);
 		} catch (IOException ex1) {
 		    Logger.getLogger(QueryController.class.getName()).log(Level.SEVERE, null, ex1);
 		}
-		
-	    }else
-	    throw new ConnectException("Error", ex);
+
+	    } else {
+		throw new ConnectException("Error", ex);
+	    }
 	}
 	return link;
     }
@@ -317,7 +334,7 @@ public class QueryController implements ua.andxbes.DiskForAll {
 	try {
 	    link = query.getObgect(Query.PUT, operation, field, Link.class);
 	} catch (ConnectException ex) {
-	   
+
 	    if (query.getCode() == 409) {
 		createTheMissingFolders(field);
 	    } else {
@@ -328,13 +345,13 @@ public class QueryController implements ua.andxbes.DiskForAll {
     }
 
     private void createTheMissingFolders(Field[] field) throws NoSuchFieldError, IOException {
-        String operation = "/v1/disk/resources";
+	String operation = "/v1/disk/resources";
 	String path = returnPath(field);
 	String elfromPath[] = path.split("/");
 	String ccurentUrl = "";
 	for (String elfromPath1 : elfromPath) {
 	    try {
-		ccurentUrl +=  elfromPath1+"/" ;
+		ccurentUrl += elfromPath1 + "/";
 		query.getObgect(Query.PUT, operation, new Field[]{new Path(ccurentUrl)}, Link.class);
 	    } catch (ConnectException e) {
 		if (query.getCode() != 409) {
@@ -425,7 +442,7 @@ public class QueryController implements ua.andxbes.DiskForAll {
 		if (list1.getType().equals("dir")) {
 		    readFolder(list1.getPath());
 		} else {
-		    list1.setDisk(this);
+		    list1.setInDisk(this).setToDisk(FileWriteOrRead.getInstance());
 		    map.get(path).add(list1);
 		}
 	    }

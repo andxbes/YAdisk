@@ -20,7 +20,7 @@ import ua.andxbes.DiskForAll;
  */
 public class Resource {
     public final  static SimpleDateFormat sdf =  new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss'+00:00'");
-    private DiskForAll disk ;
+    private DiskForAll inDisk ,toDisk;
 
     private String name,
 	    public_key,
@@ -314,17 +314,33 @@ public class Resource {
     }
 
     /**
-     * @return the disk
+     * @return the inDisk
      */
-    public DiskForAll getDisk() {
-	return disk;
+    public DiskForAll getInDisk() {
+	return inDisk;
     }
 
     /**
-     * @param disk the disk to set
+     * @param disk the inDisk to set
      */
-    public void setDisk(DiskForAll disk) {
-	this.disk = disk;
+    public Resource setInDisk(DiskForAll disk) {
+	this.inDisk = disk;
+	return this;
+    }
+
+    /**
+     * @return the toDisk
+     */
+    public DiskForAll getToDisk() {
+	return toDisk;
+    }
+
+    /**
+     * @param toDisk the toDisk to set
+     */
+    public Resource setToDisk(DiskForAll toDisk) {
+	this.toDisk = toDisk;
+	return this;
     }
 
   

@@ -41,11 +41,12 @@ public class Synchronizer {
      */
     public Synchronizer(String localePathToRootDir) {
 	localePathToRootDir = checkCorrect(localePathToRootDir);
-	localDisk = new FileWriteOrRead(localePathToRootDir);
-	remoteDisk = new QueryController(Token.instance());
+	FileWriteOrRead.setRootDir(localePathToRootDir);
+	localDisk =  FileWriteOrRead.getInstance();
+	remoteDisk =  QueryController.getInstance();
     }
 
-    protected String checkCorrect(String localePathToRootDir) {
+    protected static String checkCorrect(String localePathToRootDir) {
 	if (localePathToRootDir.endsWith("/") || localePathToRootDir.endsWith("\\")) {
 	    localePathToRootDir = localePathToRootDir.substring(0, localePathToRootDir.length() - 1);
 	}
@@ -72,16 +73,11 @@ public class Synchronizer {
 	    List<Resource> AValue = AEntry.getValue();
 	    boolean isCoincedenceKey = false;
 
-	    DiskForAll diskB = null;
 
 	    for (Map.Entry<String, List<Resource>> BEntry : BMap.entrySet()) {
 		String BKey = BEntry.getKey();
 		List<Resource> BValue = BEntry.getValue();
-
-		if (!BValue.isEmpty()) {
-		    diskB = BValue.get(0).getDisk();
-		}
-
+		
 		if (AKey.equals(BKey)) {
 		    isCoincedenceKey = true;
 
@@ -106,7 +102,7 @@ public class Synchronizer {
 			    //не нашли такого элемента в Б , скопировать из А в Б
 			    log.log(Level.FINE, "\u043d\u0435 \u043d\u0430\u0448\u043b\u0438 \u0432 {0} : {1} , path - {2}"
 				    , new Object[]{BKey, AValue1.getName(), AValue1.getPath()});
-			    copyFile(AValue1, diskB);
+			    copyFile(AValue1);
 			}
 		    }
 
@@ -117,7 +113,7 @@ public class Synchronizer {
 		//не нашли такой папки в Б , скопировать все содиржимое из А в Б 
 		log.log(Level.FINE, "\u043d\u0435 \u043d\u0430\u0448\u043b\u0438 \u0432 B {0}", AKey);
 		for (Resource AValue1 : AValue) {
-		    copyFile(AValue1, diskB);
+		    copyFile(AValue1);
 		}
 	    }
 
@@ -131,18 +127,18 @@ public class Synchronizer {
 
 	if (a.getModified_InMilliseconds() > b.getModified_InMilliseconds()) {
 	    log.log(Level.FINE, "a = {0} >, b = {1}", new Object[]{a.getModified(), b.getModified()});
-	    copyFile(a, b.getDisk());
+	    copyFile(a);
 	} else {
 	    log.log(Level.FINE, "a = {0} <, b = {1}", new Object[]{a.getModified(), b.getModified()});
-	    copyFile(b, a.getDisk());
+	    copyFile(b);
 	}
 
     }
 
-    private void copyFile(Resource actual, DiskForAll diskWrite) {
+    private void copyFile(Resource actual) {
 	String aPath = actual.getPath();
 	try {
-	    diskWrite.write(aPath, actual.getDisk().read(aPath));
+	    actual.getToDisk().write(aPath, actual.getInDisk().read(aPath));
 	} catch (FileNotFoundException ex) {
 	    Logger.getLogger(Synchronizer.class.getName()).log(Level.SEVERE, null, ex);
 	}

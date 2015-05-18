@@ -26,26 +26,43 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import ua.andxbes.DiskForAll;
 import ua.andxbes.DiskJsonObjects.Resource;
+import ua.andxbes.query.QueryController;
 
 /**
  *
  * @author Andr
  */
-public class FileWriteOrRead implements DiskForAll {
+public  class FileWriteOrRead implements DiskForAll {
 
     public  final SimpleDateFormat dateFormat ;
     private final static Logger log = Logger.getLogger("IO");
-    private String rootDir;
+    
     private static File fileRootDir;
     private Map<String, List<Resource>> mapTree;
 
-    public FileWriteOrRead(String rootDir) {
+   
+    
+    public static class FileWriteOrReadHolder{
+          public static  final  FileWriteOrRead HOLDER_Instance = new FileWriteOrRead();
+    }
+    
+    public static FileWriteOrRead getInstance(){
+          return FileWriteOrReadHolder.HOLDER_Instance;
+    }
+    
+    private FileWriteOrRead() {
+          this("./Ya-disk");
+    }
+    
+
+    private FileWriteOrRead(String rootDir) {
 	dateFormat = new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss'+00:00'");
 	//привести дату изменения к 00 часовому поясу 
 	dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+	if(fileRootDir == null)setRootDir(rootDir);
+    }
 
-	this.rootDir = rootDir;
-
+    public static  final void setRootDir(String rootDir) {
 	fileRootDir = new File(rootDir);
 	if (!fileRootDir.exists()) {
 	    fileRootDir.mkdir();
@@ -169,7 +186,7 @@ public class FileWriteOrRead implements DiskForAll {
 			.setPath(f.getPath().replace(getPathToRootDir(), ""))
 			.setSize(f.length())
 			.setModified(dateFormat.format(f.lastModified()))
-			.setDisk(this);
+			.setInDisk(this).setToDisk(QueryController.getInstance());
 	    } catch (FileNotFoundException ex) {
 		Logger.getLogger(FileWriteOrRead.class.getName()).log(Level.SEVERE, null, ex);
 	    }
