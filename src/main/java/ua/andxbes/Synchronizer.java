@@ -6,6 +6,7 @@
 package ua.andxbes;
 
 import java.io.FileNotFoundException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -28,8 +29,10 @@ public class Synchronizer {
     private final ExecutorService threads = Executors.newCachedThreadPool();
     private Map<String, List<Resource>> localTreeMap;
     private Map<String, List<Resource>> remoteTreeMap;
+    private Map<String , Resource> exResource;
     private YaDisk remoteDisk;
     private LocalDisk localDisk;
+    
 
     public Synchronizer() {
 	this("./Ya-disk");
@@ -44,6 +47,11 @@ public class Synchronizer {
 	LocalDisk.setRootDir(localePathToRootDir);
 	localDisk =  LocalDisk.getInstance();
 	remoteDisk =  YaDisk.getInstance();
+	loadExResource();
+    }
+
+    private void loadExResource() {
+	exResource = new HashMap<>();
     }
 
     protected static String checkCorrect(String localePathToRootDir) {
@@ -58,8 +66,6 @@ public class Synchronizer {
 	Future<Map<String, List<Resource>>> fLocalTreeMap = threads.submit(() -> localDisk.getResource());
 	remoteTreeMap = fRemoteTreeMap.get();
 	localTreeMap = fLocalTreeMap.get();
-	//System.out.println(" \n remote \n"+remoteTreeMap + " \n\n\n\n\n\n locale \n" + localTreeMap);
-
     }
 
     public void sync() throws InterruptedException, ExecutionException {
@@ -67,9 +73,11 @@ public class Synchronizer {
 	buildTree();
 	compare(remoteTreeMap, localTreeMap);
     }
+    
+    
     // сдесь нужно будет заменить  выполнение задачь на  их планировку 
     protected void compare(Map<String, List<Resource>> AMap, Map<String, List<Resource>> BMap) {
-	//сделать 
+	 
 	for (Map.Entry<String, List<Resource>> AEntry : AMap.entrySet()) {
 	    String AKey = AEntry.getKey();
 	    List<Resource> AValue = AEntry.getValue();
@@ -139,12 +147,24 @@ public class Synchronizer {
 
     private void copyFile(Resource actual) {
 	String aPath = actual.getPath();
+	
+	exResource.put(aPath, actual);
+	
 	log.log(Level.INFO, "copy {0}{1}", new Object[]{aPath, actual});
 	try {
 	    actual.getToDisk().write(aPath, actual.getInDisk().read(aPath));
 	} catch (FileNotFoundException ex) {
 	    Logger.getLogger(Synchronizer.class.getName()).log(Level.SEVERE, null, ex);
 	}
+    }
+    
+     private void deleteFile(Resource actual) {
+	String aPath = actual.getPath();
+	
+	exResource.remove(aPath);
+	
+	log.log(Level.INFO, "copy {0}{1}", new Object[]{aPath, actual});
+	actual.getToDisk().deleteFolderOrFile(aPath);
     }
 //=============================================================================
 }

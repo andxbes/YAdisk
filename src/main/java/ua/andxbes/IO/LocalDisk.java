@@ -57,7 +57,7 @@ public  class LocalDisk implements DiskForAll {
 
     private LocalDisk(String rootDir) {
 	dateFormat = new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss'+00:00'");
-	//привести дату изменения к 00 часовому поясу 
+	//привожу  дату изменения к 00 часовому поясу 
 	dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 	if(fileRootDir == null)setRootDir(rootDir);
     }
@@ -165,7 +165,7 @@ public  class LocalDisk implements DiskForAll {
 	}
 	mapTree = new HashMap<>();
 	buildTree(new File(getPathToRootDir() + "/"));
-	return toFormatYaDisk();
+	return givetoTheFormatOfTheYaDisk();
     }
 
     private void buildTree(File f) {
@@ -210,7 +210,7 @@ public  class LocalDisk implements DiskForAll {
 	}
     }
 
-    private Map<String, List<Resource>> toFormatYaDisk() {
+    private Map<String, List<Resource>> givetoTheFormatOfTheYaDisk() {
 	Map<String, List<Resource>> map = new HashMap<>();
 
 	for (Map.Entry<String, List<Resource>> entrySet : mapTree.entrySet()) {
@@ -220,7 +220,6 @@ public  class LocalDisk implements DiskForAll {
 	    }
 	    map.put(localKey, entrySet.getValue());
 	}
-
 	return map;
     }
 
