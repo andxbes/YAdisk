@@ -32,7 +32,7 @@ import ua.andxbes.query.YaDisk;
  */
 public class Synchronizer {
 
-    private final static Logger log = Logger.getLogger("Synchronizer");
+    private final  Logger log = Logger.getLogger(this.getClass().getName());
     private final ExecutorService threads = Executors.newCachedThreadPool();
     private Map<String, List<Resource>> localTreeMap;
     private Map<String, List<Resource>> remoteTreeMap;
@@ -89,7 +89,6 @@ public class Synchronizer {
 		if ((remoteValue = remoteTreeMap.get(localKey)) == null) {
 
 		    if (exResource.get(localKey) == null) {
-			System.out.println("copy all " + localKey);
 			copyAll(localValue, localDisk, remoteDisk);
 			exResource.put(localKey, "");
 		    } else {
@@ -111,7 +110,6 @@ public class Synchronizer {
 
 		if (localTreeMap.get(remoteKey) == null) {
 		    if (exResource.get(remoteKey) == null) {
-			System.out.println("copy all  revers" + remoteKey);
 			copyAll(remoteValue, remoteDisk, localDisk);
 			exResource.put(remoteKey, "");
 		    } else {
@@ -165,7 +163,6 @@ public class Synchronizer {
     }
 
     private void replace(Resource localResource, Resource remoteResources) {
-	System.out.println("replace ");
 
 	if (localResource.getModified_InMilliseconds() > remoteResources.getModified_InMilliseconds()) {
 	    log.log(Level.FINE, "a = {0} >, b = {1}", new Object[]{localResource.getModified(), remoteResources.getModified()});
@@ -187,7 +184,6 @@ public class Synchronizer {
     private void copyFile(Resource actual, DiskForAll fromDisk, DiskForAll inDisk) {
 	String aPath = actual.getPath();
 	exResource.put(aPath, actual.getMd5());
-	System.out.println("copy " + aPath);
 	log.log(Level.INFO, "copy {0}{1}", new Object[]{aPath, actual});
 	try {
 
@@ -216,7 +212,7 @@ public class Synchronizer {
 	log.info(sgs);
 	try (FileWriter fw = new FileWriter(new File(pathToFilesStory))) {
 	    fw.write(sgs);
-	    log.info("Save story of files");
+	    log.info("Saving story of files in " + pathToFilesStory);
 	} catch (IOException ex) {
 	    Logger.getLogger(Synchronizer.class.getName()).log(Level.SEVERE, null, ex);
 	}

@@ -34,7 +34,7 @@ import ua.andxbes.DiskJsonObjects.Resource;
 public class LocalDisk implements DiskForAll {
 
     public final SimpleDateFormat dateFormat;
-    private final static Logger log = Logger.getLogger("IO");
+    private final  Logger log = Logger.getLogger(this.getClass().getName());
 
     private static File fileRootDir;
     private Map<String, List<Resource>> mapTree;
@@ -79,7 +79,6 @@ public class LocalDisk implements DiskForAll {
     }
 
     private void deletefile(File path) {
-	System.out.println("delete  - " + path);
 	if (path.isDirectory()) {
 	    for (File f : path.listFiles()) {
 		if (f.isDirectory()) {
