@@ -88,8 +88,14 @@ public class Synchronizer {
 		List<Resource> remoteValue;
 		if ((remoteValue = remoteTreeMap.get(localKey)) == null) {
 
-		    System.out.println("copy all " + localKey);
-		    copyAll(localValue, localDisk, remoteDisk);
+		    if (exResource.get(localKey) == null) {
+			System.out.println("copy all " + localKey);
+			copyAll(localValue, localDisk, remoteDisk);
+			exResource.put(localKey, "");
+		    } else {
+			deleteFile(localKey, localDisk);
+		    }
+
 		} else {
 		    compareResources(localValue, remoteValue);
 		}
@@ -104,8 +110,13 @@ public class Synchronizer {
 		List<Resource> remoteValue = remoteEntry.getValue();
 
 		if (localTreeMap.get(remoteKey) == null) {
-		    System.out.println("copy all  revers" + remoteKey);
-		    copyAll(remoteValue, remoteDisk, localDisk);
+		    if (exResource.get(remoteKey) == null) {
+			System.out.println("copy all  revers" + remoteKey);
+			copyAll(remoteValue, remoteDisk, localDisk);
+			exResource.put(remoteKey, "");
+		    } else {
+			deleteFile(remoteKey, remoteDisk);
+		    }
 		}
 
 	    }
@@ -127,7 +138,11 @@ public class Synchronizer {
 
 	    }
 	    if (!isCoincedenceValue) {
-		copyFile(local, localDisk, remoteDisk);
+		if(exResource.get(local.getPath()) == null){
+		    copyFile(local, localDisk, remoteDisk);
+		}else {
+		    deleteFile(local, localDisk);
+		}
 	    }
 	}
 
@@ -139,7 +154,11 @@ public class Synchronizer {
 		}
 	    }
 	    if (!isCoincedenceValue) {
-		copyFile(remote, remoteDisk, localDisk);
+		if(exResource.get(remote.getPath()) == null){
+		    copyFile(remote, remoteDisk, localDisk);
+		}else {
+		    deleteFile(remote, remoteDisk);
+		}
 	    }
 	}
 
@@ -160,7 +179,6 @@ public class Synchronizer {
     //================================= actions ==================================
     protected void copyAll(List<Resource> resourceList, DiskForAll fromDisk, DiskForAll inDisk) {
 	for (Resource resource : resourceList) {
-
 	    copyFile(resource, fromDisk, inDisk);
 	}
 
@@ -168,7 +186,8 @@ public class Synchronizer {
 
     private void copyFile(Resource actual, DiskForAll fromDisk, DiskForAll inDisk) {
 	String aPath = actual.getPath();
-	System.out.println("copy");
+	exResource.put(aPath, actual.getMd5());
+	System.out.println("copy " + aPath);
 	log.log(Level.INFO, "copy {0}{1}", new Object[]{aPath, actual});
 	try {
 
@@ -180,11 +199,13 @@ public class Synchronizer {
 
     private void deleteFile(Resource actual, DiskForAll fromDisk) {
 	String aPath = actual.getPath();
+	deleteFile(aPath, fromDisk);
+    }
 
-	exResource.remove(aPath);
-
-	log.log(Level.INFO, "delete {0}{1}", new Object[]{aPath, actual});
-	fromDisk.deleteFolderOrFile(aPath);
+    private void deleteFile(String path, DiskForAll fromDisk) {
+	exResource.remove(path);
+	log.log(Level.INFO, "delete {0}", new Object[]{path});
+	fromDisk.deleteFolderOrFile(path);
     }
 
     //============================ serealisation =====================================
@@ -234,6 +255,5 @@ public class Synchronizer {
 
     }
 //==============================================================================
-    
-    
+
 }

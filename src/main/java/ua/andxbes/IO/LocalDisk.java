@@ -74,7 +74,7 @@ public  class LocalDisk implements DiskForAll {
      * @param path "/rrrr.doc" -> "Ya-disk/rrrr.doc"
      */
     @Override
-    //fixme не работает
+    //FIXME не работает
     public void deleteFolderOrFile(String path) {
 	deletefile(new File(getPathToRootDir() + path));
     }
