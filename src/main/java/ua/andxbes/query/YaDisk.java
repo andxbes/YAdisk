@@ -26,7 +26,6 @@ import ua.andxbes.DiskJsonObjects.LastUploadedResourceList;
 import ua.andxbes.DiskJsonObjects.Link;
 import ua.andxbes.DiskJsonObjects.PublicResourcesList;
 import ua.andxbes.DiskJsonObjects.Resource;
-import ua.andxbes.IO.LocalDisk;
 import ua.andxbes.Token;
 import ua.andxbes.fieldsForQuery.Field;
 import ua.andxbes.fieldsForQuery.Fields;
@@ -442,7 +441,6 @@ public class YaDisk implements ua.andxbes.DiskForAll {
 		if (list1.getType().equals("dir")) {
 		    readFolder(list1.getPath());
 		} else {
-		    list1.setInDisk(this).setToDisk(LocalDisk.getInstance());
 		    map.get(path).add(list1);
 		}
 	    }

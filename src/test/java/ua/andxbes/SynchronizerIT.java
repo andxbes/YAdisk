@@ -60,7 +60,6 @@ public class SynchronizerIT {
     
     @Test
     public void testSomeMethod() throws InterruptedException, ExecutionException {
-	instance.buildTree();
 	instance.sync();
     }
     

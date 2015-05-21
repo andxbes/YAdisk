@@ -26,7 +26,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import ua.andxbes.DiskForAll;
 import ua.andxbes.DiskJsonObjects.Resource;
-import ua.andxbes.query.YaDisk;
 
 /**
  *
@@ -75,11 +74,13 @@ public  class LocalDisk implements DiskForAll {
      * @param path "/rrrr.doc" -> "Ya-disk/rrrr.doc"
      */
     @Override
+    //fixme не работает
     public void deleteFolderOrFile(String path) {
 	deletefile(new File(getPathToRootDir() + path));
     }
 
     private void deletefile(File path) {
+	System.out.println("delete  - " + path);
 	if (path.isDirectory()) {
 	    for (File f : path.listFiles()) {
 		if (f.isDirectory()) {
@@ -194,8 +195,7 @@ public  class LocalDisk implements DiskForAll {
 			.setName(f.getName())
 			.setPath(f.getPath().replace(getPathToRootDir(), ""))
 			.setSize(f.length())
-			.setModified(dateFormat.format(f.lastModified()))
-			.setInDisk(this).setToDisk(YaDisk.getInstance());
+			.setModified(dateFormat.format(f.lastModified()));
 	    } catch (FileNotFoundException ex) {
 		Logger.getLogger(LocalDisk.class.getName()).log(Level.SEVERE, null, ex);
 	    }
