@@ -83,7 +83,7 @@ class Query {
     Query query(String method, URL url, ReadableByteChannel data) throws ConnectException {
 	StringBuilder result = new StringBuilder();
 	HttpURLConnection conn;
-	BufferedReader br;
+	BufferedReader br = null;
 	String line;
 	try {
 	    conn = (HttpURLConnection) url.openConnection();
@@ -93,7 +93,7 @@ class Query {
 		writeData(conn, data);
 	    } else {
 		conn.addRequestProperty("Content-Type", "application/json ");
-		conn.addRequestProperty("Authorization", "OAuth " + YaDisk.token); 
+		conn.addRequestProperty("Authorization", "OAuth " + YaDisk.token);
 	    }
 
 	    code = conn.getResponseCode();
@@ -120,13 +120,29 @@ class Query {
 	    throw new ConnectException(ex.toString());
 	} catch (IOException ex) {
 	    Logger.getLogger(YaDisk.class.getName()).log(Level.SEVERE, null, ex);
+	} finally {
+	    if (data != null) {
+		try {
+		    data.close();
+		} catch (IOException ex) {
+		    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
+		}
+	    }
+	    if (br != null) {
+		try {
+		    br.close();
+		} catch (IOException ex) {
+		    Logger.getLogger(Query.class.getName()).log(Level.SEVERE, null, ex);
+		}
+	    }
+
 	}
 
 	response = result.toString();
 	return this;
     }
 
-     private void writeData(HttpURLConnection conn, ReadableByteChannel data) throws IOException {
+    private void writeData(HttpURLConnection conn, ReadableByteChannel data) throws IOException {
 	conn.setDoOutput(true);
 	try (WritableByteChannel wr = Channels.newChannel(conn.getOutputStream())) {
 	    ByteBuffer bb = ByteBuffer.allocate(1024);
@@ -167,7 +183,5 @@ class Query {
     public int getCode() {
 	return code;
     }
-    
-   
 
 }

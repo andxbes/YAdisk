@@ -136,5 +136,13 @@ public class LocalDiskIT  {
 	}
 	log.info(sb.toString());
     }
+    
+    //@Test
+    public void deleteFile(){
+	String path = "\\wwq\\Новый текстовый документ.txt";
+           instance.deleteFolderOrFile(path);
+    
+    
+    }
 
 }

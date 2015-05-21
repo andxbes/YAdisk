@@ -31,37 +31,37 @@ import ua.andxbes.DiskJsonObjects.Resource;
  *
  * @author Andr
  */
-public  class LocalDisk implements DiskForAll {
+public class LocalDisk implements DiskForAll {
 
-    public  final SimpleDateFormat dateFormat ;
+    public final SimpleDateFormat dateFormat;
     private final static Logger log = Logger.getLogger("IO");
-    
+
     private static File fileRootDir;
     private Map<String, List<Resource>> mapTree;
 
-   
-    
-    public static class FileWriteOrReadHolder{
-          public static  final  LocalDisk HOLDER_Instance = new LocalDisk();
+    public static class FileWriteOrReadHolder {
+
+	public static final LocalDisk HOLDER_Instance = new LocalDisk();
     }
-    
-    public static LocalDisk getInstance(){
-          return FileWriteOrReadHolder.HOLDER_Instance;
+
+    public static LocalDisk getInstance() {
+	return FileWriteOrReadHolder.HOLDER_Instance;
     }
-    
+
     private LocalDisk() {
-          this("./Ya-disk");
+	this("./Ya-disk");
     }
-    
 
     private LocalDisk(String rootDir) {
 	dateFormat = new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss'+00:00'");
 	//привожу  дату изменения к 00 часовому поясу 
 	dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-	if(fileRootDir == null)setRootDir(rootDir);
+	if (fileRootDir == null) {
+	    setRootDir(rootDir);
+	}
     }
 
-    public static  final void setRootDir(String rootDir) {
+    public static final void setRootDir(String rootDir) {
 	fileRootDir = new File(rootDir);
 	if (!fileRootDir.exists()) {
 	    fileRootDir.mkdir();
@@ -74,7 +74,6 @@ public  class LocalDisk implements DiskForAll {
      * @param path "/rrrr.doc" -> "Ya-disk/rrrr.doc"
      */
     @Override
-    //FIXME не работает
     public void deleteFolderOrFile(String path) {
 	deletefile(new File(getPathToRootDir() + path));
     }
@@ -99,16 +98,15 @@ public  class LocalDisk implements DiskForAll {
 	write(f, i);
     }
 
-    public void write(File f, ReadableByteChannel i) {
+    public void write(File f, ReadableByteChannel rbc) {
 	if (!f.exists()) {
-	    //File folders = new File(f.getParent());
 	    File folders = f.getParentFile();
 	    folders.mkdirs();
 	}
-	if (i != null) {
+	if (rbc != null) {
 	    ByteBuffer buf = ByteBuffer.allocate(1024);
 	    try (FileChannel file2 = new FileOutputStream(f).getChannel()) {
-		while (i.read(buf) != -1) {
+		while (rbc.read(buf) != -1) {
 		    buf.flip();
 		    file2.write(buf);
 		    buf.clear();
@@ -117,6 +115,15 @@ public  class LocalDisk implements DiskForAll {
 		Logger.getLogger(LocalDisk.class.getName()).log(Level.SEVERE, null, ex);
 	    } catch (IOException ex) {
 		Logger.getLogger(LocalDisk.class.getName()).log(Level.SEVERE, null, ex);
+	    } finally {
+		if (rbc != null) {
+		    try {
+			rbc.close();
+		    } catch (IOException ex) {
+			Logger.getLogger(LocalDisk.class.getName()).log(Level.SEVERE, null, ex);
+		    }
+		}
+
 	    }
 	}
 
@@ -142,18 +149,27 @@ public  class LocalDisk implements DiskForAll {
 		bb.clear();
 	    }
 	    byte massageDigest[] = md5.digest();
-	   
+
 	    checsumm = new BigInteger(1, massageDigest).toString(16);
 	} catch (IOException | NoSuchAlgorithmException ex) {
 	    Logger.getLogger(LocalDisk.class.getName()).log(Level.SEVERE, null, ex);
+	} finally {
+	    try {
+		if (bch != null) {
+		    bch.close();
+		}
+	    } catch (IOException ex) {
+		Logger.getLogger(LocalDisk.class.getName()).log(Level.SEVERE, null, ex);
+	    }
+
 	}
-	
-	 //Todo срезается ноль вначале 
-	int num ;
-	if( (num = checsumm.length()) <32){
-	     for(int i = 0 ;i<32 - num;i++){
-	        checsumm = "0"+checsumm;
-	     }
+
+	//Todo срезается ноль вначале 
+	int num;
+	if ((num = checsumm.length()) < 32) {
+	    for (int i = 0; i < 32 - num; i++) {
+		checsumm = "0" + checsumm;
+	    }
 	}
 	return checsumm;
     }
@@ -183,7 +199,6 @@ public  class LocalDisk implements DiskForAll {
     }
 
     private void addToMapTree(File f) {
-	//System.out.println(f);
 	if (f.isDirectory() && mapTree.get(f.toString()) == null) {
 	    mapTree.put(f.toString(), new ArrayList<>());
 	} else if (f.isFile()) {
