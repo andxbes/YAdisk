@@ -75,8 +75,9 @@ public class Synchronizer {
 	compareDisks();
 	saveStoryOfFiles();
     }
-
+//============================== logic =========================================
     // сдесь нужно будет заменить  выполнение задачь на  их планировку 
+
     protected void compareDisks() throws InterruptedException, ExecutionException {
 	buildTree();
 	if (localTreeMap.size() > 0) {
@@ -86,11 +87,11 @@ public class Synchronizer {
 
 		List<Resource> remoteValue;
 		if ((remoteValue = remoteTreeMap.get(localKey)) == null) {
-		   
+
 		    System.out.println("copy all " + localKey);
 		    copyAll(localValue, localDisk, remoteDisk);
 		} else {
-		    compareResources( localValue, remoteValue);
+		    compareResources(localValue, remoteValue);
 		}
 
 	    }
@@ -111,8 +112,6 @@ public class Synchronizer {
 	}
 
     }
-
-    //===============================================================================
 
     protected void compareResources(List<Resource> localList, List<Resource> remoteList) {
 	for (Resource local : localList) {
@@ -146,15 +145,6 @@ public class Synchronizer {
 
     }
 
-    //=============================================================================
-    protected void copyAll(List<Resource> resourceList, DiskForAll fromDisk, DiskForAll inDisk) {
-	for (Resource resource : resourceList) {
-	    
-	    copyFile(resource, fromDisk, inDisk);
-	}
-
-    }
-
     private void replace(Resource localResource, Resource remoteResources) {
 	System.out.println("replace ");
 
@@ -167,9 +157,18 @@ public class Synchronizer {
 	}
     }
 
+    //================================= actions ==================================
+    protected void copyAll(List<Resource> resourceList, DiskForAll fromDisk, DiskForAll inDisk) {
+	for (Resource resource : resourceList) {
+
+	    copyFile(resource, fromDisk, inDisk);
+	}
+
+    }
+
     private void copyFile(Resource actual, DiskForAll fromDisk, DiskForAll inDisk) {
 	String aPath = actual.getPath();
-         System.out.println("copy");
+	System.out.println("copy");
 	log.log(Level.INFO, "copy {0}{1}", new Object[]{aPath, actual});
 	try {
 
@@ -188,7 +187,7 @@ public class Synchronizer {
 	fromDisk.deleteFolderOrFile(aPath);
     }
 
-    //=============================================================================
+    //============================ serealisation =====================================
     private void saveStoryOfFiles() {
 
 	Gson gson = new Gson();
@@ -234,5 +233,7 @@ public class Synchronizer {
 	return result;
 
     }
-
+//==============================================================================
+    
+    
 }
