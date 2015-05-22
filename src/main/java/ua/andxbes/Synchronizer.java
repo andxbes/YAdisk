@@ -85,18 +85,20 @@ public class Synchronizer {
 		String localKey = localEntry.getKey();
 		List<Resource> localValue = localEntry.getValue();
 
-		List<Resource> remoteValue;
-		if ((remoteValue = remoteTreeMap.get(localKey)) == null) {
+		List<Resource> remoteValues;
+		if ((remoteValues = remoteTreeMap.get(localKey)) == null) {
 
 		    if (exResource.get(localKey) == null) {
-			copyAll(localValue, localDisk, remoteDisk);
-			exResource.put(localKey, "");
+			if( !localValue.isEmpty() ){
+			    copyAll(localValue, localDisk, remoteDisk);
+			    exResource.put(localKey, "");
+			}
 		    } else {
 			deleteFile(localKey, localDisk);
 		    }
 
 		} else {
-		    compareResources(localValue, remoteValue);
+		    compareResources(localValue, remoteValues);
 		}
 
 	    }
@@ -108,10 +110,13 @@ public class Synchronizer {
 		String remoteKey = remoteEntry.getKey();
 		List<Resource> remoteValue = remoteEntry.getValue();
 
-		if (localTreeMap.get(remoteKey) == null) {
+		
+		if (( localTreeMap.get(remoteKey)) == null) {
 		    if (exResource.get(remoteKey) == null) {
-			copyAll(remoteValue, remoteDisk, localDisk);
-			exResource.put(remoteKey, "");
+			if( !remoteValue.isEmpty() ){
+			    copyAll(remoteValue, remoteDisk, localDisk);
+			    exResource.put(remoteKey, "");
+			}
 		    } else {
 			deleteFile(remoteKey, remoteDisk);
 		    }
@@ -209,7 +214,7 @@ public class Synchronizer {
 
 	Gson gson = new Gson();
 	String sgs = gson.toJson(exResource);
-	log.info(sgs);
+	log.finer(sgs);
 	try (FileWriter fw = new FileWriter(new File(pathToFilesStory))) {
 	    fw.write(sgs);
 	    log.info("Saving story of files in " + pathToFilesStory);
@@ -246,7 +251,7 @@ public class Synchronizer {
 		}
 	    }
 	}
-	log.info(result.toString());
+	log.finer(result.toString());
 	return result;
 
     }
