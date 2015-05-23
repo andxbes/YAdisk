@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="578.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+  <tabs>
+    <Tab text="Status">
+         <content>
+            <Pane prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: linear-gradient(blue,yellow);">
+               <children>
+                  <ProgressIndicator id="progressBar" fx:id="progressBar" layoutX="-11.0" layoutY="55.0" prefHeight="309.0" prefWidth="600.0" progress="0.0">
+                     <effect>
+                        <Bloom threshold="0.56" />
+                     </effect>
+                  </ProgressIndicator>
+                  <Label layoutX="15.0" layoutY="6.0" prefHeight="17.0" prefWidth="124.0" text="Current operation" textFill="#d7ff05">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Label>
+                  <Label id="textFieldOperation" fx:id="textFieldOperation" layoutX="143.0" layoutY="6.0" prefHeight="21.0" prefWidth="460.0" text="some text" textFill="#f1ff2d">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Label>
+               </children>
+            </Pane>
+         </content></Tab>
+    <Tab text="Options">
+         <content>
+            <AnchorPane prefHeight="200.0" prefWidth="200.0">
+               <children>
+                  <TextField id="textFieldPathToLocalFolder" fx:id="textFieldPathToLocalFolder" layoutX="215.0" layoutY="18.0" prefHeight="25.0" prefWidth="375.0" text="./Ya-disk" />
+                  <Label layoutX="14.0" layoutY="22.0" prefHeight="17.0" prefWidth="201.0" text="Path to local synchronize folder" />
+               </children>
+            </AnchorPane>
+         </content></Tab>
+  </tabs>
+</TabPane>
