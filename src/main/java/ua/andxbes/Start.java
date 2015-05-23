@@ -1,6 +1,7 @@
 package ua.andxbes;
 
-import javax.swing.JOptionPane;
+import javafx.application.Application;
+import ua.andxbes.UI.UI;
 
 
 
@@ -12,8 +13,7 @@ public class Start {
      */
     public static void main(String[] args) {
         
-	JOptionPane.showMessageDialog(null, "Hello");
-	System.out.println("Hello");
+	Application.launch(UI.class);
     
     }
 }

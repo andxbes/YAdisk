@@ -1,10 +1,12 @@
 import org.ajoberstar.grgit.*
 apply plugin: 'java'
 apply plugin: 'eclipse'
-//apply plugin: "application"
+apply plugin: "application"
+
 
 
 def mainclass = "ua.andxbes.Start"
+mainClassName = mainclass
 sourceCompatibility = '1.8'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
@@ -35,15 +37,24 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.10'
     testCompile "org.mockito:mockito-all:1.9.+"
     compile "com.google.code.gson:gson:2.3.+"
-   
-  
-    
+
 }
+
+//sourceSets {
+//    main {
+//        java {
+//            srcDir 'src/java'
+//        }
+//        resources {
+//            srcDir 'src/resources'
+//        }
+//    }
+//}
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.2.1'
 }
-
+// buil executable Jar
 task customJar(type: Jar){
          manifest{
             attributes 'Main-Class': mainclass
@@ -52,20 +63,15 @@ task customJar(type: Jar){
          destinationDir = file("${buildDir}/jars")
          from sourceSets.main.output
 }
+build.dependsOn customJar
 
 
-//buildscript {
-//  repositories { mavenCentral() }
-//  dependencies { classpath 'org.ajoberstar:gradle-git:0.2.3' }
+
+//task sourceCopy(type: Copy) {
+// 
+//    from 'src/main/properties'
+//    into 'build/classes/properties'
+//    include('**/*.fxml','**/*.css')
 //}
-//import org.ajoberstar.gradle.git.tasks.*
-//
-//task cloneGitRepo(type: GitClone) {
-//    def destination = file("src/main/resources/sdk")
-//        uri = "https://github.com/yandex-disk/yandex-disk-sdk-java.git"
-//        destinationPath = destination
-//        bare = false
-//        enabled = !destination.exists() //to clone only once
-//}
-//
-//compileJava.dependsOn cloneGitRepo
+//compileJava.dependsOn sourceCopy
+

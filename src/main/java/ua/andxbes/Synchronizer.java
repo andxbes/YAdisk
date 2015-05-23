@@ -14,6 +14,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -34,6 +35,12 @@ public class Synchronizer {
 
     private final  Logger log = Logger.getLogger(this.getClass().getName());
     private final ExecutorService threads = Executors.newCachedThreadPool();
+    
+    
+    private final ExecutorService tasksThread = Executors.newFixedThreadPool(1);
+    
+    List<Runnable> listofTasks = new LinkedList<>();
+    
     private Map<String, List<Resource>> localTreeMap;
     private Map<String, List<Resource>> remoteTreeMap;
     private Map<String, String> exResource;
