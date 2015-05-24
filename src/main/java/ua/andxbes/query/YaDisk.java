@@ -26,7 +26,6 @@ import ua.andxbes.DiskJsonObjects.LastUploadedResourceList;
 import ua.andxbes.DiskJsonObjects.Link;
 import ua.andxbes.DiskJsonObjects.PublicResourcesList;
 import ua.andxbes.DiskJsonObjects.Resource;
-import ua.andxbes.Token;
 import ua.andxbes.fieldsForQuery.Field;
 import ua.andxbes.fieldsForQuery.Fields;
 import ua.andxbes.fieldsForQuery.From;
@@ -44,28 +43,14 @@ public class YaDisk implements ua.andxbes.DiskForAll {
     protected final Logger log = Logger.getLogger(this.getClass().getName());
 
     static final String baseUrl = "https://cloud-api.yandex.net:443";
-    static String token;
-    private final Query query;
+   
+   // private final Query query;
 
-    private static volatile YaDisk instance;
+   
 
-    public synchronized static YaDisk getInstance() {
-	YaDisk localInstance = instance;
-	if (localInstance == null) {
-	    synchronized (YaDisk.class) {
-		localInstance = instance;
-		if (localInstance == null) {
-		    instance = localInstance = new YaDisk();
-		}
-	    }
-	}
-	return localInstance;
-    }
-
-    private YaDisk() {
-	this.token = Token.instance().toString();
-	query = new Query();
-    }
+//    public YaDisk() {
+//	query = new Query();
+//    }
 
     /**
      * Checking <b> fields <\b> for the presence of specific types
@@ -101,6 +86,7 @@ public class YaDisk implements ua.andxbes.DiskForAll {
      * @throws java.rmi.ConnectException
      */
     public Disk getDiskInfo() throws ConnectException {
+	Query query = new Query();
 	String operation = "/v1/disk";
 	return query.getObgect(Query.GET, operation, null, Disk.class);
     }
@@ -117,6 +103,7 @@ public class YaDisk implements ua.andxbes.DiskForAll {
     public Resource getResource(Field... fields)
 	    throws ConnectException, NoSuchFieldError {
 
+	Query query = new Query();
 	if (!checkRequiredField(fields, new Class[]{Path.class})) {
 	    throw new NoSuchFieldError();
 	}
@@ -136,6 +123,7 @@ public class YaDisk implements ua.andxbes.DiskForAll {
      */
     public Link getLinkToDownload(Field... fields)
 	    throws NoSuchFieldError, ConnectException {
+	Query query = new Query();
 
 	if (!checkRequiredField(fields, new Class[]{Path.class})) {
 	    throw new NoSuchFieldError();
@@ -158,6 +146,7 @@ public class YaDisk implements ua.andxbes.DiskForAll {
      *
      */
     public FilesResouceList getFiles(Field... fields) throws ConnectException {
+	Query query = new Query();
 	String operation = "/v1/disk/resources/files";
 	return query.getObgect(Query.GET, operation, fields, FilesResouceList.class, null);
     }
@@ -176,6 +165,7 @@ public class YaDisk implements ua.andxbes.DiskForAll {
      *
      */
     public LastUploadedResourceList getLastUploadedList(Field... fields) throws ConnectException {
+	Query query = new Query();
 	String operation = "/v1/disk/resources/last-uploaded";
 	return query.getObgect(Query.GET, operation, fields, LastUploadedResourceList.class);
     }
@@ -194,6 +184,7 @@ public class YaDisk implements ua.andxbes.DiskForAll {
      *
      */
     public PublicResourcesList getPublicResources(Field... fields) throws ConnectException {
+	Query query = new Query();
 	String operation = "/v1/disk/resources/last-uploaded";
 	return query.getObgect(Query.GET, operation, fields, PublicResourcesList.class);
     }
@@ -213,6 +204,7 @@ public class YaDisk implements ua.andxbes.DiskForAll {
 	if (!checkRequiredField(fields, new Class[]{Path.class})) {
 	    throw new NoSuchFieldError();
 	}
+	Query query = new Query();
 	String operation = "/v1/disk/resources/upload";
 	Link link = null;
 
@@ -258,6 +250,7 @@ public class YaDisk implements ua.andxbes.DiskForAll {
 	if (!checkRequiredField(fields, new Class[]{Path.class, From.class})) {
 	    throw new NoSuchFieldError();
 	}
+	Query query = new Query();
 	String operation = "/v1/disk/resources/copy";
 	Link link;
 	link = query.getObgect(Query.POST, operation, fields, Link.class);
@@ -282,6 +275,7 @@ public class YaDisk implements ua.andxbes.DiskForAll {
 	if (!checkRequiredField(fields, new Class[]{Path.class, From.class})) {
 	    throw new NoSuchFieldError();
 	}
+	Query query = new Query();
 	String operation = "/v1/disk/resources/move";
 	Link link;
 	link = query.getObgect(Query.POST, operation, fields, Link.class);
@@ -304,7 +298,7 @@ public class YaDisk implements ua.andxbes.DiskForAll {
 	    
 	 */
 	Pattern pattern = Pattern.compile("[\"|}|{]");
-
+        Query query = new Query();
 	try {
 	    query.query(link.getMethod(), new URL(link.getHref()), null);
 	    String status = pattern.matcher(query.getResponse().split(":")[1]).replaceAll("");
@@ -321,6 +315,7 @@ public class YaDisk implements ua.andxbes.DiskForAll {
 
     public void putFileToServer(ReadableByteChannel fc, Field... fields) throws NoSuchFieldError, ConnectException, MalformedURLException {
 	Link l = getLinkForUpload(fields);
+	Query query = new Query();
 	query.query(l.getMethod(), new URL(l.getHref()), fc);
 	log.log(Level.INFO, "data = {0}code = {1}", new Object[]{query.getResponse(), query.getCode()});
     }
@@ -330,6 +325,7 @@ public class YaDisk implements ua.andxbes.DiskForAll {
 	//409 - this folder there is , or is not
 	String operation = "/v1/disk/resources";
 	Link link = new Link();
+	Query query = new Query();
 	try {
 	    link = query.getObgect(Query.PUT, operation, field, Link.class);
 	} catch (ConnectException ex) {
@@ -348,6 +344,7 @@ public class YaDisk implements ua.andxbes.DiskForAll {
 	String path = returnPath(field);
 	String elfromPath[] = path.split("/");
 	String ccurentUrl = "";
+	Query query = new Query();
 	for (String elfromPath1 : elfromPath) {
 	    try {
 		ccurentUrl += elfromPath1 + "/";
@@ -382,6 +379,7 @@ public class YaDisk implements ua.andxbes.DiskForAll {
      * @throws IOException
      */
     public Link deleteFileOrFolder(Field... field) throws NoSuchFieldError, ConnectException, IOException {
+	Query query = new Query();
 	String operation = "/v1/disk/resources";
 	return query.getObgect(Query.DELETE, operation, field, Link.class);
     }
@@ -398,11 +396,13 @@ public class YaDisk implements ua.andxbes.DiskForAll {
      * @throws IOException
      */
     public Link CleanTrashFolder(Field... field) throws NoSuchFieldError, ConnectException, FileNotFoundException, IOException {
+	Query query = new Query();
 	String operation = "/v1/disk/trash/resources";
 	return query.getObgect(Query.DELETE, operation, field, Link.class);
     }
 
     public ReadableByteChannel downloadFile(Link link) {
+	Query query = new Query();
 	ReadableByteChannel rbch = null;
 	try {
 	    rbch = Channels.newChannel(query.downloadFile(new URL(link.getHref())));

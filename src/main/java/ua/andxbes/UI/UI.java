@@ -19,7 +19,6 @@ public class UI extends Application{
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-	
 	Parent root = FXMLLoader.load(getClass().getResource("/MyFXFrame.fxml"));
 	//StackPane root = new StackPane();
 	Scene scene = new Scene(root);

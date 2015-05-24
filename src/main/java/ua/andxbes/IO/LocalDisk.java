@@ -36,23 +36,14 @@ public class LocalDisk implements DiskForAll {
     public final SimpleDateFormat dateFormat;
     private final  Logger log = Logger.getLogger(this.getClass().getName());
 
-    private static File fileRootDir;
+    private static  File fileRootDir;
     private Map<String, List<Resource>> mapTree;
 
-    public static class FileWriteOrReadHolder {
-
-	public static final LocalDisk HOLDER_Instance = new LocalDisk();
-    }
-
-    public static LocalDisk getInstance() {
-	return FileWriteOrReadHolder.HOLDER_Instance;
-    }
-
-    private LocalDisk() {
+    public  LocalDisk() {
 	this("./Ya-disk");
     }
 
-    private LocalDisk(String rootDir) {
+    public LocalDisk(String rootDir) {
 	dateFormat = new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss'+00:00'");
 	//привожу  дату изменения к 00 часовому поясу 
 	dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));

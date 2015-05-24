@@ -46,15 +46,15 @@ import ua.andxbes.fieldsForQuery.Type;
  */
 public class YaDiskIT {
 
-    private static final Logger log = Logger.getLogger("QueryControllerIT");
-    private final YaDisk queryController;
+    private  final Logger log = Logger.getLogger(this.getClass().getName());
+    private final YaDisk yaDisk;
     private final String ROOT_FOLDER = "/testFolder/",
 	    ROOT_FOLDER2 = "/testFolder2/";
     private static boolean createFolder = false;
 
     public YaDiskIT() {
 
-	queryController = YaDisk.getInstance();
+	yaDisk = new YaDisk();
 
 	addFolder();
 
@@ -63,11 +63,11 @@ public class YaDiskIT {
     private void addFolder() {
 	if (!createFolder) {
 	    try {
-		queryController.getResource(new Path(ROOT_FOLDER));
+		yaDisk.getResource(new Path(ROOT_FOLDER));
 	    } catch (ConnectException ex) {
 		try {
-		    queryController.createFolderInDisk(new Path(ROOT_FOLDER2), new Overwrite(true));
-		    queryController.createFolderInDisk(new Path(ROOT_FOLDER), new Overwrite(true));
+		    yaDisk.createFolderInDisk(new Path(ROOT_FOLDER2), new Overwrite(true));
+		    yaDisk.createFolderInDisk(new Path(ROOT_FOLDER), new Overwrite(true));
 		    createFolder = true;
 		} catch (NoSuchFieldError ex1) {
 		    Logger.getLogger(YaDiskIT.class.getName()).log(Level.SEVERE, null, ex1);
@@ -103,7 +103,7 @@ public class YaDiskIT {
     @Test
     public void getDiskInfo() throws ConnectException {
 
-	Disk disk = queryController.getDiskInfo();
+	Disk disk = yaDisk.getDiskInfo();
 
 	Logger.getLogger("Test disk testQuery").info(disk.toString());
 
@@ -121,7 +121,7 @@ public class YaDiskIT {
 	String result = null;
 
 	try {
-	    Resource resource = queryController.getResource(new Field[]{new Path("/")});
+	    Resource resource = yaDisk.getResource(new Field[]{new Path("/")});
 	    Resource[] list = resource.getEmbedded().getItems();
 
 	    for (Resource list1 : list) {
@@ -142,7 +142,7 @@ public class YaDiskIT {
 
 	Resource resource = null;
 	try {
-	    resource = queryController.getResource(new Path("/"));
+	    resource = yaDisk.getResource(new Path("/"));
 	} catch (NoSuchFieldError ex) {
 	    Logger.getLogger(YaDiskIT.class.getName()).log(Level.SEVERE, null, ex);
 	}
@@ -156,7 +156,7 @@ public class YaDiskIT {
 	String pathToFile = getAnyFile();
 	Logger.getLogger("Test getResourceList()").info("\n" + pathToFile);
 
-	Link link = queryController.getLinkToDownload(new Field[]{new Path(pathToFile)});
+	Link link = yaDisk.getLinkToDownload(new Field[]{new Path(pathToFile)});
 	Logger.getLogger("Test getResourceList()").info(link.toString());
 
     }
@@ -166,7 +166,7 @@ public class YaDiskIT {
 	String pathToFile = getAnyFolder();
 	Logger.getLogger("Test getResourceList()").info("\n" + pathToFile);
 
-	Link link = queryController.getLinkToDownload(new Field[]{new Path(pathToFile)});
+	Link link = yaDisk.getLinkToDownload(new Field[]{new Path(pathToFile)});
 	Logger.getLogger("Test getResourceList()").info(link.toString());
     }
 
@@ -177,7 +177,7 @@ public class YaDiskIT {
 	    ResourceList expResult = null;
 	    FilesResouceList result = null;
 
-	    result = queryController.getFiles(new Limit(100));//Фильтр на количество ожидаемых обьектов , по умолчанию 20
+	    result = yaDisk.getFiles(new Limit(100));//Фильтр на количество ожидаемых обьектов , по умолчанию 20
 
 	    Logger.getLogger(this.getClass().getSimpleName()).info(result.toString());
 	} catch (ConnectException ex) {
@@ -194,7 +194,7 @@ public class YaDiskIT {
 	LastUploadedResourceList result = null;
 
 	try {
-	    result = queryController.getLastUploadedList(new Field[]{new Limit(100)});//Фильтр на количество ожидаемых обьектов , по умолчанию 20  
+	    result = yaDisk.getLastUploadedList(new Field[]{new Limit(100)});//Фильтр на количество ожидаемых обьектов , по умолчанию 20  
 	} catch (ConnectException ex) {
 	    Logger.getLogger(YaDiskIT.class.getName()).log(Level.SEVERE, null, ex);
 	    Assert.fail();
@@ -210,7 +210,7 @@ public class YaDiskIT {
 	PublicResourcesList result = null;
 
 	try {
-	    result = queryController.getPublicResources(new Field[]{new Limit(100)});//Фильтр на количество ожидаемых обьектов , по умолчанию 20  
+	    result = yaDisk.getPublicResources(new Field[]{new Limit(100)});//Фильтр на количество ожидаемых обьектов , по умолчанию 20  
 	} catch (ConnectException ex) {
 	    Logger.getLogger(YaDiskIT.class.getName()).log(Level.SEVERE, null, ex);
 	    Assert.fail();
@@ -223,11 +223,11 @@ public class YaDiskIT {
     public void testCheck() {
 	Field[] list = new Field[]{new MediaType("doc"), new Fields("111")};
 
-	Assert.assertTrue(queryController.checkRequiredField(list, new Class[]{MediaType.class}));
-	Assert.assertFalse(queryController.checkRequiredField(list, new Class[]{Limit.class}));
+	Assert.assertTrue(yaDisk.checkRequiredField(list, new Class[]{MediaType.class}));
+	Assert.assertFalse(yaDisk.checkRequiredField(list, new Class[]{Limit.class}));
 
-	Assert.assertFalse(queryController.checkRequiredField(list, new Class[]{Limit.class, Type.class}));
-	Assert.assertTrue(queryController.checkRequiredField(list, new Class[]{Fields.class, MediaType.class}));
+	Assert.assertFalse(yaDisk.checkRequiredField(list, new Class[]{Limit.class, Type.class}));
+	Assert.assertTrue(yaDisk.checkRequiredField(list, new Class[]{Fields.class, MediaType.class}));
 
     }
 
@@ -236,14 +236,14 @@ public class YaDiskIT {
 
 	Link link;
 	try {
-	    link = queryController.postCopy(new From(ROOT_FOLDER), new Path(ROOT_FOLDER2), new Overwrite(true));
+	    link = yaDisk.postCopy(new From(ROOT_FOLDER), new Path(ROOT_FOLDER2), new Overwrite(true));
 
 	    /* Я так понял , все тесты запускаются в разных потоках ,
 	     и основной поток при закрытии ни как не ждет завершения дочерних потоков  .
 	     Потому создаем еще один поток , которого будем в тесте ждать .
 	     */
 	    if (link.isAsync()) {
-		while (!queryController.refrashStatusOperationId(link)) {
+		while (!yaDisk.refrashStatusOperationId(link)) {
 		    Thread.sleep(2000);
 		}
 	    }
@@ -262,31 +262,31 @@ public class YaDiskIT {
 	File f = new File("./gradlew.bat");
 	Path path = new Path(ROOT_FOLDER +"f/s/d/f/"+ f.getName());
 	FileChannel fc = new FileInputStream(f).getChannel();
-	queryController.putFileToServer(fc, path, new Overwrite(true));
+	yaDisk.putFileToServer(fc, path, new Overwrite(true));
     }
 
     @Test
     public void deleteFileOrFolder() throws NoSuchFieldError, FileNotFoundException, IOException {
 	createFolderInDisk();
         
-	queryController.deleteFileOrFolder(new Path(ROOT_FOLDER + "ololo"), new Overwrite(true));
+	yaDisk.deleteFileOrFolder(new Path(ROOT_FOLDER + "ololo"), new Overwrite(true));
     }
 
     public void createFolderInDisk() throws NoSuchFieldError, FileNotFoundException, IOException {
-	Link l = queryController.createFolderInDisk(new Path(ROOT_FOLDER + "ololo"), new Overwrite(true));	
+	Link l = yaDisk.createFolderInDisk(new Path(ROOT_FOLDER + "ololo"), new Overwrite(true));	
 	Logger.getLogger(YaDiskIT.class.getName()).log(Level.INFO, "\nresult  = {0}", l.toString());
     }
     
     @Test
     public void createFolderInDisk2() throws NoSuchFieldError, FileNotFoundException, IOException {
-	Link l = queryController.createFolderInDisk(new Path(ROOT_FOLDER + "wer/wer/wer/wer"), new Overwrite(true));	
+	Link l = yaDisk.createFolderInDisk(new Path(ROOT_FOLDER + "wer/wer/wer/wer"), new Overwrite(true));	
 	Logger.getLogger(YaDiskIT.class.getName()).log(Level.INFO, "\nresult  = {0}", l.toString());
     }
     
 
     @Test
     public void getResorceMap() {
-	Map<String, List<Resource>> map = queryController.getResource();
+	Map<String, List<Resource>> map = yaDisk.getResource();
 	StringBuilder sb = new StringBuilder();
 	for (Map.Entry<String, List<Resource>> entrySet : map.entrySet()) {
 	    sb.append("\n----------------------------(").append(entrySet.getKey()).append(")-----------------------------------\n");
@@ -304,7 +304,7 @@ public class YaDiskIT {
     @Test
     public void writeTest(){
         String writS = "/wwq/Новый текстовый документ (2).txt";   
-	queryController.write(writS, Channels.newChannel(new ByteArrayInputStream(writS.getBytes())));
+	yaDisk.write(writS, Channels.newChannel(new ByteArrayInputStream(writS.getBytes())));
     
     }
 

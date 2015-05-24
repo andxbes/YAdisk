@@ -55,7 +55,7 @@ public class LocalDiskIT  {
     @Before
     public void setUp() {
 	LocalDisk.setRootDir("./Ya-disk");
-	instance = LocalDisk.getInstance();
+	instance = new  LocalDisk();
     }
 
     @After
@@ -98,7 +98,7 @@ public class LocalDiskIT  {
 	//                                 /test.txt
 	String name_Of_File_In_The_Disk = f.getPath().replace(instance.getPathToRootDir(), "");
 	log.log(Level.INFO, "file name {0}", name_Of_File_In_The_Disk);
-	YaDisk qc = YaDisk.getInstance();
+	YaDisk qc =new  YaDisk();
 
 	Link link = qc.getLinkForUpload(new Path(name_Of_File_In_The_Disk),new Overwrite(true));
 	try {

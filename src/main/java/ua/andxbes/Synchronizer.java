@@ -13,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,14 +34,12 @@ import ua.andxbes.query.YaDisk;
  */
 public class Synchronizer {
 
-    private final  Logger log = Logger.getLogger(this.getClass().getName());
-    private final ExecutorService threads = Executors.newCachedThreadPool();
-    
-    
-    private final ExecutorService tasksThread = Executors.newFixedThreadPool(1);
-    
-    List<Runnable> listofTasks = new LinkedList<>();
-    
+    private final Logger log = Logger.getLogger(this.getClass().getName());
+    private final ExecutorService threads = Executors.newCachedThreadPool();//TODO не особо и нужен , заменить 
+
+    private ExecutorService threadOfTasks;
+    private final List<Runnable> listofTasks;
+
     private Map<String, List<Resource>> localTreeMap;
     private Map<String, List<Resource>> remoteTreeMap;
     private Map<String, String> exResource;
@@ -57,10 +56,14 @@ public class Synchronizer {
      * @param localePathToRootDir Like as './rootFolder'
      */
     public Synchronizer(String localePathToRootDir) {
+
+	threadOfTasks = Executors.newFixedThreadPool(1);
+	listofTasks = Collections.synchronizedList(new LinkedList<>());
+
 	localePathToRootDir = checkCorrect(localePathToRootDir);
 	LocalDisk.setRootDir(localePathToRootDir);
-	localDisk = LocalDisk.getInstance();
-	remoteDisk = YaDisk.getInstance();
+	localDisk = new LocalDisk();
+	remoteDisk =new  YaDisk();
 	exResource = loadStoryOfFiles();
     }
 
@@ -80,11 +83,34 @@ public class Synchronizer {
 
     public void sync() throws InterruptedException, ExecutionException {
 	compareDisks();
+	runTasks();
 	saveStoryOfFiles();
     }
-//============================== logic =========================================
-    // сдесь нужно будет заменить  выполнение задачь на  их планировку 
 
+    private void runTasks() throws InterruptedException {
+	for (Runnable listofTask : listofTasks) {
+	    threadOfTasks.submit(listofTask);
+	}
+
+    }
+
+    /**
+     * Necessarity to close at the end of work
+     * @throws InterruptedException
+     */
+    public void close() {
+	threadOfTasks.shutdown();
+	while(!threadOfTasks.isTerminated()){
+	    log.log(Level.INFO, "task  = {0}", listofTasks.size());
+	    try {
+		Thread.sleep(500);
+	    } catch (InterruptedException ex) {
+		Logger.getLogger(Synchronizer.class.getName()).log(Level.SEVERE, null, ex);
+	    }
+	}
+    }
+
+//============================== logic =========================================
     protected void compareDisks() throws InterruptedException, ExecutionException {
 	buildTree();
 	if (localTreeMap.size() > 0) {
@@ -96,7 +122,7 @@ public class Synchronizer {
 		if ((remoteValues = remoteTreeMap.get(localKey)) == null) {
 
 		    if (exResource.get(localKey) == null) {
-			if( !localValue.isEmpty() ){
+			if (!localValue.isEmpty()) {
 			    copyAll(localValue, localDisk, remoteDisk);
 			    exResource.put(localKey, "");
 			}
@@ -117,10 +143,9 @@ public class Synchronizer {
 		String remoteKey = remoteEntry.getKey();
 		List<Resource> remoteValue = remoteEntry.getValue();
 
-		
-		if (( localTreeMap.get(remoteKey)) == null) {
+		if ((localTreeMap.get(remoteKey)) == null) {
 		    if (exResource.get(remoteKey) == null) {
-			if( !remoteValue.isEmpty() ){
+			if (!remoteValue.isEmpty()) {
 			    copyAll(remoteValue, remoteDisk, localDisk);
 			    exResource.put(remoteKey, "");
 			}
@@ -148,9 +173,9 @@ public class Synchronizer {
 
 	    }
 	    if (!isCoincedenceValue) {
-		if(exResource.get(local.getPath()) == null){
+		if (exResource.get(local.getPath()) == null) {
 		    copyFile(local, localDisk, remoteDisk);
-		}else {
+		} else {
 		    deleteFile(local, localDisk);
 		}
 	    }
@@ -164,9 +189,9 @@ public class Synchronizer {
 		}
 	    }
 	    if (!isCoincedenceValue) {
-		if(exResource.get(remote.getPath()) == null){
+		if (exResource.get(remote.getPath()) == null) {
 		    copyFile(remote, remoteDisk, localDisk);
-		}else {
+		} else {
 		    deleteFile(remote, remoteDisk);
 		}
 	    }
@@ -193,27 +218,44 @@ public class Synchronizer {
 
     }
 
-    private void copyFile(Resource actual, DiskForAll fromDisk, DiskForAll inDisk) {
-	String aPath = actual.getPath();
-	exResource.put(aPath, actual.getMd5());
-	log.log(Level.INFO, "copy {0}{1}", new Object[]{aPath, actual});
-	try {
-
-	    inDisk.write(aPath, fromDisk.read(aPath));
-	} catch (FileNotFoundException ex) {
-	    Logger.getLogger(Synchronizer.class.getName()).log(Level.SEVERE, null, ex);
-	}
-    }
-
     private void deleteFile(Resource actual, DiskForAll fromDisk) {
 	String aPath = actual.getPath();
 	deleteFile(aPath, fromDisk);
     }
 
+    private void copyFile(Resource actual, DiskForAll fromDisk, DiskForAll inDisk) {
+	listofTasks.add(new Runnable() {
+	    @Override
+	    public void run() {
+		String aPath = actual.getPath();
+		exResource.put(aPath, actual.getMd5());
+		log.log(Level.INFO, "copy {0}{1}", new Object[]{aPath, actual});
+		try {
+
+		    inDisk.write(aPath, fromDisk.read(aPath));
+		} catch (FileNotFoundException ex) {
+		    Logger.getLogger(Synchronizer.class.getName()).log(Level.SEVERE, null, ex);
+		}
+		//delete this task when completed
+		listofTasks.remove(this);
+	    }
+	});
+
+    }
+
     private void deleteFile(String path, DiskForAll fromDisk) {
-	exResource.remove(path);
-	log.log(Level.INFO, "delete {0}", new Object[]{path});
-	fromDisk.deleteFolderOrFile(path);
+	listofTasks.add(new Runnable() {
+
+	    @Override
+	    public void run() {
+		exResource.remove(path);
+		log.log(Level.INFO, "delete {0}", new Object[]{path});
+		fromDisk.deleteFolderOrFile(path);
+		//delete this task when completed
+		listofTasks.remove(this);
+	    }
+	});
+
     }
 
     //============================ serealisation =====================================

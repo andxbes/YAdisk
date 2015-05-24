@@ -22,6 +22,7 @@ import java.rmi.ConnectException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import ua.andxbes.DiskJsonObjects.Link;
+import ua.andxbes.Token;
 import ua.andxbes.fieldsForQuery.Field;
 import ua.andxbes.util.QueryString;
 
@@ -33,6 +34,7 @@ class Query {
 
     private String response;
     private int code;
+    private static  String token = Token.instance().toString();
 
     final static String GET = "GET",
 	    POST = "POST",
@@ -93,7 +95,7 @@ class Query {
 		writeData(conn, data);
 	    } else {
 		conn.addRequestProperty("Content-Type", "application/json ");
-		conn.addRequestProperty("Authorization", "OAuth " + YaDisk.token);
+		conn.addRequestProperty("Authorization", "OAuth " + token);
 	    }
 
 	    code = conn.getResponseCode();
