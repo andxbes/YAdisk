@@ -35,9 +35,7 @@ public class ShowPage extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-
-	
-
+	System.out.println("create frame");
 	thisStage = stage;
 	stage.setTitle("url -" + cont.getUrl());
 	Pane root = new WebViewPanel();
@@ -60,7 +58,8 @@ public class ShowPage extends Application {
 
 		@Override
 		public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-		    cont.setUrl( newValue );
+		    System.out.println("in listener " + newValue);
+		    cont.setUrl(newValue);
 		    thisStage.setTitle(newValue);
 		    cont.variabelMethodForChangedPage(newValue, thisStage);
 		}
@@ -100,25 +99,27 @@ public class ShowPage extends Application {
 
     public static String run(ConrolShowPanel c) {
 	cont = c;
-	 //launch();
-	try{
+	//launch();
+	try {
 	    launch();
-	}catch(IllegalStateException ex){
-	     ShowPage s = new ShowPage();
-	  
-		System.out.println("alternative");
-		Platform.runLater(()->
-		{
-		    try {
-			s.start(new Stage());
-		    } catch (Exception ex1) {
-			Logger.getLogger(ShowPage.class.getName()).log(Level.SEVERE, null, ex1);
-		    }
+	} catch (IllegalStateException ex) {
+	    ShowPage s = new ShowPage();
+
+	   new Thread(()->{
+	    Platform.runLater(() -> {
+		try {
+		     System.out.println("alternative");
+
+		    s.start(new Stage());
+		} catch (Exception ex1) {
+		    Logger.getLogger(ShowPage.class.getName()).log(Level.SEVERE, null, ex1);
 		}
-		);
-	   
+
+	    });
+	   }).start();
+
 	}
-	
+
 	return cont.getUrl();
     }
 //============================================================================================================

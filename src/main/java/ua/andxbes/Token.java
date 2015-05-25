@@ -102,13 +102,15 @@ public final class Token {
 		.add("display", "popup")
 		.add("state", "((: give me token :))");
 	String url = Token.urlForReceivingToken + "?" + queryString.toString();
-
+        
 	String endUrl = ShowPage.run(new ShowPage.ConrolShowPanel(url) {
 
 	    @Override
 	    public void variabelMethodForChangedPage(String curentUrl, Stage stage) {
+		 System.out.println("in variable methods " + curentUrl);
 		if (CALLBACK_URL.equals(curentUrl.split("#")[0])) {
 		    stage.close();
+		    
 		}
 	    }
 	});

@@ -28,6 +28,7 @@ public class ShowPageIT {
 
     @BeforeClass
     public static void setUpClass() {
+	
     }
 
     @AfterClass
@@ -61,6 +62,7 @@ public class ShowPageIT {
 		if (curentUrl.equals("https://passport.yandex.ru/auth?retpath=https%3A%2F%2Foauth.yandex.ru%2Fauthorize%3Fclient_id%3D45f708d998054dd29dfc73c7e33c664d%26display%3Dpopup%26response_type%3Dtoken%26state%3D%25D0%25B7%25D0%25B0%25D0%25BF%25D1%2580%25D0%25BE%25D1%25812")){
 		
 		    stage.hide();
+		   
 		 
 		}
 	    }
@@ -72,7 +74,17 @@ public class ShowPageIT {
 	
 	Assert.assertEquals(result, "https://passport.yandex.ru/auth?retpath=https%3A%2F%2Foauth.yandex.ru%2Fauthorize%3Fclient_id%3D45f708d998054dd29dfc73c7e33c664d%26display%3Dpopup%26response_type%3Dtoken%26state%3D%25D0%25B7%25D0%25B0%25D0%25BF%25D1%2580%25D0%25BE%25D1%25812");
     }
-    
+//    
+//    @Test
+//    public void runinFx(){
+//	Application.launch(Example.class, (String) null);
+//	
+//         
+//    }
    
+    
+    
 
 }
+
+
