@@ -29,12 +29,14 @@ import ua.andxbes.util.QueryString;
 /**
  *
  * @author Andr
+ * only for  this package
  */
 class Query {
 
     private String response;
     private int code;
-    private static  String token = Token.instance().toString();
+    //Secret code ;)
+    private static final  String token = Token.instance().toString();
 
     final static String GET = "GET",
 	    POST = "POST",

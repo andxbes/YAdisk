@@ -11,8 +11,8 @@
          minHeight="-Infinity" minWidth="-Infinity" 
          prefHeight="400.0" prefWidth="578.0" 
          tabClosingPolicy="UNAVAILABLE" 
-         xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" 
-         fx:controller="ua.andxbes.UI.UIController" >
+         xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" >
+<!--         fx:controller="ua.andxbes.UI.UIController" >-->
   <tabs>
     <Tab text="Status">
          <content>

@@ -1,7 +1,10 @@
 package ua.andxbes.UI;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.HPos;
@@ -45,9 +48,6 @@ public class ShowPage extends Application {
     public class WebViewPanel extends Pane {
 
 	public WebViewPanel() {
-
-
-
 	    setMaxWidth(Double.MAX_VALUE);
 	    setMaxHeight(Double.MAX_VALUE);
 	    WebView view = new WebView();
@@ -100,7 +100,25 @@ public class ShowPage extends Application {
 
     public static String run(ConrolShowPanel c) {
 	cont = c;
-	launch();
+	 //launch();
+	try{
+	    launch();
+	}catch(IllegalStateException ex){
+	     ShowPage s = new ShowPage();
+	  
+		System.out.println("alternative");
+		Platform.runLater(()->
+		{
+		    try {
+			s.start(new Stage());
+		    } catch (Exception ex1) {
+			Logger.getLogger(ShowPage.class.getName()).log(Level.SEVERE, null, ex1);
+		    }
+		}
+		);
+	   
+	}
+	
 	return cont.getUrl();
     }
 //============================================================================================================

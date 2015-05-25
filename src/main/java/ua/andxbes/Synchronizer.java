@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -32,7 +33,7 @@ import ua.andxbes.query.YaDisk;
  *
  * @author Andr
  */
-public class Synchronizer {
+public class Synchronizer extends Observable {
 
     private final Logger log = Logger.getLogger(this.getClass().getName());
     private final ExecutorService threads = Executors.newCachedThreadPool();//TODO не особо и нужен , заменить 
@@ -46,6 +47,7 @@ public class Synchronizer {
     private YaDisk remoteDisk;
     private final String pathToFilesStory = "./filesStory";
     private LocalDisk localDisk;
+    private volatile int inAll;
 
     public Synchronizer() {
 	this("./Ya-disk");
@@ -57,13 +59,14 @@ public class Synchronizer {
      */
     public Synchronizer(String localePathToRootDir) {
 
+	//TODO если больше 1  потокa  ,то непредсказуемо ведет себя YaDisk , нужно синхронизировать 
 	threadOfTasks = Executors.newFixedThreadPool(1);
 	listofTasks = Collections.synchronizedList(new LinkedList<>());
 
 	localePathToRootDir = checkCorrect(localePathToRootDir);
 	LocalDisk.setRootDir(localePathToRootDir);
 	localDisk = new LocalDisk();
-	remoteDisk =new  YaDisk();
+	remoteDisk = new YaDisk();
 	exResource = loadStoryOfFiles();
     }
 
@@ -81,26 +84,33 @@ public class Synchronizer {
 	localTreeMap = fLocalTreeMap.get();
     }
 
-    public void sync() throws InterruptedException, ExecutionException {
-	compareDisks();
-	runTasks();
-	saveStoryOfFiles();
+    public void sync() {
+	try {
+	    compareDisks();
+	    runTasks(); 
+	} catch (InterruptedException | ExecutionException ex) {
+	    Logger.getLogger(Synchronizer.class.getName()).log(Level.SEVERE, null, ex);
+	}
+
     }
 
     private void runTasks() throws InterruptedException {
+	inAll = listofTasks.size();
 	for (Runnable listofTask : listofTasks) {
-	    threadOfTasks.submit(listofTask);
+	     threadOfTasks.submit(listofTask);
 	}
+	
 
     }
 
     /**
      * Necessarity to close at the end of work
+     *
      * @throws InterruptedException
      */
     public void close() {
 	threadOfTasks.shutdown();
-	while(!threadOfTasks.isTerminated()){
+	while (!threadOfTasks.isTerminated()) {
 	    log.log(Level.INFO, "task  = {0}", listofTasks.size());
 	    try {
 		Thread.sleep(500);
@@ -108,6 +118,7 @@ public class Synchronizer {
 		Logger.getLogger(Synchronizer.class.getName()).log(Level.SEVERE, null, ex);
 	    }
 	}
+	saveStoryOfFiles();
     }
 
 //============================== logic =========================================
@@ -238,6 +249,7 @@ public class Synchronizer {
 		}
 		//delete this task when completed
 		listofTasks.remove(this);
+		deleteTask();
 	    }
 	});
 
@@ -253,9 +265,25 @@ public class Synchronizer {
 		fromDisk.deleteFolderOrFile(path);
 		//delete this task when completed
 		listofTasks.remove(this);
+		deleteTask();
 	    }
 	});
 
+    }
+
+    private void deleteTask() {
+	//send  to the  observers
+	
+		setChanged();
+	        double part = part(inAll, listofTasks.size());
+	
+	        notifyObservers(part);
+	
+    }
+
+    private double part(double max, double current) {
+	double result  = (1.0 - (current / max));
+	return result;
     }
 
     //============================ serealisation =====================================

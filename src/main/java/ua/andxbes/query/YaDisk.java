@@ -40,18 +40,10 @@ import ua.andxbes.fieldsForQuery.Path;
  */
 public class YaDisk implements ua.andxbes.DiskForAll {
 
-    protected final Logger log = Logger.getLogger(this.getClass().getName());
+    private final Logger log = Logger.getLogger(this.getClass().getName());
 
     static final String baseUrl = "https://cloud-api.yandex.net:443";
    
-   // private final Query query;
-
-   
-
-//    public YaDisk() {
-//	query = new Query();
-//    }
-
     /**
      * Checking <b> fields <\b> for the presence of specific types
      *

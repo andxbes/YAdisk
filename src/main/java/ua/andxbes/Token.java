@@ -48,7 +48,14 @@ public final class Token {
 
 		Logger.getLogger(Token.class.getName()).log(Level.INFO, "Dont load file. Query token from " + urlForReceivingToken, ex);
 		token = new Token();
-		token.queryToken();
+		Thread thread = new Thread(()->
+			token.queryToken());
+		thread.start();
+		try {
+		    thread.join();
+		} catch (InterruptedException ex1) {
+		    Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null, ex1);
+		}
 	    }
 
 	}
