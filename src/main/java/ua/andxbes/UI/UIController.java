@@ -80,9 +80,10 @@ public class UIController implements Initializable, Observer {
 	//TODO	получать обрабатываемый документ 
 	Platform.runLater(() -> {
 	    Double d = (Double) arg;
+	    Synchronizer s = (Synchronizer) o;
 	    System.out.println("Вызывается update " + d);
 	    progressBar.setProgress(d);
-	    textFieldOperation.setText("part" + d);
+	    textFieldOperation.setText(s.getStatus());
 	});
     }
 

@@ -40,6 +40,7 @@ public class Synchronizer extends Observable {
 
     private ExecutorService threadOfTasks;
     private final List<Runnable> listofTasks;
+    private volatile String sb ;
 
     private Map<String, List<Resource>> localTreeMap;
     private Map<String, List<Resource>> remoteTreeMap;
@@ -58,7 +59,7 @@ public class Synchronizer extends Observable {
      * @param localePathToRootDir Like as './rootFolder'
      */
     public Synchronizer(String localePathToRootDir) {
-
+         
 	//TODO если больше 1  потокa  ,то непредсказуемо ведет себя YaDisk , нужно синхронизировать 
 	threadOfTasks = Executors.newFixedThreadPool(1);
 	listofTasks = Collections.synchronizedList(new LinkedList<>());
@@ -239,6 +240,7 @@ public class Synchronizer extends Observable {
 	    @Override
 	    public void run() {
 		String aPath = actual.getPath();
+		sb = aPath;
 		exResource.put(aPath, actual.getMd5());
 		log.log(Level.INFO, "copy {0}{1}", new Object[]{aPath, actual});
 		try {
@@ -260,6 +262,7 @@ public class Synchronizer extends Observable {
 
 	    @Override
 	    public void run() {
+		sb = path;
 		exResource.remove(path);
 		log.log(Level.INFO, "delete {0}", new Object[]{path});
 		fromDisk.deleteFolderOrFile(path);
@@ -334,4 +337,8 @@ public class Synchronizer extends Observable {
     }
 //==============================================================================
 
+    
+    public String  getStatus(){
+       return sb;
+    }
 }

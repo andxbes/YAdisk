@@ -5,7 +5,6 @@
  */
 package ua.andxbes.UI;
 
-import javafx.application.Application;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -39,11 +38,11 @@ public class UIIT {
     /**
      * Test of start method, of class UI.
      */
-   // @Test
-    public void testStart() throws Exception {
-	Application.launch(UI.class);
-	
-    }
+//    @Test
+//    public void testStart() throws Exception {
+//	Application.launch(UI.class);
+//	
+//    }
     
     
 }
