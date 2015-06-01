@@ -301,7 +301,7 @@ public class YaDiskIT {
 	log.info(sb.toString());
     }
     
-    @Test
+    //@Test
     public void writeTest(){
         String writS = "/wwq/Новый текстовый документ (2).txt";   
 	yaDisk.write(writS, Channels.newChannel(new ByteArrayInputStream(writS.getBytes())));

@@ -99,24 +99,28 @@ public class ShowPage extends Application {
 
     public static String run(ConrolShowPanel c) {
 	cont = c;
-	//launch();
+	
 	try {
 	    launch();
 	} catch (IllegalStateException ex) {
 	    ShowPage s = new ShowPage();
 
-	   new Thread(()->{
-	    Platform.runLater(() -> {
-		try {
-		     System.out.println("alternative");
+	   new Thread(new Runnable() {
 
-		    s.start(new Stage());
-		} catch (Exception ex1) {
-		    Logger.getLogger(ShowPage.class.getName()).log(Level.SEVERE, null, ex1);
-		}
+		public void run() {
+		    Platform.runLater(new Runnable() {
 
-	    });
-	   }).start();
+			public void run() {
+			    try {
+				System.out.println("alternative");
+				
+				s.start(new Stage());
+			    } catch (Exception ex1) {
+				Logger.getLogger(ShowPage.class.getName()).log(Level.SEVERE, null, ex1);
+			    }
+			}
+		    });	}
+	    }).start();
 
 	}
 

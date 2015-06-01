@@ -56,34 +56,33 @@ public class UIController implements Initializable, Observer {
     @FXML
     private void clickStatusBar(Event event) {
 	progressBar.setProgress(0);
-//	ShowPage sp = new ShowPage();
-//	try {
-//	    sp.start(new Stage());
-//	} catch (Exception ex) {
-//	    Logger.getLogger(UIController.class.getName()).log(Level.SEVERE, null, ex);
-//	}
-	new Thread(() -> synchronizer.sync()).start();
+
+	new Thread(new Runnable() {
+
+	    public void run() {
+		synchronizer.sync();
+	    }
+	}).start();
 
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-	//TODO
 
-      //  progressBar.setProgress(0.5);
-//	textFieldPathToLocalFolder.setText("OLOLOLOLO");
-//	textFieldOperation.setText("TROLOLO");
     }
 
     @Override
     public synchronized void update(Observable o, Object arg) {
 	//TODO	получать обрабатываемый документ 
-	Platform.runLater(() -> {
-	    Double d = (Double) arg;
-	    Synchronizer s = (Synchronizer) o;
-	    System.out.println("Вызывается update " + d);
-	    progressBar.setProgress(d);
-	    textFieldOperation.setText(s.getStatus());
+	Platform.runLater(new Runnable() {
+
+	    public void run() {
+		Double d = (Double) arg;
+		Synchronizer s = (Synchronizer) o;
+		
+		progressBar.setProgress(d);
+		textFieldOperation.setText(s.getStatus());
+	    }
 	});
     }
 

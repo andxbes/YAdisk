@@ -19,6 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -79,8 +80,16 @@ public class Synchronizer extends Observable {
     }
 
     public void buildTree() throws InterruptedException, ExecutionException {
-	Future<Map<String, List<Resource>>> fRemoteTreeMap = threads.submit(() -> remoteDisk.getResource());
-	Future<Map<String, List<Resource>>> fLocalTreeMap = threads.submit(() -> localDisk.getResource());
+	Future<Map<String, List<Resource>>> fRemoteTreeMap = threads.submit(new Callable<Map<String, List<Resource>>>() {
+	    public Map<String, List<Resource>> call() {
+		return remoteDisk.getResource();
+	    }
+	});
+	Future<Map<String, List<Resource>>> fLocalTreeMap = threads.submit(new Callable<Map<String, List<Resource>>>() {
+	    public Map<String, List<Resource>> call() {
+		return localDisk.getResource();
+	    }
+	});
 	remoteTreeMap = fRemoteTreeMap.get();
 	localTreeMap = fLocalTreeMap.get();
     }
@@ -107,7 +116,6 @@ public class Synchronizer extends Observable {
     /**
      * Necessarity to close at the end of work
      *
-     * @throws InterruptedException
      */
     public void close() {
 	threadOfTasks.shutdown();
