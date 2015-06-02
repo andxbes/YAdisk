@@ -58,7 +58,7 @@ task wrapper(type: Wrapper) {
 task customJar(type: Jar){
          manifest{
             attributes 'Main-Class': mainclass
-            attributes 'Class-Path': 'gson-2.3.1.jar'
+            attributes 'Class-Path': 'lib/gson-2.3.1.jar'
          }
          archiveName = 'YaDisk.jar'
          destinationDir = file("${buildDir}/jars")

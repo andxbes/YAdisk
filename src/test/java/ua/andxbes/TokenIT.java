@@ -5,11 +5,12 @@
  */
 package ua.andxbes;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -18,11 +19,12 @@ import org.junit.Test;
  *
  * @author Andr
  */
-public class TokenIT {
+public class TokenIT extends Application {
+
     private Token instance;
     
     public TokenIT() {
-	instance = Token.instance();
+	//instance = Token.getinstance();
     }
     
     @BeforeClass
@@ -40,25 +42,30 @@ public class TokenIT {
     @After
     public void tearDown() {
     }
-    
-    @Test
-    public void getToken(){
-          Assert.assertTrue(instance.toString(), instance != null);
-    }
-    
+
+//    @Test
+//    public void getToken(){
+//          Assert.assertTrue(getinstance.toString(), getinstance != null);
+//    }
     @Test
     public void token() {
 	
-	Logger.getLogger(TokenIT.class.getName()).log(Level.INFO, instance.toString() );
-	 try {
-	      Assert.assertTrue(instance.toString()!= null);
-	 } catch (RuntimeException e) {
-	     Assert.fail(e.toString());
-	 }
-
+	Application.launch(this.getClass());
+        
     }
     
- 
-   
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+	primaryStage.setScene(new Scene(new Pane(), 400, 400));
+        primaryStage.show();
+	Thread t  = new Thread(()->{
+	Token inToken = Token.getinstance();
+	    System.out.println(inToken.toString());
+	});
+	t.start();
+	t.join();
+	primaryStage.close();
+	
+    }
     
 }

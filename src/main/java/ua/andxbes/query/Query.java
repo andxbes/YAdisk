@@ -36,7 +36,15 @@ class Query {
     private String response;
     private int code;
     //Secret code ;)
-    private static final  String token = Token.instance().toString();
+    private  static   String token ;
+
+    public Query() {
+	if(token == null || token.isEmpty()){
+	    token =  Token.getinstance().toString();
+	}
+    }
+    
+    
 
     final static String GET = "GET",
 	    POST = "POST",

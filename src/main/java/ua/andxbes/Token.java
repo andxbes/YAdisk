@@ -24,40 +24,44 @@ import ua.andxbes.util.SecuritySettings;
  * @author Andr
  */
 public final class Token {
+   
+
+    private final  Logger log = Logger.getLogger(this.getClass().getName());
 
     // "код" и "адрес приложения"  зарегестрированные на яндекс диске.
     public final static String SOFTWARE_ID = "45f708d998054dd29dfc73c7e33c664d",
 	    CALLBACK_URL = "http://ya.ru/";
 
-    public static final String urlForReceivingToken = "https://oauth.yandex.ru/authorize",
-	    fileSave = "./save.token";
+    public final static  String urlForReceivingToken = "https://oauth.yandex.ru/authorize",
+	    NAME_FILE = "./save.token";
 
-    private String access_token = null;
+    private volatile static  String access_token = null;
     private long endTimeToken = 0;
 
-    private static Token token;
+    
 
-    public static Token instance() {
-	if (token == null) {
+    public static Token getinstance() {
+	return ConToken.TOKEN;
+    }
 
+   
+    private static class ConToken{
+        public static final Token TOKEN = new Token();
+    }
+
+    public Token() {
 	    try {
 		Logger.getLogger(Token.class.getName()).log(Level.INFO, "LoadFile");
 		loadFieldFromFile();
 
 	    } catch (FileNotFoundException ex) {
-
 		Logger.getLogger(Token.class.getName()).log(Level.INFO, "Dont load file. Query token from " + urlForReceivingToken, ex);
-		token = new Token();
-		token.queryToken();
+		queryToken();
 	    }
 
-	}
-
-	return token;
+	
     }
-
-    private Token() {
-    }
+    
 
     /* 
      Запрос кода подтверждения
@@ -95,32 +99,32 @@ public final class Token {
 		.add("display", "popup")
 		.add("state", "((: give me token :))");
 	String url = Token.urlForReceivingToken + "?" + queryString.toString();
-        
-	String endUrl = ShowPage.run(new ShowPage.ConrolShowPanel(url) {
+
+	 ShowPage.run(new ShowPage.ConrolShowPanel(url) {
 
 	    @Override
 	    public void variabelMethodForChangedPage(String curentUrl, Stage stage) {
-		 System.out.println("in variable methods " + curentUrl);
+		System.out.println("in variable methods " + curentUrl);
 		if (CALLBACK_URL.equals(curentUrl.split("#")[0])) {
-		    stage.close();
 		    
+		    System.out.println("парсим " + curentUrl);
+		    Map<String, String> result = queryString.parseURL(curentUrl);
+		    System.out.println("отпарсили");
+		    extractFieldfromMap(result);
+		    System.out.println("сохраняем ");
+		    saveFieldinFile();
+		    stage.close();
 		}
 	    }
 	});
-
-	Map<String, String> result = queryString.parseURL(endUrl);
-
-	extractFieldfromMap(result);
-	saveFieldinFile();
 
     }
 
     private void saveFieldinFile() {
 	Gson gson = new Gson();
-	String json = gson.toJson(this);
-
-	try (FileWriter fw = new FileWriter(new File(fileSave));) {
-
+	String json = gson.toJson(access_token);
+	System.out.println("save file" + NAME_FILE);
+	try (FileWriter fw = new FileWriter(new File(NAME_FILE));) {
 	    fw.write(SecuritySettings.encrypt(json));
 
 	} catch (IOException ex) {
@@ -131,7 +135,7 @@ public final class Token {
 
     private static void loadFieldFromFile() throws FileNotFoundException {
 	StringBuilder json = new StringBuilder();
-	FileReader fr = new FileReader(new File(fileSave));
+	FileReader fr = new FileReader(new File(NAME_FILE));
 	BufferedReader br = new BufferedReader(fr);
 
 	try {
@@ -147,13 +151,10 @@ public final class Token {
 	    } catch (IOException ex) {
 		Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null, ex);
 	    }
-
 	}
-
 	Gson gson = new Gson();
-
 	try {
-	    token = gson.fromJson(SecuritySettings.decrypt(json.toString()), Token.class);
+	    access_token = gson.fromJson(SecuritySettings.decrypt(json.toString()), String.class);
 	} catch (IOException ex) {
 	    Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null, ex);
 	}
